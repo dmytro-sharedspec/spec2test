@@ -1,4 +1,4 @@
-package dev.spec2test.spec2junit.annotation;
+package dev.spec2test.feature2junit;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,13 +6,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Target(ElementType.TYPE)
-@Retention(RetentionPolicy.SOURCE)
-public @interface Spec2JTest {
+@Retention(RetentionPolicy.RUNTIME)
+public @interface FeatureFilePath {
 
     /**
-     * path to feature file
+     * @return  the path to the feature file based on which the test was generated.
      */
     String value();
-
-//    String featureFilePath();
 }

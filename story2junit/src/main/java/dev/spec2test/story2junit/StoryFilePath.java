@@ -1,4 +1,4 @@
-package dev.spec2test.spec2junit.annotation;
+package dev.spec2test.story2junit;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

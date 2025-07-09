@@ -1,8 +1,8 @@
-package dev.spec2test.spec2junit.generator;
+package dev.spec2test.story2junit.generator;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
-import dev.spec2test.spec2junit.annotation.Spec2JTest;
+import dev.spec2test.story2junit.Story2JUnit;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
@@ -14,10 +14,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Set;
 
-@SupportedAnnotationTypes("dev.spec2test.spec2junit.annotation.Spec2JTest")
+@SupportedAnnotationTypes("dev.spec2test.story2junit.Story2JUnit")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(Processor.class)
-public class Spec2JTestGenerator extends AbstractProcessor {
+public class Story2JUnitGenerator extends AbstractProcessor {
 
 //    private CustomRegexStoryParser storyParser = new CustomRegexStoryParser();
 
@@ -29,7 +29,7 @@ public class Spec2JTestGenerator extends AbstractProcessor {
         for (TypeElement annotation : annotations) {
 
             String annotationName = annotation.getQualifiedName().toString();
-            if (!annotationName.equals(Spec2JTest.class.getName())) {
+            if (!annotationName.equals(Story2JUnit.class.getName())) {
                 /**
                  * not our target annotation
                  */
@@ -41,7 +41,7 @@ public class Spec2JTestGenerator extends AbstractProcessor {
 
                 message("annotatedElement.simpleName = " + annotatedElement.getSimpleName());
 
-                Spec2JTest targetAnnotation = annotatedElement.getAnnotation(Spec2JTest.class);
+                Story2JUnit targetAnnotation = annotatedElement.getAnnotation(Story2JUnit.class);
                 if (targetAnnotation == null) {
                     continue; // shouldn't really happen
                 }

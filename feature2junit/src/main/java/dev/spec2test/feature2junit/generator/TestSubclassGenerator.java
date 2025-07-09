@@ -1,15 +1,14 @@
-package dev.spec2test.spec2junit.generator;
+package dev.spec2test.feature2junit.generator;
 
 import com.squareup.javapoet.*;
-import dev.spec2test.spec2junit.annotation.FeatureFilePath;
-import dev.spec2test.spec2junit.annotation.Spec2JTest;
-import dev.spec2test.spec2junit.parser.story.CustomRegexStoryParser;
+import dev.spec2test.common.fileutils.AptMessageUtils;
+import dev.spec2test.feature2junit.Feature2JUnit;
+import dev.spec2test.feature2junit.FeatureFilePath;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import io.cucumber.messages.types.*;
 import org.apache.commons.lang3.StringUtils;
-import org.jbehave.core.annotations.Given;
-import org.jbehave.core.annotations.Then;
-import org.jbehave.core.annotations.When;
-import org.jbehave.core.model.Scenario;
-import org.jbehave.core.model.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +16,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.processing.Generated;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
-import javax.tools.Diagnostic;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,25 +32,28 @@ class TestSubclassGenerator {
         this.processingEnv = processingEnv;
     }
 
-    JavaFile createTestSubclass(Element annotatedElement, Spec2JTest targetAnnotation) throws IOException {
+    JavaFile createTestSubclass(Element annotatedElement, Feature2JUnit targetAnnotation) throws IOException {
+
+        AptMessageUtils.message("Creating a test subclass... ", processingEnv);
 
         String featureFilePath = targetAnnotation.value();
 
-        CustomRegexStoryParser storyParser = new CustomRegexStoryParser(processingEnv, processingEnv);
-        Story story = storyParser.parseUsingStoryPath(featureFilePath);
+        CustomGherkinParser gherkinParser = new CustomGherkinParser(processingEnv, processingEnv);
+
+        Feature feature = gherkinParser.parseUsingPath(featureFilePath);
 
         TypeElement typeElement = (TypeElement) annotatedElement;
 
         Element enclosingElement = typeElement.getEnclosingElement();
         PackageElement packageElement = enclosingElement instanceof PackageElement ? (PackageElement) enclosingElement : null;
-        message("package = " + packageElement.getQualifiedName());
+        AptMessageUtils.message("package = " + packageElement.getQualifiedName(), processingEnv);
         String packageName = packageElement.getQualifiedName().toString();
 
         TypeSpec typeSpec;
         try {
-            typeSpec = generateClass(typeElement, featureFilePath, story);
+            typeSpec = generateClass(typeElement, featureFilePath, feature);
         } catch (Throwable t) {
-            messageError("An error occurred while generating test subclass for " + typeElement.getSimpleName() + ": " + t.getMessage());
+            AptMessageUtils.messageError("An error occurred while generating test subclass for " + typeElement.getSimpleName() + ": " + t.getMessage(), processingEnv);
             throw new RuntimeException("An error occurred while generating test subclass for " + typeElement.getSimpleName(), t);
         }
 
@@ -64,7 +65,7 @@ class TestSubclassGenerator {
         return javaFile;
     }
 
-    private TypeSpec generateClass(TypeElement baseClassElement, String featureFilePath, Story story) {
+    private TypeSpec generateClass(TypeElement baseClassElement, String featureFilePath, Feature feature) {
 
         Name baseClassName = baseClassElement.getSimpleName();
         String subclassSimpleName = baseClassName + "Scenarios";
@@ -74,29 +75,86 @@ class TestSubclassGenerator {
                 .superclass(baseClassElement.asType())
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT);
 
-        AnnotationSpec generatedAnnotation = AnnotationSpec
-                .builder(Generated.class)
-                .addMember("value", "\"" + Spec2JTestGenerator.class.getName() + "\"")
-                .build();
-        classBuilder.addAnnotation(generatedAnnotation);
-
         AnnotationSpec featureFilePathAnnotation = AnnotationSpec
                 .builder(FeatureFilePath.class)
                 .addMember("value", "\"" + featureFilePath + "\"")
                 .build();
         classBuilder.addAnnotation(featureFilePathAnnotation);
+
+        AnnotationSpec generatedAnnotation = AnnotationSpec
+                .builder(Generated.class)
+                .addMember("value", "\"" + Feature2JUnitGenerator.class.getName() + "\"")
+                .build();
+        classBuilder.addAnnotation(generatedAnnotation);
+
 //        builder.addField(FieldSpec.builder(TypeName.INT, "myField", Modifier.PRIVATE).build());
 
+        List<FeatureChild> children = feature.getChildren();
 
-        List<Scenario> scenarios = story.getScenarios();
-        for (int i = 0; i < scenarios.size(); i++) {
+        int featureRuleCount = 0;
+        int featureScenarioCount = 0;
+        for (FeatureChild child : children) {
 
-            Scenario scenario = scenarios.get(i);
-            processScenario(i, scenario, classBuilder);
+            if (child.getRule().isPresent()) {
+                // Process rule
+                featureRuleCount++;
+                Rule rule = child.getRule().get();
+                processRule(featureRuleCount, rule, classBuilder);
+//                ScenarioToMethodConverter.processScenario(child.getScenario(), classBuilder);
+            } else if (child.getScenario().isPresent()) {
+                // Process feature scenario
+                Scenario scenario = child.getScenario().get();
+                featureScenarioCount++;
+                processScenario(featureScenarioCount, scenario, classBuilder);
+            } else {
+                throw new IllegalArgumentException("Unsupported feature child type: " + child);
+            }
+
         }
 
         TypeSpec test = classBuilder.build();
         return test;
+    }
+
+    private void processRule(int featureRuleCount, Rule rule, TypeSpec.Builder classBuilder) {
+
+        String ruleName = rule.getName();
+        AptMessageUtils.message("Processing rule: " + ruleName, processingEnv);
+
+        List<RuleChild> children = rule.getChildren();
+
+        int ruleScenarioCount = 0;
+
+        for (RuleChild child : children) {
+
+            if (child.getScenario().isPresent()) {
+
+                Scenario scenario = child.getScenario().get();
+
+
+
+            } else {
+                throw new IllegalArgumentException("Unsupported rule child type: " + child);
+            }
+        }
+
+//        List<Scenario> scenarios = (List<Scenario>) children;
+//
+//        if (scenarios.isEmpty()) {
+//            AptMessageUtils.message("Rule '" + ruleName + "' has no scenarios", processingEnv);
+//            return;
+//        }
+//
+//        AnnotationSpec displayNameAnnotation = AnnotationSpec
+//                .builder(DisplayName.class)
+//                .addMember("value", "\"Rule: " + ruleName + "\"")
+//                .build();
+//        classBuilder.addAnnotation(displayNameAnnotation);
+//
+//        for (int i = 0; i < scenarios.size(); i++) {
+//            Scenario scenario = scenarios.get(i);
+//            processScenario(i, scenario, classBuilder);
+//        }
     }
 
     private static Pattern parameterPattern = Pattern.compile("(?<parameter>\"(.+?)\")");
@@ -105,14 +163,15 @@ class TestSubclassGenerator {
 
         List<MethodSpec> allMethodSpecs = subclassBuilder.methodSpecs;
 
-        List<String> scenarioSteps = scenario.getSteps(true);
+        List<Step> scenarioSteps = scenario.getSteps();
+
         List<MethodSpec> scenarioStepsMethodSpecs = new ArrayList<>(scenarioSteps.size());
 
         MethodSpec.Builder scenarioMethodBuilder;
         {
             AnnotationSpec displayNameAnnotation = AnnotationSpec
                     .builder(DisplayName.class)
-                    .addMember("value", "\"Scenario: " + scenario.getTitle() + "\"")
+                    .addMember("value", "\"Scenario: " + scenario.getName() + "\"")
                     .build();
             AnnotationSpec testAnnotation = AnnotationSpec
                     .builder(Test.class)
@@ -125,9 +184,10 @@ class TestSubclassGenerator {
                     .addModifiers(Modifier.PUBLIC);
         }
 
-        for (String scenarioStep : scenarioSteps) {
+        for (Step scenarioStep : scenarioSteps) {
 
-            String[] lines = scenarioStep.split("\\n");
+            String stepText = scenarioStep.getKeyword() + " " + scenarioStep.getText();
+            String[] lines = stepText.split("\\n");
             String stepFirstLine = lines[0].trim();
 
             List<String> parameterValues = new ArrayList<>();
@@ -222,7 +282,7 @@ class TestSubclassGenerator {
             String[] words = annotationValueWithMarkers.split("\\s+");
             String[] stepTitleWords = Arrays.copyOfRange(words, 1, words.length); // trim the keyword
             String stepAnnotationValueTrimmed = StringUtils.join(stepTitleWords, " ");
-            annotationSpecBuilder.addMember("value", "\"" + stepAnnotationValueTrimmed + "\"", args);
+            annotationSpecBuilder.addMember("value", "\"" + stepAnnotationValueTrimmed + "\"", (Object[]) args);
             AnnotationSpec annotationSpec = annotationSpecBuilder.build();
 
             MethodSpec.Builder stepMethodBuilder = MethodSpec
@@ -277,7 +337,7 @@ class TestSubclassGenerator {
             }
             String parameterValuesPart = parameterValuesSB.toString();
 
-            CodeBlock codeBlock = CodeBlock.of(methodNameWithPlaceholders + "(" + parameterValuesPart + ")", formatArgs);
+            CodeBlock codeBlock = CodeBlock.of(methodNameWithPlaceholders + "(" + parameterValuesPart + ")", (Object[]) formatArgs);
 
             scenarioMethodBuilder.addStatement(codeBlock);
 //            scenarioMethodBuilder
@@ -356,17 +416,4 @@ class TestSubclassGenerator {
         return sanitizedMethodName;
     }
 
-    private void message(String message) {
-
-//        System.out.println("### " + message);
-        processingEnv.getMessager().printMessage(
-                Diagnostic.Kind.MANDATORY_WARNING, "### " + message);
-    }
-
-    private void messageError(String message) {
-
-//        System.out.println("### " + message);
-        processingEnv.getMessager().printMessage(
-                Diagnostic.Kind.ERROR, "### " + message);
-    }
 }
