@@ -10,7 +10,7 @@ public class AptFileUtils {
     public static String loadFileContent(String featureFilePath, ProcessingEnvironment processingEnv) {
 
         AptMessageUtils.message("featureFilePath = " + featureFilePath, processingEnv);
-        String fullFeatureFilePath = "src/test/resources/" + featureFilePath;
+//        String fullFeatureFilePath = "src/test/resources/" + featureFilePath;
 
         String featureContent;
 

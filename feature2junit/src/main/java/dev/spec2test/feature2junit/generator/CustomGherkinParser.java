@@ -7,6 +7,9 @@ import io.cucumber.messages.types.Envelope;
 import io.cucumber.messages.types.Feature;
 import io.cucumber.messages.types.GherkinDocument;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import javax.annotation.processing.ProcessingEnvironment;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -30,15 +33,20 @@ class CustomGherkinParser {
 
         String fileContent = AptFileUtils.loadFileContent(featureFilePath, processingEnv);
 
+        InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes(StandardCharsets.UTF_8));
 //        Path path = Paths.get(fullFeatureFilePath);
-        Path path = Paths.get("src/test/resources/" + featureFilePath);
+//        Path path = Paths.get("src/test/resources/" + featureFilePath);
 
         Stream<Envelope> envelopeStream;
         try {
-            envelopeStream = gherkinParser.parse(path);
+//            envelopeStream = gherkinParser.parse(path);
+
+            envelopeStream = gherkinParser.parse(featureFilePath, inputStream);
+
             AptMessageUtils.message("Envelope stream created successfully ", processingEnv);
 
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             AptMessageUtils.messageError(e.getMessage(), processingEnv);
             throw new RuntimeException(e);
         }
@@ -57,7 +65,6 @@ class CustomGherkinParser {
         Feature feature = gherkinDocument.getFeature().orElseThrow();
         return feature;
     }
-
 
 //    public Story parseStory(String storyAsText) {
 //
