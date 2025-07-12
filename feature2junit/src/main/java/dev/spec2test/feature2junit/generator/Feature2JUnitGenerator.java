@@ -68,7 +68,7 @@ public class Feature2JUnitGenerator extends AbstractProcessor {
                 try {
                     subclassFile = filer.createSourceFile(subclassFullyQualifiedName);
                 } catch (IOException e) {
-                    throw new RuntimeException("An error occurred while attempting to create subclass file with a name - '" + subclassFullyQualifiedName + "'", e);
+                    throw new RuntimeException("An error occurred while attempting to create subclass file with a name - '" + subclassFullyQualifiedName + "', reason - " + e.getMessage(), e);
                 }
 
                 try (PrintWriter out = new PrintWriter(subclassFile.openWriter())) {
