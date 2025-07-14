@@ -7,7 +7,10 @@ import com.squareup.javapoet.ParameterSpec;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.cucumber.messages.types.DataTable;
 import io.cucumber.messages.types.Step;
+import io.cucumber.messages.types.TableCell;
+import io.cucumber.messages.types.TableRow;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,14 +33,14 @@ public class StepProcessor {
     }
 
     public static MethodSpec processStep(
-            Step scenarioStep, MethodSpec.Builder scenarioMethodBuilder,
+            Step step, MethodSpec.Builder scenarioMethodBuilder,
             List<MethodSpec> scenarioStepsMethodSpecs) {
 
         // feature file location
-        long stepLine = scenarioStep.getLocation().getLine();
+        long stepLine = step.getLocation().getLine();
 
         // use only the first line of the step text
-        String stepText = scenarioStep.getKeyword() + " " + scenarioStep.getText();
+        String stepText = step.getKeyword() + " " + step.getText();
         String[] lines = stepText.trim().split("\\n");
         String stepFirstLine = lines[0].trim();
 
@@ -66,8 +69,17 @@ public class StepProcessor {
             stepMethodBuilder.addParameter(parameterSpec);
         }
 
+        // check if step has a data table
+        if (step.getDataTable().isPresent()) {
+            String parameterName = "p" + (parameterValues.size()); // data table is the last parameter
+            ParameterSpec dataTableParameterSpec = ParameterSpec
+                    .builder(io.cucumber.datatable.DataTable.class, parameterName)
+                    .build();
+            stepMethodBuilder.addParameter(dataTableParameterSpec);
+        }
+
         // add a call to the step method in the scenario method
-        addACallToTheStepMethod(scenarioMethodBuilder, stepMethodName, parameterValues);
+        addACallToTheStepMethod(scenarioMethodBuilder, stepMethodName, parameterValues, step);
 
         MethodSpec stepMethodSpec = stepMethodBuilder.build();
         return stepMethodSpec;
@@ -76,7 +88,7 @@ public class StepProcessor {
     private static void addACallToTheStepMethod(
             MethodSpec.Builder scenarioMethodBuilder,
             String stepMethodName,
-            List<String> parameterValues) {
+            List<String> parameterValues, Step step) {
         /**
          * replace all occurrences of '$' with a '$L' placeholders and replace back with '$'
          */
@@ -114,12 +126,94 @@ public class StepProcessor {
             parameterValuesSB.append(parameterValue);
             parameterValuesSB.append("\"");
         }
-        String parameterValuesPart = parameterValuesSB.toString();
 
+        if (step.getDataTable().isPresent()) {
+
+            if (!parameterValues.isEmpty()) {
+                parameterValuesSB.append(", ");
+            }
+
+            DataTable dataTableMsg = step.getDataTable().get();
+            List<Integer> maxColumnLength = workOutMaxColumnLength(dataTableMsg);
+            String dataTableAsString = convertDataTableToString(dataTableMsg, maxColumnLength);
+
+            parameterValuesSB.append("createDataTable(");
+            parameterValuesSB.append("\"\"\"\n");
+            parameterValuesSB.append(dataTableAsString);
+//            parameterValuesSB.append("|column1|column2|\n");
+//            parameterValuesSB.append("|value1 |value2 |\n");
+            parameterValuesSB.append("\n\"\"\"");
+            parameterValuesSB.append(")");
+        }
+
+        String parameterValuesPart = parameterValuesSB.toString();
         CodeBlock codeBlock =
                 CodeBlock.of(methodNameWithPlaceholders + "(" + parameterValuesPart + ")", (Object[]) formatArgs);
 
         scenarioMethodBuilder.addStatement(codeBlock);
+    }
+
+    private static List<Integer> workOutMaxColumnLength(DataTable dataTableMsg) {
+
+        List<TableRow> rows = dataTableMsg.getRows();
+        List<Integer> maxColumnLength = new ArrayList<>();
+
+        for (TableRow row : rows) {
+            List<TableCell> cells = row.getCells();
+            for (int i = 0; i < cells.size(); i++) {
+
+                TableCell cellValue = cells.get(i);
+                String cellText = cellValue.getValue();
+
+                if (maxColumnLength.size() <= i) {
+                    maxColumnLength.add(cellText.length());
+                }
+                else {
+                    int currentMaxLength = maxColumnLength.get(i);
+                    if (cellText.length() > currentMaxLength) {
+                        maxColumnLength.set(i, cellText.length());
+                    }
+                }
+            }
+        }
+
+        return maxColumnLength;
+    }
+
+    private static String convertDataTableToString(DataTable dataTableMsg, List<Integer> maxColumnLength) {
+
+        StringBuilder sb = new StringBuilder();
+
+        List<TableRow> rows = dataTableMsg.getRows();
+
+        for (int i = 0; i < rows.size(); i++) {
+
+            TableRow row = rows.get(i);
+            List<TableCell> cells = row.getCells();
+
+            sb.append("|");
+
+            for (int columnIndex = 0; columnIndex < cells.size(); columnIndex++) {
+
+                TableCell cellValue = cells.get(columnIndex);
+                String value = cellValue.getValue();
+                sb.append(value);
+                boolean needToPad = columnIndex < maxColumnLength.size()
+                        && maxColumnLength.get(columnIndex) > value.length();
+                if (needToPad) {
+                    int paddingLength = maxColumnLength.get(columnIndex) - value.length();
+                    String padding = StringUtils.repeat(" ", paddingLength);
+                    sb.append(padding);
+                }
+                sb.append("|");
+            }
+
+            if (i < rows.size() - 1) {
+                sb.append("\n");
+            }
+        }
+
+        return sb.toString();
     }
 
     private static AnnotationSpec buildGWTAnnotation(
