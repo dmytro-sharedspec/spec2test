@@ -27,22 +27,19 @@ public class FeatureProcessor {
                 // Process background
                 AptMessageUtils.message("Processing background", processingEnv);
                 Background background = child.getBackground().get();
-                //List<Step> backgroundSteps = background.getSteps();
-                //if (backgroundSteps.isEmpty()) {
-                //    AptMessageUtils.message("Background has no steps", processingEnv);
-                //    continue;
-                //}
-                //for (Step step : backgroundSteps) {
-                //    String stepText = step.getKeyword() + " " + step.getText();
-                //    AptMessageUtils.message("Background step: " + stepText, processingEnv);
-                //}
+
+                AptMessageUtils.message("Processing background: " + background.getName(), processingEnv);
+                MethodSpec.Builder featureBackgroundMethodBuilder = BackgroundProcessor.processBackground(background, classBuilder);
+
+                MethodSpec backgroundMethod = featureBackgroundMethodBuilder.build();
+                classBuilder.addMethod(backgroundMethod);
             }
             else if (child.getRule().isPresent()) {
                 // Process rule
                 featureRuleCount++;
                 Rule rule = child.getRule().get();
                 AptMessageUtils.message("Processing rule: " + rule.getName(), processingEnv);
-                RuleProcessor.processRule(featureRuleCount, rule, classBuilder);
+                RuleProcessor.processRule(featureRuleCount, rule, classBuilder, processingEnv);
             }
             else if (child.getScenario().isPresent()) {
                 // Process feature scenario
