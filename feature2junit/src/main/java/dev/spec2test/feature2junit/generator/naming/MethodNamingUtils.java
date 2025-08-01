@@ -1,4 +1,4 @@
-package dev.spec2test.feature2junit.generator;
+package dev.spec2test.feature2junit.generator.naming;
 
 public class MethodNamingUtils {
 

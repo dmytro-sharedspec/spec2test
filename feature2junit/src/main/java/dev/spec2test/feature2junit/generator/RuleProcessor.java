@@ -10,6 +10,7 @@ import java.util.List;
 import javax.lang.model.element.Modifier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Order;
 
 public class RuleProcessor {
 
@@ -21,6 +22,12 @@ public class RuleProcessor {
                 .classBuilder("Rule_" + featureRuleCount)
                 //.addModifiers(Modifier.PUBLIC, Modifier.STATIC);
                 .addModifiers(Modifier.PUBLIC);
+
+        AnnotationSpec orderAnnotation = AnnotationSpec
+                .builder(Order.class)
+                .addMember("value", "" + ruleNumber)
+                .build();
+        nestedRuleClassBuilder.addAnnotation(orderAnnotation);
 
         /**
          * add {@link org.junit.jupiter.api.Nested} annotation
@@ -39,7 +46,7 @@ public class RuleProcessor {
 
         List<RuleChild> children = rule.getChildren();
 
-        int ruleScenarioCount = 0;
+        int ruleScenarioNumber = 0;
 
         for (RuleChild child : children) {
 
@@ -47,7 +54,9 @@ public class RuleProcessor {
 
                 Scenario scenario = child.getScenario().get();
 
-                MethodSpec.Builder scenarioMethodBuilder = ScenarioProcessor.processScenario(ruleScenarioCount++, scenario, classBuilder);
+                ruleScenarioNumber++;
+                MethodSpec.Builder scenarioMethodBuilder =
+                        ScenarioProcessor.processScenario(ruleScenarioNumber, scenario, classBuilder);
                 MethodSpec scenarioMethod = scenarioMethodBuilder.build();
                 nestedRuleClassBuilder.addMethod(scenarioMethod);
             }

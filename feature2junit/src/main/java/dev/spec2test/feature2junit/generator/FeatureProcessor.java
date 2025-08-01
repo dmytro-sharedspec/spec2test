@@ -1,5 +1,6 @@
 package dev.spec2test.feature2junit.generator;
 
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import dev.spec2test.common.fileutils.AptMessageUtils;
@@ -49,6 +50,12 @@ public class FeatureProcessor {
                 featureScenarioCount++;
                 MethodSpec.Builder scenarioMethodBuilder =
                         ScenarioProcessor.processScenario(featureScenarioCount, scenario, classBuilder);
+
+                List<MethodSpec> methodSpecs = classBuilder.methodSpecs;
+                boolean firstMethod = methodSpecs.isEmpty();
+                if (firstMethod) {
+                    scenarioMethodBuilder.addJavadoc(CodeBlock.of("bla bla bla"));
+                }
 
                 MethodSpec scenarioMethod = scenarioMethodBuilder.build();
                 classBuilder.addMethod(scenarioMethod);

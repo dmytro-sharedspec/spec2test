@@ -4,6 +4,8 @@ import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
+import dev.spec2test.feature2junit.generator.naming.MethodNamingUtils;
+import dev.spec2test.feature2junit.generator.tables.TableUtils;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -21,11 +23,13 @@ import org.apache.commons.lang3.StringUtils;
 
 public class StepProcessor {
 
-    //    private static Pattern parameterPattern = Pattern.compile("(?<parameter>(\"|\')(.+?)(\"|\'))");
-    private static Pattern parameterPattern = Pattern.compile("(?<parameter>(\")([^\"]+?)(\"))");
+    //        private static Pattern parameterPattern = Pattern.compile("(?<parameter>(\"|\')(.+?)(\"|\'))");
+    private static Pattern parameterPattern = Pattern.compile("(?<parameter>(\")(?<parameterValue>[^\"]+?)(\"))");
+
+//    private static Pattern scenarioParameterPattern = Pattern.compile("(?<parameter>(<)([^\s>])([^>]*?)(>))");
 
     private record MethodSignatureAttributes(
-            String gwtAnnotationValue,
+            String stepPattern,
             String methodName,
             List<String> parameterValues
     ) {
@@ -36,31 +40,50 @@ public class StepProcessor {
             Step step, MethodSpec.Builder scenarioMethodBuilder,
             List<MethodSpec> scenarioStepsMethodSpecs) {
 
-        // feature file location
+        return processStep(step, scenarioMethodBuilder, scenarioStepsMethodSpecs, null, null, null);
+    }
+
+    public static MethodSpec processStep(
+            Step step,
+            MethodSpec.Builder scenarioMethodBuilder,
+            List<MethodSpec> scenarioStepsMethodSpecs,
+            List<String> scenarioParameterNames,
+            List<String> testMethodParameterNames,
+            String javaDoc
+    ) {
+
         long stepLine = step.getLocation().getLine();
 
-        // use only the first line of the step text
+        /**
+         * use only the first line of the step text for creating a method name
+         */
         String stepText = step.getKeyword() + " " + step.getText();
         String[] lines = stepText.trim().split("\\n");
         String stepFirstLine = lines[0].trim();
 
-        // create potential new method to add to the test class
-        MethodSignatureAttributes stepMethodSignatureAttributes = extractMethodSignature(stepFirstLine);
+        /**
+         * create a potential new method to add to the test class
+         * it won't be actually added if a method with exactly the same signature already exists
+         */
+        MethodSignatureAttributes stepMethodSignatureAttributes = extractMethodSignature(stepFirstLine, scenarioParameterNames);
         String stepMethodName = stepMethodSignatureAttributes.methodName;
-        List<String> parameterValues = stepMethodSignatureAttributes.parameterValues;
-
         MethodSpec.Builder stepMethodBuilder = MethodSpec
                 .methodBuilder(stepMethodName)
                 .addModifiers(Modifier.PROTECTED, Modifier.ABSTRACT);
 
-        // add GWT annotation to our potential new method
+        if (javaDoc != null) {
+            stepMethodBuilder.addJavadoc(javaDoc);
+        }
+
         AnnotationSpec annotationSpec = buildGWTAnnotation(scenarioStepsMethodSpecs,
                 stepMethodName,
-                stepLine, parameterValues,
-                stepMethodSignatureAttributes
+                stepLine, stepMethodSignatureAttributes
         );
         stepMethodBuilder.addAnnotation(annotationSpec);
-
+        /**
+         * construct our method parameter
+         */
+        List<String> parameterValues = stepMethodSignatureAttributes.parameterValues;
         for (int j = 0; j < parameterValues.size(); j++) {
             String parameterName = "p" + (j + 1);
             ParameterSpec parameterSpec = ParameterSpec
@@ -68,7 +91,6 @@ public class StepProcessor {
                     .build();
             stepMethodBuilder.addParameter(parameterSpec);
         }
-
         // check if step has a data table
         if (step.getDataTable().isPresent()) {
             String parameterName = "p" + (parameterValues.size()); // data table is the last parameter
@@ -79,7 +101,12 @@ public class StepProcessor {
         }
 
         // add a call to the step method in the scenario method
-        addACallToTheStepMethod(scenarioMethodBuilder, stepMethodName, parameterValues, step);
+        addACallToTheStepMethod(scenarioMethodBuilder,
+                stepMethodName,
+                parameterValues,
+                step,
+                scenarioParameterNames,
+                testMethodParameterNames);
 
         MethodSpec stepMethodSpec = stepMethodBuilder.build();
         return stepMethodSpec;
@@ -88,7 +115,9 @@ public class StepProcessor {
     private static void addACallToTheStepMethod(
             MethodSpec.Builder scenarioMethodBuilder,
             String stepMethodName,
-            List<String> parameterValues, Step step) {
+            List<String> parameterValues, Step step,
+            List<String> scenarioParameterNames, List<String> testMethodParameterNames
+    ) {
         /**
          * replace all occurrences of '$' with a '$L' placeholders and replace back with '$'
          */
@@ -112,19 +141,34 @@ public class StepProcessor {
             methodNameWithPlaceholdersSB.append(afterDollarSign);
         }
         String methodNameWithPlaceholders = methodNameWithPlaceholdersSB.toString();
-        String[] formatArgs = new String[totalDollarSigns];
+        String[] formatArgs = new String[totalDollarSigns]; // todo - implement above replacement using regexp
         Arrays.fill(formatArgs, "$");
 
-        // construct parameter values
+        /**
+         * construct parameter values
+         */
         StringBuilder parameterValuesSB = new StringBuilder();
         for (int j = 0; j < parameterValues.size(); j++) {
             if (j > 0) {
                 parameterValuesSB.append(", ");
             }
-            parameterValuesSB.append("\"");
             String parameterValue = parameterValues.get(j);
-            parameterValuesSB.append(parameterValue);
-            parameterValuesSB.append("\"");
+            /**
+             * in case of scenario with Examples section we check if parameter value is actually a reference
+             * to a scenario parameter - if so, we replace it with the reference to the Scenario's test method parameter
+             */
+            String scenarioParameter = getScenarioParameter(parameterValue, scenarioParameterNames, testMethodParameterNames);
+            if (scenarioParameter != null) {
+                /**
+                 * no quote marks in this case as we are passing a reference to a Scenario test method parameter
+                 */
+                parameterValuesSB.append(scenarioParameter);
+            }
+            else {
+                parameterValuesSB.append("\"");
+                parameterValuesSB.append(parameterValue);
+                parameterValuesSB.append("\"");
+            }
         }
 
         if (step.getDataTable().isPresent()) {
@@ -134,8 +178,8 @@ public class StepProcessor {
             }
 
             DataTable dataTableMsg = step.getDataTable().get();
-            List<Integer> maxColumnLength = workOutMaxColumnLength(dataTableMsg);
-            String dataTableAsString = convertDataTableToString(dataTableMsg, maxColumnLength);
+            List<Integer> maxColumnLength = TableUtils.workOutMaxColumnLength(dataTableMsg);
+            String dataTableAsString = TableUtils.convertDataTableToString(dataTableMsg, maxColumnLength);
 
             parameterValuesSB.append("createDataTable(");
             parameterValuesSB.append("\"\"\"\n");
@@ -153,75 +197,33 @@ public class StepProcessor {
         scenarioMethodBuilder.addStatement(codeBlock);
     }
 
-    private static List<Integer> workOutMaxColumnLength(DataTable dataTableMsg) {
+    private static String getScenarioParameter(
+            String parameterValue, List<String> scenarioParameterNames, List<String> testMethodParameterNames) {
 
-        List<TableRow> rows = dataTableMsg.getRows();
-        List<Integer> maxColumnLength = new ArrayList<>();
+        if (scenarioParameterNames == null || scenarioParameterNames.isEmpty()) {
+            return null; // no scenario parameters defined
+        }
 
-        for (TableRow row : rows) {
-            List<TableCell> cells = row.getCells();
-            for (int i = 0; i < cells.size(); i++) {
+        if (parameterValue.startsWith("<") && parameterValue.endsWith(">") && parameterValue.length() > 2) {
 
-                TableCell cellValue = cells.get(i);
-                String cellText = cellValue.getValue();
-
-                if (maxColumnLength.size() <= i) {
-                    maxColumnLength.add(cellText.length());
-                }
-                else {
-                    int currentMaxLength = maxColumnLength.get(i);
-                    if (cellText.length() > currentMaxLength) {
-                        maxColumnLength.set(i, cellText.length());
-                    }
-                }
+            String valueWithoutBrackets = parameterValue.substring(1, parameterValue.length() - 1);
+            int indexOfParameterName = scenarioParameterNames.indexOf(valueWithoutBrackets);
+            if (indexOfParameterName > -1) {
+                return testMethodParameterNames.get(indexOfParameterName);
             }
         }
 
-        return maxColumnLength;
-    }
-
-    private static String convertDataTableToString(DataTable dataTableMsg, List<Integer> maxColumnLength) {
-
-        StringBuilder sb = new StringBuilder();
-
-        List<TableRow> rows = dataTableMsg.getRows();
-
-        for (int i = 0; i < rows.size(); i++) {
-
-            TableRow row = rows.get(i);
-            List<TableCell> cells = row.getCells();
-
-            sb.append("|");
-
-            for (int columnIndex = 0; columnIndex < cells.size(); columnIndex++) {
-
-                TableCell cellValue = cells.get(columnIndex);
-                String value = cellValue.getValue();
-                sb.append(value);
-                boolean needToPad = columnIndex < maxColumnLength.size()
-                        && maxColumnLength.get(columnIndex) > value.length();
-                if (needToPad) {
-                    int paddingLength = maxColumnLength.get(columnIndex) - value.length();
-                    String padding = StringUtils.repeat(" ", paddingLength);
-                    sb.append(padding);
-                }
-                sb.append("|");
-            }
-
-            if (i < rows.size() - 1) {
-                sb.append("\n");
-            }
-        }
-
-        return sb.toString();
+        return null; // not a scenario parameter
     }
 
     private static AnnotationSpec buildGWTAnnotation(
             List<MethodSpec> scenarioStepsMethodSpecs,
             String stepMethodName,
             long stepLine,
-            List<String> parameterValues,
             MethodSignatureAttributes signatureAttributes) {
+
+        List<String> parameterValues = signatureAttributes.parameterValues;
+
         AnnotationSpec.Builder annotationSpecBuilder;
         if (stepMethodName.startsWith("given")) {
             annotationSpecBuilder = AnnotationSpec.builder(Given.class);
@@ -276,29 +278,71 @@ public class StepProcessor {
                             + stepMethodName);
         }
 
+        String stepPattern = signatureAttributes.stepPattern;
+
         String[] args = new String[parameterValues.size()];
         for (int j = 0; j < parameterValues.size(); j++) {
             args[j] = "$p" + (j + 1);
         }
+        String stepPatternWithMarkers =
+                stepPattern.replaceAll("\s\\$p[0-9]{1,2}(\s|$)", " \\$L$1");
 
-        String annotationValueWithMarkers = signatureAttributes.gwtAnnotationValue;
-        String[] words = annotationValueWithMarkers.split("\\s+");
+        String[] words = stepPatternWithMarkers.split("\\s+");
         String[] stepTitleWords = Arrays.copyOfRange(words, 1, words.length); // trim the keyword
         String stepAnnotationValueTrimmed = StringUtils.join(stepTitleWords, " ");
+
         annotationSpecBuilder.addMember("value", "\"" + stepAnnotationValueTrimmed + "\"", (Object[]) args);
         AnnotationSpec annotationSpec = annotationSpecBuilder.build();
 
         return annotationSpec;
     }
 
-    private static MethodSignatureAttributes extractMethodSignature(String stepFirstLine) {
+    private static MethodSignatureAttributes extractMethodSignature(
+            String stepFirstLine,
+            List<String> scenarioParameterNames) {
 
-        StringBuilder gwtAnnotationValueSB = new StringBuilder();
-        StringBuilder methodNameSB = new StringBuilder();
+        List<String> parameterValues = new ArrayList<>();
+
+        String stepPattern = processWithParameterPattern(
+                stepFirstLine, parameterPattern, parameterValues);
+
+        if (scenarioParameterNames != null && !scenarioParameterNames.isEmpty()) {
+            // process scenario parameters
+            String paramsPatternPart = StringUtils.join(scenarioParameterNames, "|");
+            Pattern scenarioParametersPattern = Pattern.compile(
+//                    "(?<parameter>(<)([^\s>])([^>]*?)(>))"
+                    "(?<parameter>(?<parameterValue>(<)(" + paramsPatternPart + ")(>)))"
+            );
+            stepPattern = processWithParameterPattern(stepPattern,
+                    scenarioParametersPattern,
+                    parameterValues);
+        }
+
+        String stepMethodName = MethodNamingUtils.getStepMethodName(stepPattern);
+
+        MethodSignatureAttributes signatureAttributes = new MethodSignatureAttributes(
+                stepPattern,
+                stepMethodName,
+                parameterValues
+        );
+        return signatureAttributes;
+    }
+
+    private record AnnotationPatternAttributes(
+            String stepAnnotationPattern,
+            String gwtAnnotationValue
+    ) {
+
+    }
+
+    private static String processWithParameterPattern(
+            String stepFirstLine,
+            Pattern parameterPattern,
+            List<String> parameterValues) {
 
         int lastParameterEnd = 0;
 
-        List<String> parameterValues = new ArrayList<>();
+        StringBuilder stepAnnotationPatternSB = new StringBuilder();
 
         Matcher matcher = parameterPattern.matcher(stepFirstLine);
 
@@ -310,17 +354,16 @@ public class StepProcessor {
             int searchStartPos = lastParameterEnd;
             if (searchStartPos < parameterStart) {
                 String before = stepFirstLine.substring(searchStartPos, parameterStart);
-                gwtAnnotationValueSB.append(before);
-                methodNameSB.append(before);
+//                gwtAnnotationValueSB.append(before);
+                stepAnnotationPatternSB.append(before);
             }
 
-//                String parameterMarker = "$parameter" + parameterValues.size();
-            String parameterMarker = "$L";
-            gwtAnnotationValueSB.append(parameterMarker);
-            methodNameSB.append("$P" + (parameterValues.size() + 1));
+//            String parameterMarker = "$L";
+//            gwtAnnotationValueSB.append(parameterMarker);
+            stepAnnotationPatternSB.append("$p" + (parameterValues.size() + 1));
 
-            String parameterValue = matcher.group("parameter");
-            parameterValue = parameterValue.substring(1, parameterValue.length() - 1); // Remove the quotes
+            String parameterValue = matcher.group("parameterValue");
+//            parameterValue = parameterValue.substring(1, parameterValue.length() - 1); // Remove the quotes
 
             parameterValues.add(parameterValue);
 
@@ -330,19 +373,12 @@ public class StepProcessor {
         if (lastParameterEnd < stepFirstLine.length()) {
             // There is some text after the last parameter
             String after = stepFirstLine.substring(lastParameterEnd);
-            gwtAnnotationValueSB.append(after);
-            methodNameSB.append(after);
+//            gwtAnnotationValueSB.append(after);
+            stepAnnotationPatternSB.append(after);
         }
 
-        String firstLineWithParameterMarkersForMethodName = methodNameSB.toString();
-        String stepMethodName = MethodNamingUtils.getStepMethodName(firstLineWithParameterMarkersForMethodName);
-
-        MethodSignatureAttributes signatureAttributes = new MethodSignatureAttributes(
-                gwtAnnotationValueSB.toString(),
-                stepMethodName,
-                parameterValues
-        );
-        return signatureAttributes;
+        String stepAnnotationPattern = stepAnnotationPatternSB.toString();
+        return stepAnnotationPattern;
     }
 
 }
