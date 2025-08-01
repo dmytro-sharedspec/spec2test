@@ -13,5 +13,4 @@ public @interface Feature2JUnit {
      * Path to the feature file
      */
     String value();
-
 }
