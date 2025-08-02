@@ -1,7 +1,6 @@
 package dev.spec2test.feature2junit.generator;
 
 import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import dev.spec2test.feature2junit.generator.naming.ParameterNamingUtils;
@@ -15,7 +14,6 @@ import io.cucumber.messages.types.TableCell;
 import io.cucumber.messages.types.TableRow;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import javax.lang.model.element.Modifier;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.DisplayName;
@@ -39,20 +37,14 @@ public class ScenarioProcessor {
 //                .addParameter(TestInfo.class, "testInfo")
                 .addModifiers(Modifier.PUBLIC);
 
-        AnnotationSpec orderAnnotation = AnnotationSpec
-                .builder(Order.class)
-                .addMember("value", "" + scenarioNumber)
-                .build();
-        scenarioMethodBuilder.addAnnotation(orderAnnotation);
-
         List<Examples> examples = scenario.getExamples();
         List<String> scenarioParameterNames;
         List<String> testMethodParameterNames;
 
         if (examples != null && !examples.isEmpty()) {
 
-            addDisplayNameAnnotation(scenarioMethodBuilder, scenario);
-
+//            addDisplayNameAnnotation(scenarioMethodBuilder, scenario);
+//            addOrderAnnotation(scenarioMethodBuilder, scenarioNumber);
             scenarioMethodBuilder.addComment("This scenario has examples: " + examples);
             scenarioParameterNames = addJUnitAnnotationsForParameterizedTest(scenarioMethodBuilder, scenario);
             testMethodParameterNames = new ArrayList<>(scenarioParameterNames.size());
@@ -64,12 +56,14 @@ public class ScenarioProcessor {
             }
         }
         else {
-            addJUnitAnnotationsForSingleTest(scenarioMethodBuilder, scenario);
             scenarioParameterNames = null;
             testMethodParameterNames = null;
 
-            addDisplayNameAnnotation(scenarioMethodBuilder, scenario);
+            addJUnitAnnotationsForSingleTest(scenarioMethodBuilder, scenario);
         }
+
+        addOrderAnnotation(scenarioMethodBuilder, scenarioNumber);
+        addDisplayNameAnnotation(scenarioMethodBuilder, scenario);
 
         for (Step scenarioStep : scenarioSteps) {
 
@@ -104,6 +98,15 @@ public class ScenarioProcessor {
                 .addMember("value", "\"Scenario: " + scenario.getName() + "\"")
                 .build();
         scenarioMethodBuilder.addAnnotation(displayNameAnnotation);
+    }
+
+    private static void addOrderAnnotation(MethodSpec.Builder scenarioMethodBuilder, int scenarioNumber) {
+
+        AnnotationSpec orderAnnotation = AnnotationSpec
+                .builder(Order.class)
+                .addMember("value", "" + scenarioNumber)
+                .build();
+        scenarioMethodBuilder.addAnnotation(orderAnnotation);
     }
 
     private static void addOrderAnnotation(MethodSpec.Builder scenarioMethodBuilder, Scenario scenario) {

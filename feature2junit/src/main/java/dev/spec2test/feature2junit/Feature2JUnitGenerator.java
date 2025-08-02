@@ -1,10 +1,10 @@
-package dev.spec2test.feature2junit.generator;
+package dev.spec2test.feature2junit;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
 import dev.spec2test.common.fileutils.AptMessageUtils;
-import dev.spec2test.feature2junit.Feature2JUnit;
 
+import dev.spec2test.feature2junit.generator.TestSubclassGenerator;
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;

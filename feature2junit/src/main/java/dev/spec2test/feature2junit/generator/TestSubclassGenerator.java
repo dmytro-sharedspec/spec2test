@@ -6,6 +6,7 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import dev.spec2test.common.fileutils.AptMessageUtils;
 import dev.spec2test.feature2junit.Feature2JUnit;
+import dev.spec2test.feature2junit.Feature2JUnitGenerator;
 import dev.spec2test.feature2junit.FeatureFilePath;
 import io.cucumber.messages.types.Feature;
 import java.io.IOException;
@@ -23,7 +24,7 @@ import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestMethodOrder;
 
 @NotThreadSafe
-class TestSubclassGenerator {
+public class TestSubclassGenerator {
 
     private final ProcessingEnvironment processingEnv;
 
@@ -31,7 +32,7 @@ class TestSubclassGenerator {
         this.processingEnv = processingEnv;
     }
 
-    JavaFile createTestSubclass(Element annotatedElement, Feature2JUnit targetAnnotation) throws IOException {
+    public JavaFile createTestSubclass(Element annotatedElement, Feature2JUnit targetAnnotation) throws IOException {
 
         AptMessageUtils.message("Creating a test subclass... ", processingEnv);
 
