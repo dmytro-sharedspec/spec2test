@@ -2,7 +2,6 @@ package dev.spec2test.feature2junit;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
-import dev.spec2test.feature2junit.generator.TestSubclassCreator;
 import java.io.PrintWriter;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
@@ -51,12 +50,12 @@ public class Feature2JUnitGenerator extends AbstractProcessor implements Message
                 Filer filer = processingEnv.getFiler();
                 Feature2JUnit targetAnnotation = annotatedClass.getAnnotation(Feature2JUnit.class);
                 String subclassFullyQualifiedName = annotatedClass.getQualifiedName() + suffixForGeneratedClass;
-                TestSubclassCreator subclassGenerator = new TestSubclassCreator(processingEnv, processingEnv);
+                TestSubclassCreator subclassGenerator = new TestSubclassCreator(processingEnv);
 
                 PrintWriter out = null;
                 try {
 
-                    JavaFile javaFile = subclassGenerator.createTestSubclass(annotatedElement, targetAnnotation);
+                    JavaFile javaFile = subclassGenerator.createTestSubclass(annotatedClass, targetAnnotation);
                     JavaFileObject subclassFile = filer.createSourceFile(subclassFullyQualifiedName);
 
                     out = new PrintWriter(subclassFile.openWriter());

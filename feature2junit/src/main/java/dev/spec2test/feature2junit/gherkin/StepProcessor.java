@@ -1,18 +1,16 @@
-package dev.spec2test.feature2junit.generator;
+package dev.spec2test.feature2junit.gherkin;
 
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
-import dev.spec2test.feature2junit.generator.naming.MethodNamingUtils;
-import dev.spec2test.feature2junit.generator.tables.TableUtils;
+import dev.spec2test.feature2junit.gherkin.naming.MethodNamingUtils;
+import dev.spec2test.feature2junit.gherkin.tables.TableUtils;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.cucumber.messages.types.DataTable;
 import io.cucumber.messages.types.Step;
-import io.cucumber.messages.types.TableCell;
-import io.cucumber.messages.types.TableRow;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

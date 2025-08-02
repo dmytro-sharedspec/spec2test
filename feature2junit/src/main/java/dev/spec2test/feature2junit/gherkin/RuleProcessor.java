@@ -1,4 +1,4 @@
-package dev.spec2test.feature2junit.generator;
+package dev.spec2test.feature2junit.gherkin;
 
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;

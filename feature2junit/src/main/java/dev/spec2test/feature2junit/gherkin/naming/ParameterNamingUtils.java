@@ -1,4 +1,4 @@
-package dev.spec2test.feature2junit.generator.naming;
+package dev.spec2test.feature2junit.gherkin.naming;
 
 public class ParameterNamingUtils {
 

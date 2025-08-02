@@ -1,10 +1,10 @@
-package dev.spec2test.feature2junit.generator;
+package dev.spec2test.feature2junit.gherkin;
 
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import dev.spec2test.feature2junit.generator.naming.ParameterNamingUtils;
-import dev.spec2test.feature2junit.generator.tables.TableUtils;
+import dev.spec2test.feature2junit.gherkin.naming.ParameterNamingUtils;
+import dev.spec2test.feature2junit.gherkin.tables.TableUtils;
 import io.cucumber.messages.types.DataTable;
 import io.cucumber.messages.types.Examples;
 import io.cucumber.messages.types.Location;

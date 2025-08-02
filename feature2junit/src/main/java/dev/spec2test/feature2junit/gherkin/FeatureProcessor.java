@@ -1,4 +1,4 @@
-package dev.spec2test.feature2junit.generator;
+package dev.spec2test.feature2junit.gherkin;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
@@ -14,7 +14,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 
 public class FeatureProcessor {
 
-    static void processFeature(Feature feature, TypeSpec.Builder classBuilder, ProcessingEnvironment processingEnv) {
+    public static void processFeature(Feature feature, TypeSpec.Builder classBuilder, ProcessingEnvironment processingEnv) {
 
         //String featureName = feature.getName();
         List<FeatureChild> children = feature.getChildren();

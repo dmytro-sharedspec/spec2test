@@ -1,4 +1,4 @@
-package dev.spec2test.feature2junit.generator.tables;
+package dev.spec2test.feature2junit.gherkin.tables;
 
 import io.cucumber.messages.types.DataTable;
 import io.cucumber.messages.types.TableCell;
