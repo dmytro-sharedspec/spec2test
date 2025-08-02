@@ -2,10 +2,12 @@ package dev.spec2test.feature2junit;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
-import dev.spec2test.feature2junit.generator.TestSubclassGenerator;
+import dev.spec2test.feature2junit.generator.TestSubclassCreator;
 import java.io.PrintWriter;
 import java.util.Set;
+import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -19,7 +21,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 @SupportedAnnotationTypes("dev.spec2test.feature2junit.Feature2JUnit")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(Processor.class)
-public class Feature2JUnitGenerator extends GeneratorBase {
+public class Feature2JUnitGenerator extends AbstractProcessor implements MessageSupport {
 
     private final String suffixForGeneratedClass = "Scenarios";
 
@@ -49,7 +51,7 @@ public class Feature2JUnitGenerator extends GeneratorBase {
                 Filer filer = processingEnv.getFiler();
                 Feature2JUnit targetAnnotation = annotatedClass.getAnnotation(Feature2JUnit.class);
                 String subclassFullyQualifiedName = annotatedClass.getQualifiedName() + suffixForGeneratedClass;
-                TestSubclassGenerator subclassGenerator = new TestSubclassGenerator(processingEnv, processingEnv);
+                TestSubclassCreator subclassGenerator = new TestSubclassCreator(processingEnv, processingEnv);
 
                 PrintWriter out = null;
                 try {
@@ -82,4 +84,8 @@ public class Feature2JUnitGenerator extends GeneratorBase {
         return true;
     }
 
+    @Override
+    public ProcessingEnvironment getProcessingEnv() {
+        return processingEnv;
+    }
 }

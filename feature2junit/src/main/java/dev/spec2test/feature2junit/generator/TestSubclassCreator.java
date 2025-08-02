@@ -24,11 +24,11 @@ import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestMethodOrder;
 
 @NotThreadSafe
-public class TestSubclassGenerator {
+public class TestSubclassCreator {
 
     private final ProcessingEnvironment processingEnv;
 
-    public TestSubclassGenerator(ProcessingEnvironment processingEnv, ProcessingEnvironment env) {
+    public TestSubclassCreator(ProcessingEnvironment processingEnv, ProcessingEnvironment env) {
         this.processingEnv = processingEnv;
     }
 
