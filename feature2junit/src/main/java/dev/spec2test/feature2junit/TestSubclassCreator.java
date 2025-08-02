@@ -2,11 +2,12 @@ package dev.spec2test.feature2junit;
 
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import dev.spec2test.common.MessageSupport;
 import dev.spec2test.common.ProcessingException;
-import dev.spec2test.feature2junit.gherkin.CustomGherkinParser;
+import dev.spec2test.feature2junit.gherkin.FeatureFileParser;
 import dev.spec2test.feature2junit.gherkin.FeatureProcessor;
 import io.cucumber.messages.types.Feature;
 import java.io.IOException;
@@ -33,7 +34,7 @@ public class TestSubclassCreator implements MessageSupport {
 
     public JavaFile createTestSubclass(TypeElement typeElement, Feature2JUnit targetAnnotation) throws IOException {
 
-        CustomGherkinParser gherkinParser = new CustomGherkinParser(processingEnv);
+        FeatureFileParser gherkinParser = new FeatureFileParser(processingEnv);
 
         String featureFilePath = targetAnnotation.value();
         Feature feature = gherkinParser.parseUsingPath(featureFilePath);
@@ -53,6 +54,11 @@ public class TestSubclassCreator implements MessageSupport {
                 .classBuilder(subclassSimpleName)
                 .superclass(typeElement.asType())
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                /**
+                 * javadoc
+                 */
+                .addJavadoc(CodeBlock.of(feature.getKeyword() + ": " + feature.getName()))
+                .addJavadoc(CodeBlock.of("\n" + feature.getDescription()))
                 /**
                  * {@link Generated} annotation
                  */

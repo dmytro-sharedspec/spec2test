@@ -42,7 +42,7 @@ public class ScenarioProcessor implements MessageSupport {
         String scenarioMethodName = "scenario_" + scenarioNumber;
         MethodSpec.Builder scenarioMethodBuilder = MethodSpec
                 .methodBuilder(scenarioMethodName)
-//                .addParameter(TestInfo.class, "testInfo")
+                //                .addParameter(TestInfo.class, "testInfo")
                 .addModifiers(Modifier.PUBLIC);
 
         List<Examples> examples = scenario.getExamples();
@@ -51,8 +51,6 @@ public class ScenarioProcessor implements MessageSupport {
 
         if (examples != null && !examples.isEmpty()) {
 
-//            addDisplayNameAnnotation(scenarioMethodBuilder, scenario);
-//            addOrderAnnotation(scenarioMethodBuilder, scenarioNumber);
             scenarioMethodBuilder.addComment("This scenario has examples: " + examples);
             scenarioParameterNames = addJUnitAnnotationsForParameterizedTest(scenarioMethodBuilder, scenario);
             testMethodParameterNames = new ArrayList<>(scenarioParameterNames.size());
@@ -165,9 +163,6 @@ public class ScenarioProcessor implements MessageSupport {
         StringBuilder textBlockSB = new StringBuilder();
         textBlockSB.append("\"\"\"\n");
 
-//        String dataTableAsString = TableUtils.convertDataTableToString(examplesDataTable, maxColumnLengths);
-//        textBlockSB.append(dataTableAsString);
-
         for (TableRow row : allRows) {
 
             List<TableCell> rowCells = row.getCells();
@@ -191,7 +186,6 @@ public class ScenarioProcessor implements MessageSupport {
 
         AnnotationSpec parameterizedTestAnnotation = AnnotationSpec
                 .builder(ParameterizedTest.class)
-//                .addMember("name", "\"Scenario: " + scenario.getName() + " [{arguments}]\"")
                 .addMember("name", "\"Example {index}: [{arguments}]\"")
                 .build();
         scenarioMethodBuilder
@@ -200,8 +194,6 @@ public class ScenarioProcessor implements MessageSupport {
         AnnotationSpec csvSourceAnnotation = AnnotationSpec
                 .builder(CsvSource.class)
                 .addMember("useHeadersInDisplayName", "true")
-//                .addMember("delimiterString", "\"|\"")
-//                delimiter = '|',
                 .addMember("delimiter", "'|'")
                 .addMember("textBlock", textBlock)
                 .build();
