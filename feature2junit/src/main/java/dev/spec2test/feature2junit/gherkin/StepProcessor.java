@@ -4,8 +4,9 @@ import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
-import dev.spec2test.feature2junit.gherkin.naming.MethodNamingUtils;
-import dev.spec2test.feature2junit.gherkin.tables.TableUtils;
+import dev.spec2test.feature2junit.MessageSupport;
+import dev.spec2test.feature2junit.gherkin.utils.MethodNamingUtils;
+import dev.spec2test.feature2junit.gherkin.utils.TableUtils;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -16,15 +17,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
-public class StepProcessor {
+@RequiredArgsConstructor
+public class StepProcessor implements MessageSupport {
+
+    @Getter
+    private final ProcessingEnvironment processingEnv;
 
     //        private static Pattern parameterPattern = Pattern.compile("(?<parameter>(\"|\')(.+?)(\"|\'))");
-    private static Pattern parameterPattern = Pattern.compile("(?<parameter>(\")(?<parameterValue>[^\"]+?)(\"))");
-
-//    private static Pattern scenarioParameterPattern = Pattern.compile("(?<parameter>(<)([^\s>])([^>]*?)(>))");
+    private static final Pattern parameterPattern = Pattern.compile("(?<parameter>(\")(?<parameterValue>[^\"]+?)(\"))");
 
     private record MethodSignatureAttributes(
             String stepPattern,
@@ -34,14 +40,14 @@ public class StepProcessor {
 
     }
 
-    public static MethodSpec processStep(
+    public MethodSpec processStep(
             Step step, MethodSpec.Builder scenarioMethodBuilder,
             List<MethodSpec> scenarioStepsMethodSpecs) {
 
         return processStep(step, scenarioMethodBuilder, scenarioStepsMethodSpecs, null, null, null);
     }
 
-    public static MethodSpec processStep(
+    public MethodSpec processStep(
             Step step,
             MethodSpec.Builder scenarioMethodBuilder,
             List<MethodSpec> scenarioStepsMethodSpecs,
@@ -110,7 +116,7 @@ public class StepProcessor {
         return stepMethodSpec;
     }
 
-    private static void addACallToTheStepMethod(
+    private void addACallToTheStepMethod(
             MethodSpec.Builder scenarioMethodBuilder,
             String stepMethodName,
             List<String> parameterValues, Step step,
@@ -195,7 +201,7 @@ public class StepProcessor {
         scenarioMethodBuilder.addStatement(codeBlock);
     }
 
-    private static String getScenarioParameter(
+    private String getScenarioParameter(
             String parameterValue, List<String> scenarioParameterNames, List<String> testMethodParameterNames) {
 
         if (scenarioParameterNames == null || scenarioParameterNames.isEmpty()) {
@@ -214,7 +220,7 @@ public class StepProcessor {
         return null; // not a scenario parameter
     }
 
-    private static AnnotationSpec buildGWTAnnotation(
+    private AnnotationSpec buildGWTAnnotation(
             List<MethodSpec> scenarioStepsMethodSpecs,
             String stepMethodName,
             long stepLine,
@@ -295,7 +301,7 @@ public class StepProcessor {
         return annotationSpec;
     }
 
-    private static MethodSignatureAttributes extractMethodSignature(
+    private MethodSignatureAttributes extractMethodSignature(
             String stepFirstLine,
             List<String> scenarioParameterNames) {
 
@@ -333,7 +339,7 @@ public class StepProcessor {
 
     }
 
-    private static String processWithParameterPattern(
+    private String processWithParameterPattern(
             String stepFirstLine,
             Pattern parameterPattern,
             List<String> parameterValues) {

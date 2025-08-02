@@ -3,8 +3,9 @@ package dev.spec2test.feature2junit.gherkin;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import dev.spec2test.feature2junit.gherkin.naming.ParameterNamingUtils;
-import dev.spec2test.feature2junit.gherkin.tables.TableUtils;
+import dev.spec2test.feature2junit.MessageSupport;
+import dev.spec2test.feature2junit.gherkin.utils.ParameterNamingUtils;
+import dev.spec2test.feature2junit.gherkin.utils.TableUtils;
 import io.cucumber.messages.types.DataTable;
 import io.cucumber.messages.types.Examples;
 import io.cucumber.messages.types.Location;
@@ -14,7 +15,10 @@ import io.cucumber.messages.types.TableCell;
 import io.cucumber.messages.types.TableRow;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Order;
@@ -22,9 +26,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-public class ScenarioProcessor {
+@RequiredArgsConstructor
+public class ScenarioProcessor implements MessageSupport {
 
-    static MethodSpec.Builder processScenario(int scenarioNumber, Scenario scenario, TypeSpec.Builder classBuilder) {
+    @Getter
+    private final ProcessingEnvironment processingEnv;
+
+    MethodSpec.Builder processScenario(int scenarioNumber, Scenario scenario, TypeSpec.Builder classBuilder) {
 
         List<MethodSpec> allMethodSpecs = classBuilder.methodSpecs;
 
@@ -70,7 +78,8 @@ public class ScenarioProcessor {
             List<MethodSpec> methodSpecs = classBuilder.methodSpecs;
             String javaDoc = methodSpecs.isEmpty() ? "First method javadoc comment" : null;
 
-            MethodSpec stepMethodSpec = StepProcessor.processStep(
+            StepProcessor stepProcessor = new StepProcessor(processingEnv);
+            MethodSpec stepMethodSpec = stepProcessor.processStep(
                     scenarioStep, scenarioMethodBuilder, scenarioStepsMethodSpecs,
                     scenarioParameterNames, testMethodParameterNames, javaDoc
             );
@@ -91,7 +100,7 @@ public class ScenarioProcessor {
         return scenarioMethodBuilder;
     }
 
-    private static void addDisplayNameAnnotation(MethodSpec.Builder scenarioMethodBuilder, Scenario scenario) {
+    private void addDisplayNameAnnotation(MethodSpec.Builder scenarioMethodBuilder, Scenario scenario) {
 
         AnnotationSpec displayNameAnnotation = AnnotationSpec
                 .builder(DisplayName.class)
@@ -100,7 +109,7 @@ public class ScenarioProcessor {
         scenarioMethodBuilder.addAnnotation(displayNameAnnotation);
     }
 
-    private static void addOrderAnnotation(MethodSpec.Builder scenarioMethodBuilder, int scenarioNumber) {
+    private void addOrderAnnotation(MethodSpec.Builder scenarioMethodBuilder, int scenarioNumber) {
 
         AnnotationSpec orderAnnotation = AnnotationSpec
                 .builder(Order.class)
@@ -109,7 +118,7 @@ public class ScenarioProcessor {
         scenarioMethodBuilder.addAnnotation(orderAnnotation);
     }
 
-    private static void addOrderAnnotation(MethodSpec.Builder scenarioMethodBuilder, Scenario scenario) {
+    private void addOrderAnnotation(MethodSpec.Builder scenarioMethodBuilder, Scenario scenario) {
 
         AnnotationSpec displayNameAnnotation = AnnotationSpec
                 .builder(DisplayName.class)
@@ -118,7 +127,7 @@ public class ScenarioProcessor {
         scenarioMethodBuilder.addAnnotation(displayNameAnnotation);
     }
 
-    private static void addJUnitAnnotationsForSingleTest(MethodSpec.Builder scenarioMethodBuilder, Scenario scenario) {
+    private void addJUnitAnnotationsForSingleTest(MethodSpec.Builder scenarioMethodBuilder, Scenario scenario) {
 
         AnnotationSpec testAnnotation = AnnotationSpec
                 .builder(Test.class)
@@ -126,7 +135,7 @@ public class ScenarioProcessor {
         scenarioMethodBuilder.addAnnotation(testAnnotation);
     }
 
-    private static List<String> addJUnitAnnotationsForParameterizedTest(
+    private List<String> addJUnitAnnotationsForParameterizedTest(
             MethodSpec.Builder scenarioMethodBuilder,
             Scenario scenario) {
 

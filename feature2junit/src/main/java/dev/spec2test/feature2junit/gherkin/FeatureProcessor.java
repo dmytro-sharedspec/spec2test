@@ -1,9 +1,7 @@
 package dev.spec2test.feature2junit.gherkin;
 
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import dev.spec2test.common.fileutils.AptMessageUtils;
 import dev.spec2test.feature2junit.MessageSupport;
 import dev.spec2test.feature2junit.ProcessingException;
 import io.cucumber.messages.types.Background;
@@ -44,24 +42,18 @@ public class FeatureProcessor implements MessageSupport {
                 classBuilder.addMethod(backgroundMethod);
             }
             else if (child.getRule().isPresent()) {
-                // Process rule
+
                 featureRuleCount++;
                 Rule rule = child.getRule().get();
-                AptMessageUtils.message("Processing rule: " + rule.getName(), processingEnv);
-                RuleProcessor.processRule(featureRuleCount, rule, classBuilder, processingEnv);
+                RuleProcessor ruleProcessor = new RuleProcessor(processingEnv);
+                ruleProcessor.processRule(featureRuleCount, rule, classBuilder);
             }
             else if (child.getScenario().isPresent()) {
-                // Process feature scenario
+
                 Scenario scenario = child.getScenario().get();
                 featureScenarioCount++;
-                MethodSpec.Builder scenarioMethodBuilder =
-                        ScenarioProcessor.processScenario(featureScenarioCount, scenario, classBuilder);
-
-                List<MethodSpec> methodSpecs = classBuilder.methodSpecs;
-                boolean firstMethod = methodSpecs.isEmpty();
-                if (firstMethod) {
-                    scenarioMethodBuilder.addJavadoc(CodeBlock.of("bla bla bla"));
-                }
+                ScenarioProcessor scenarioProcessor = new ScenarioProcessor(processingEnv);
+                MethodSpec.Builder scenarioMethodBuilder = scenarioProcessor.processScenario(featureScenarioCount, scenario, classBuilder);
 
                 MethodSpec scenarioMethod = scenarioMethodBuilder.build();
                 classBuilder.addMethod(scenarioMethod);

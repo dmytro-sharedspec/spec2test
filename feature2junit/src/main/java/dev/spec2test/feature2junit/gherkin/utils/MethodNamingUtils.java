@@ -1,12 +1,12 @@
-package dev.spec2test.feature2junit.gherkin.naming;
+package dev.spec2test.feature2junit.gherkin.utils;
 
-public class ParameterNamingUtils {
+public class MethodNamingUtils {
 
-    public static String toMethodParameterName(String scenarioParameter) {
+    public static String getStepMethodName(String stepFirstLine) {
 
-        StringBuilder parameterNameBuilder = new StringBuilder();
+        StringBuilder methodNameBuilder = new StringBuilder();
 
-        String[] words = scenarioParameter.split("\\s+");
+        String[] words = stepFirstLine.split("\\s+");
         for (int i = 0; i < words.length; i++) {
 
             String word = words[i];
@@ -19,7 +19,7 @@ public class ParameterNamingUtils {
                     // nothing added yet - so check if char is suitable as a starting char
                     if (Character.isJavaIdentifierStart(c)) {
                         char wordFirstChar;
-                        if (parameterNameBuilder.length() == 0) {
+                        if (methodNameBuilder.length() == 0) {
                             // first word in method name - so use lower case
                             wordFirstChar = Character.toLowerCase(c);
                         } else {
@@ -45,11 +45,11 @@ public class ParameterNamingUtils {
             }
 
             String sanitizedWord = sanitizedWordBuilder.toString();
-            parameterNameBuilder.append(sanitizedWord);
+            methodNameBuilder.append(sanitizedWord);
 
         }
 
-        String sanitizedMethodName = parameterNameBuilder.toString();
+        String sanitizedMethodName = methodNameBuilder.toString();
         return sanitizedMethodName;
     }
 }

@@ -54,8 +54,8 @@ public class BackgroundProcessor implements MessageSupport {
 
         for (Step scenarioStep : backgroundSteps) {
 
-            MethodSpec stepMethodSpec =
-                    StepProcessor.processStep(scenarioStep, featureBackgroundMethodBuilder, backgroundStepsMethodSpecs);
+            StepProcessor stepProcessor = new StepProcessor(processingEnv);
+            MethodSpec stepMethodSpec = stepProcessor.processStep(scenarioStep, featureBackgroundMethodBuilder, backgroundStepsMethodSpecs);
             backgroundStepsMethodSpecs.add(stepMethodSpec);
 
             String stepMethodName = stepMethodSpec.name;
@@ -73,7 +73,7 @@ public class BackgroundProcessor implements MessageSupport {
         return featureBackgroundMethodBuilder;
     }
 
-    private static void addJUnitAnnotations(MethodSpec.Builder scenarioMethodBuilder, Background background) {
+    private void addJUnitAnnotations(MethodSpec.Builder scenarioMethodBuilder, Background background) {
 
         AnnotationSpec displayNameAnnotation = AnnotationSpec
                 .builder(DisplayName.class)
