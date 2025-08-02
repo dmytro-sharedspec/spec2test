@@ -4,6 +4,7 @@ import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import dev.spec2test.common.MessageSupport;
+import dev.spec2test.common.ProcessingException;
 import io.cucumber.messages.types.Background;
 import io.cucumber.messages.types.Rule;
 import io.cucumber.messages.types.RuleChild;
@@ -80,7 +81,7 @@ public class RuleProcessor implements MessageSupport {
                 nestedRuleClassBuilder.addMethod(backgroundMethod);
             }
             else {
-                throw new IllegalArgumentException("Unsupported rule child type: " + child);
+                throw new ProcessingException("Unsupported rule child type: " + child);
             }
         }
 

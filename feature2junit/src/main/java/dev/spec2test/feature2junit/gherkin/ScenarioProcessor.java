@@ -4,6 +4,7 @@ import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import dev.spec2test.common.MessageSupport;
+import dev.spec2test.common.ProcessingException;
 import dev.spec2test.feature2junit.gherkin.utils.ParameterNamingUtils;
 import dev.spec2test.feature2junit.gherkin.utils.TableUtils;
 import io.cucumber.messages.types.DataTable;
@@ -139,7 +140,7 @@ public class ScenarioProcessor implements MessageSupport {
 
         List<Examples> examples = scenario.getExamples();
         if (examples.size() > 1) {
-            throw new IllegalArgumentException(
+            throw new ProcessingException(
                     "Having more than 1 Examples section for a Scenario Outline is not currently supported, total examples "
                             + examples.size());
         }

@@ -5,6 +5,7 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import dev.spec2test.common.MessageSupport;
+import dev.spec2test.common.ProcessingException;
 import dev.spec2test.feature2junit.gherkin.utils.MethodNamingUtils;
 import dev.spec2test.feature2junit.gherkin.utils.TableUtils;
 import io.cucumber.java.en.Given;
@@ -241,7 +242,7 @@ public class StepProcessor implements MessageSupport {
         else if (stepMethodName.startsWith("and") || stepMethodName.startsWith("but")) {
             // 'And' is a special case, which is worked out using previous non And step keyword
             if (scenarioStepsMethodSpecs.isEmpty()) {
-                throw new IllegalArgumentException(
+                throw new ProcessingException(
                         "Step on line - " + stepLine
                                 + " starts with 'And', but there are no previous scenario steps defined");
             }
@@ -268,7 +269,7 @@ public class StepProcessor implements MessageSupport {
                 }
             }
             if (gwtAnnotation == null) {
-                throw new IllegalArgumentException(
+                throw new ProcessingException(
                         "Step on line - " + stepLine
                                 + " starts with 'And', but there are no previous scenario steps defined that have a step annotation");
             }
@@ -277,7 +278,7 @@ public class StepProcessor implements MessageSupport {
 
         }
         else {
-            throw new IllegalArgumentException(
+            throw new ProcessingException(
                     "Step method name does not start with a valid keyword (Given, When, Then, And): "
                             + stepMethodName);
         }
