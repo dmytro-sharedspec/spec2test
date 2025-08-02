@@ -1,7 +1,6 @@
 package io.cucumber.gherkin;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -14,6 +13,8 @@ import static java.util.Objects.requireNonNull;
  * The default dialect is "en" (English).
  */
 public class GherkinDialectProvider {
+
+    public static Set<String> additionalFeatureKeywords;
 
     private final String defaultDialectName;
     private GherkinDialect defaultDialect;
@@ -49,10 +50,10 @@ public class GherkinDialectProvider {
     private static GherkinDialect extendGherkinDialect(GherkinDialect gherkinDialect) {
 
         List<String> featureKeywords = gherkinDialect.getFeatureKeywords();
-        if (!featureKeywords.contains("Narrative")) {
-            List<String> extendedFeatureKeywords = new ArrayList<>(featureKeywords);
-            extendedFeatureKeywords.add(0, "Narrative");
-            featureKeywords = Collections.unmodifiableList(extendedFeatureKeywords);
+        if (additionalFeatureKeywords != null) {
+            Set<String> extendedFeatureKeywords = new LinkedHashSet<>(additionalFeatureKeywords);
+            extendedFeatureKeywords.addAll(featureKeywords);
+            featureKeywords = extendedFeatureKeywords.stream().toList();
         }
 
         GherkinDialect extendedDialect = new GherkinDialect(

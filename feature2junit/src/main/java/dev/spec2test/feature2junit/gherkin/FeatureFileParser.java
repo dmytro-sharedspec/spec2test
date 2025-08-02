@@ -2,6 +2,7 @@ package dev.spec2test.feature2junit.gherkin;
 
 import dev.spec2test.common.MessageSupport;
 import dev.spec2test.common.ProcessingException;
+import io.cucumber.gherkin.GherkinDialectProvider;
 import io.cucumber.gherkin.GherkinParser;
 import io.cucumber.messages.types.Envelope;
 import io.cucumber.messages.types.Feature;
@@ -10,6 +11,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.FileObject;
@@ -27,10 +30,6 @@ public class FeatureFileParser implements MessageSupport {
 
         this.processingEnv = processingEnv;
 
-//        GherkinDialect gherkinDialect = GherkinDialect.builder()
-//                .defaultDialect("en")
-//                .build();
-
         gherkinParser = GherkinParser.builder().includePickles(false).build();
     }
 
@@ -38,6 +37,8 @@ public class FeatureFileParser implements MessageSupport {
 
         String fileContent = loadFileContent(featureFilePath);
         InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes(StandardCharsets.UTF_8));
+
+        GherkinDialectProvider.additionalFeatureKeywords = Set.of("Narrative");
 
         Stream<Envelope> envelopeStream = gherkinParser.parse(featureFilePath, inputStream);
 
