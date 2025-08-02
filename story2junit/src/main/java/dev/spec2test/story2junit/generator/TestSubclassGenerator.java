@@ -6,7 +6,7 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeSpec;
-import dev.spec2test.common.MessageSupport;
+import dev.spec2test.common.LoggingSupport;
 import dev.spec2test.story2junit.Story2JUnit;
 import dev.spec2test.story2junit.StoryFilePath;
 import java.io.IOException;
@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test;
 
 @RequiredArgsConstructor
 @NotThreadSafe
-class TestSubclassGenerator implements MessageSupport {
+class TestSubclassGenerator implements LoggingSupport {
 
     @Getter
     private final ProcessingEnvironment processingEnv;

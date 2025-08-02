@@ -2,7 +2,7 @@ package dev.spec2test.feature2junit;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
-import dev.spec2test.common.MessageSupport;
+import dev.spec2test.common.LoggingSupport;
 import java.io.PrintWriter;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
@@ -21,7 +21,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 @SupportedAnnotationTypes("dev.spec2test.feature2junit.Feature2JUnit")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(Processor.class)
-public class Feature2JUnitGenerator extends AbstractProcessor implements MessageSupport {
+public class Feature2JUnitGenerator extends AbstractProcessor implements LoggingSupport {
 
     private final String suffixForGeneratedClass = "Scenarios";
 

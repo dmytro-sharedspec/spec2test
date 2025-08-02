@@ -3,7 +3,7 @@ package dev.spec2test.feature2junit.gherkin;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import dev.spec2test.common.MessageSupport;
+import dev.spec2test.common.LoggingSupport;
 import dev.spec2test.common.ProcessingException;
 import io.cucumber.messages.types.Background;
 import io.cucumber.messages.types.Rule;
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 
 @RequiredArgsConstructor
-public class RuleProcessor implements MessageSupport {
+public class RuleProcessor implements LoggingSupport {
 
     @Getter
     private final ProcessingEnvironment processingEnv;

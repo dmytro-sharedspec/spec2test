@@ -3,7 +3,7 @@ package dev.spec2test.feature2junit.gherkin;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import dev.spec2test.common.MessageSupport;
+import dev.spec2test.common.LoggingSupport;
 import io.cucumber.messages.types.Background;
 import io.cucumber.messages.types.Step;
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestInfo;
 
 @RequiredArgsConstructor
-public class BackgroundProcessor implements MessageSupport {
+public class BackgroundProcessor implements LoggingSupport {
 
     @Getter
     private final ProcessingEnvironment processingEnv;

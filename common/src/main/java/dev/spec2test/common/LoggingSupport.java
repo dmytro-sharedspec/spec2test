@@ -3,7 +3,7 @@ package dev.spec2test.common;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.Diagnostic;
 
-public interface MessageSupport  {
+public interface LoggingSupport {
 
     default void logError(String message) {
 

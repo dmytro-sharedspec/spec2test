@@ -1,6 +1,6 @@
 package dev.spec2test.feature2junit.gherkin;
 
-import dev.spec2test.common.MessageSupport;
+import dev.spec2test.common.LoggingSupport;
 import dev.spec2test.common.ProcessingException;
 import io.cucumber.gherkin.GherkinDialectProvider;
 import io.cucumber.gherkin.GherkinParser;
@@ -11,7 +11,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -19,7 +18,7 @@ import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 import lombok.Getter;
 
-public class FeatureFileParser implements MessageSupport {
+public class FeatureFileParser implements LoggingSupport {
 
     @Getter
     private final ProcessingEnvironment processingEnv;

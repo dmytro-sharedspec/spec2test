@@ -2,7 +2,7 @@ package dev.spec2test.feature2junit.gherkin;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import dev.spec2test.common.MessageSupport;
+import dev.spec2test.common.LoggingSupport;
 import dev.spec2test.common.ProcessingException;
 import io.cucumber.messages.types.Background;
 import io.cucumber.messages.types.Feature;
@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @NotThreadSafe
-public class FeatureProcessor implements MessageSupport {
+public class FeatureProcessor implements LoggingSupport {
 
     @Getter
     private final ProcessingEnvironment processingEnv;

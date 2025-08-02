@@ -1,6 +1,6 @@
 package dev.spec2test.story2junit.generator;
 
-import dev.spec2test.common.MessageSupport;
+import dev.spec2test.common.LoggingSupport;
 import java.io.IOException;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.FileObject;
@@ -11,7 +11,7 @@ import org.jbehave.core.model.Story;
 import org.jbehave.core.parsers.RegexStoryParser;
 
 @RequiredArgsConstructor
-class CustomRegexStoryParser extends RegexStoryParser implements MessageSupport {
+class CustomRegexStoryParser extends RegexStoryParser implements LoggingSupport {
 
     @Getter
     private final ProcessingEnvironment processingEnv;
