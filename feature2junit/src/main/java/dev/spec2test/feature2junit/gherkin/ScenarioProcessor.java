@@ -192,7 +192,7 @@ public class ScenarioProcessor implements MessageSupport {
         AnnotationSpec parameterizedTestAnnotation = AnnotationSpec
                 .builder(ParameterizedTest.class)
 //                .addMember("name", "\"Scenario: " + scenario.getName() + " [{arguments}]\"")
-                .addMember("name", "\"Example: [{arguments}]\"")
+                .addMember("name", "\"Example {index}: [{arguments}]\"")
                 .build();
         scenarioMethodBuilder
                 .addAnnotation(parameterizedTestAnnotation);

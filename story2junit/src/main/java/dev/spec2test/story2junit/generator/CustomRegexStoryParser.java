@@ -1,8 +1,10 @@
 package dev.spec2test.story2junit.generator;
 
 import dev.spec2test.common.MessageSupport;
-import dev.spec2test.common.fileutils.AptFileUtils;
+import java.io.IOException;
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.FileObject;
+import javax.tools.StandardLocation;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jbehave.core.model.Story;
@@ -19,27 +21,22 @@ class CustomRegexStoryParser extends RegexStoryParser implements MessageSupport 
         this.processingEnv = processingEnv;
     }
 
-    public Story parseUsingStoryPath(String storyPath) {
+    public Story parseUsingStoryPath(String storyPath) throws IOException {
 
-        String fileContent = AptFileUtils.loadFileContent(storyPath, processingEnv);
+        String fileContent = loadFileContent(storyPath);
 
-        Story story = parseStory(fileContent);
+        Story story = super.parseStory(fileContent);
         return story;
     }
 
-    @Override
-    public Story parseStory(String storyAsText) {
+    private String loadFileContent(String filePath) throws IOException {
 
-        try {
+        // works from IDE & maven lifecycle build goal
+        FileObject specFile = processingEnv.getFiler().getResource(StandardLocation.CLASS_PATH, "", filePath);
+        CharSequence charContent = specFile.getCharContent(false);
 
-            // Assuming the parseStory method is defined in CustomRegexStoryParser
-            Story story = super.parseStory(storyAsText);
-            // Do something with the parsed story
-            return story;
-        } catch (Throwable e) {
-            logError("Error parsing story:\n" + e.getMessage(), processingEnv);
-            throw e;
-        }
+        String fileContent = charContent.toString();
+        return fileContent;
     }
 
 }

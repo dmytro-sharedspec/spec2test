@@ -1,6 +1,5 @@
 package dev.spec2test.feature2junit.gherkin;
 
-import dev.spec2test.common.fileutils.AptFileUtils;
 import dev.spec2test.common.MessageSupport;
 import io.cucumber.gherkin.GherkinParser;
 import io.cucumber.messages.types.Envelope;
@@ -12,9 +11,13 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.FileObject;
+import javax.tools.StandardLocation;
+import lombok.Getter;
 
 public class CustomGherkinParser implements MessageSupport {
 
+    @Getter
     private final ProcessingEnvironment processingEnv;
 
     private GherkinParser gherkinParser;
@@ -28,7 +31,7 @@ public class CustomGherkinParser implements MessageSupport {
 
     public Feature parseUsingPath(String featureFilePath) throws IOException {
 
-        String fileContent = AptFileUtils.loadFileContent(featureFilePath, processingEnv);
+        String fileContent = loadFileContent(featureFilePath);
         InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes(StandardCharsets.UTF_8));
 
         Stream<Envelope> envelopeStream = gherkinParser.parse(featureFilePath, inputStream);
@@ -43,8 +46,12 @@ public class CustomGherkinParser implements MessageSupport {
         return feature;
     }
 
-    @Override
-    public ProcessingEnvironment getProcessingEnv() {
-        return processingEnv;
+    private String loadFileContent(String featureFilePath) throws IOException {
+
+        FileObject specFile = processingEnv.getFiler().getResource(StandardLocation.CLASS_PATH, "", featureFilePath); // works from IDE & maven lifecycle build goal
+        CharSequence charContent = specFile.getCharContent(false);
+
+        String featureContent = charContent.toString();
+        return featureContent;
     }
 }
