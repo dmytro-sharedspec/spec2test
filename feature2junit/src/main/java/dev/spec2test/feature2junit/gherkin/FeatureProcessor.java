@@ -4,32 +4,41 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import dev.spec2test.common.fileutils.AptMessageUtils;
+import dev.spec2test.feature2junit.MessageSupport;
+import dev.spec2test.feature2junit.ProcessingException;
 import io.cucumber.messages.types.Background;
 import io.cucumber.messages.types.Feature;
 import io.cucumber.messages.types.FeatureChild;
 import io.cucumber.messages.types.Rule;
 import io.cucumber.messages.types.Scenario;
 import java.util.List;
+import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.processing.ProcessingEnvironment;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-public class FeatureProcessor {
+@RequiredArgsConstructor
+@NotThreadSafe
+public class FeatureProcessor implements MessageSupport {
 
-    public static void processFeature(Feature feature, TypeSpec.Builder classBuilder, ProcessingEnvironment processingEnv) {
+    @Getter
+    private final ProcessingEnvironment processingEnv;
 
-        //String featureName = feature.getName();
+    public void processFeature(Feature feature, TypeSpec.Builder classBuilder) {
+
         List<FeatureChild> children = feature.getChildren();
 
         int featureRuleCount = 0;
         int featureScenarioCount = 0;
+
         for (FeatureChild child : children) {
 
             if (child.getBackground().isPresent()) {
-                // Process background
-                AptMessageUtils.message("Processing background", processingEnv);
-                Background background = child.getBackground().get();
 
-                AptMessageUtils.message("Processing background: " + background.getName(), processingEnv);
-                MethodSpec.Builder featureBackgroundMethodBuilder = BackgroundProcessor.processBackground(background, classBuilder);
+                BackgroundProcessor backgroundProcessor = new BackgroundProcessor(processingEnv);
+
+                Background background = child.getBackground().get();
+                MethodSpec.Builder featureBackgroundMethodBuilder = backgroundProcessor.processFeatureBackground(background, classBuilder);
 
                 MethodSpec backgroundMethod = featureBackgroundMethodBuilder.build();
                 classBuilder.addMethod(backgroundMethod);
@@ -58,7 +67,7 @@ public class FeatureProcessor {
                 classBuilder.addMethod(scenarioMethod);
             }
             else {
-                throw new IllegalArgumentException("Unsupported feature child type: " + child);
+                throw new ProcessingException("Unsupported child element type for feature: " + child);
             }
 
         }

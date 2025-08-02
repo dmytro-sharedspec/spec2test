@@ -3,38 +3,42 @@ package dev.spec2test.feature2junit.gherkin;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
+import dev.spec2test.feature2junit.MessageSupport;
 import io.cucumber.messages.types.Background;
 import io.cucumber.messages.types.Step;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestInfo;
 
-public class BackgroundProcessor {
+@RequiredArgsConstructor
+public class BackgroundProcessor implements MessageSupport {
 
-    static MethodSpec.Builder processBackground(Background background, TypeSpec.Builder classBuilder) {
+    @Getter
+    private final ProcessingEnvironment processingEnv;
 
-        String backgroundMethodName = "featureBackground";
+    MethodSpec.Builder processFeatureBackground(Background background, TypeSpec.Builder classBuilder) {
 
-        return processBackground(background, classBuilder, backgroundMethodName);
+        return processFeatureBackground(background, classBuilder, "featureBackground");
     }
 
-    public static MethodSpec.Builder processRuleBackground(
-            int ruleCount,
-            Background background,
-            TypeSpec.Builder classBuilder) {
+    public MethodSpec.Builder processRuleBackground(Background background, TypeSpec.Builder classBuilder) {
 
-        String backgroundMethodName = "rule_" + ruleCount + "_background";
-
-        return processBackground(background, classBuilder, backgroundMethodName);
+        return processFeatureBackground(background, classBuilder, "ruleBackground");
     }
 
-    private static MethodSpec.Builder processBackground(
+    private MethodSpec.Builder processFeatureBackground(
             Background background,
             TypeSpec.Builder classBuilder,
             String backgroundMethodName) {
+
+        logInfo("Processing background: " + background.getName());
+
         List<MethodSpec> allMethodSpecs = classBuilder.methodSpecs;
 
         List<Step> backgroundSteps = background.getSteps();
@@ -83,6 +87,5 @@ public class BackgroundProcessor {
                 .addAnnotation(testAnnotation)
                 .addAnnotation(displayNameAnnotation);
     }
-
 
 }

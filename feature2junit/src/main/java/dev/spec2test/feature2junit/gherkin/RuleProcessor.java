@@ -3,7 +3,6 @@ package dev.spec2test.feature2junit.gherkin;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import dev.spec2test.common.fileutils.AptMessageUtils;
 import io.cucumber.messages.types.Background;
 import io.cucumber.messages.types.Rule;
 import io.cucumber.messages.types.RuleChild;
@@ -69,9 +68,8 @@ public class RuleProcessor {
 
                 Background background = child.getBackground().get();
 
-                AptMessageUtils.message("Processing rule background: " + background.getName(), processingEnv);
-                MethodSpec.Builder ruleBackgroundMethodBuilder =
-                        BackgroundProcessor.processRuleBackground(ruleNumber, background, classBuilder);
+                BackgroundProcessor backgroundProcessor = new BackgroundProcessor(processingEnv);
+                MethodSpec.Builder ruleBackgroundMethodBuilder = backgroundProcessor.processRuleBackground(background, classBuilder);
 
                 MethodSpec backgroundMethod = ruleBackgroundMethodBuilder.build();
                 nestedRuleClassBuilder.addMethod(backgroundMethod);

@@ -84,7 +84,8 @@ public class TestSubclassCreator implements MessageSupport {
                         .build()
                 );
 
-        FeatureProcessor.processFeature(feature, classBuilder, processingEnv);
+        FeatureProcessor featureProcessor = new FeatureProcessor(processingEnv);
+        featureProcessor.processFeature(feature, classBuilder);
 
         TypeSpec typeSpec = classBuilder.build();
 
