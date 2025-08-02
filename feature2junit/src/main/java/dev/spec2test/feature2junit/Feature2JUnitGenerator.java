@@ -2,83 +2,82 @@ package dev.spec2test.feature2junit;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
-import dev.spec2test.common.fileutils.AptMessageUtils;
-
 import dev.spec2test.feature2junit.generator.TestSubclassGenerator;
-import javax.annotation.processing.*;
+import java.io.PrintWriter;
+import java.util.Set;
+import javax.annotation.processing.Filer;
+import javax.annotation.processing.Processor;
+import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Set;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 @SupportedAnnotationTypes("dev.spec2test.feature2junit.Feature2JUnit")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(Processor.class)
-public class Feature2JUnitGenerator extends AbstractProcessor {
+public class Feature2JUnitGenerator extends GeneratorBase {
 
-//    private CustomRegexStoryParser storyParser = new CustomRegexStoryParser();
+    private final String suffixForGeneratedClass = "Scenarios";
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
-        AptMessageUtils.message("Running " + this.getClass().getSimpleName() + " processor", processingEnv);
+        int totalClassesProcessed = 0;
+
+        logInfo("Running " + this.getClass().getSimpleName());
 
         for (TypeElement annotation : annotations) {
 
             String annotationName = annotation.getQualifiedName().toString();
             if (!annotationName.equals(Feature2JUnit.class.getName())) {
-                /**
-                 * not our target annotation
-                 */
                 continue;
             }
 
             Set<? extends Element> annotatedElements = roundEnv.getElementsAnnotatedWith(annotation);
             for (Element annotatedElement : annotatedElements) {
 
-                AptMessageUtils.message("annotatedElement.simpleName = " + annotatedElement.getSimpleName(), processingEnv);
-
-                Feature2JUnit targetAnnotation = annotatedElement.getAnnotation(Feature2JUnit.class);
-                if (targetAnnotation == null) {
-                    continue; // shouldn't really happen
-                }
+                totalClassesProcessed++;
 
                 TypeElement annotatedClass = (TypeElement) annotatedElement;
 
+                logInfo("Processing '" + annotatedClass.getQualifiedName() + "'");
+
+                Filer filer = processingEnv.getFiler();
+                Feature2JUnit targetAnnotation = annotatedClass.getAnnotation(Feature2JUnit.class);
+                String subclassFullyQualifiedName = annotatedClass.getQualifiedName() + suffixForGeneratedClass;
                 TestSubclassGenerator subclassGenerator = new TestSubclassGenerator(processingEnv, processingEnv);
 
-//                Set<? extends Element> rootElements = roundEnv.getRootElements();
-//                Map<String, String> options = processingEnv.getOptions();
-
-                JavaFile javaFile;
+                PrintWriter out = null;
                 try {
-                    javaFile = subclassGenerator.createTestSubclass(annotatedElement, targetAnnotation);
-                } catch (IOException e) {
-                    throw new RuntimeException("An error occurred while processing annotated element - " + annotatedClass.getSimpleName(), e);
-                }
 
-                final String suffixForGeneratedClass = "Scenarios";
-                Filer filer = processingEnv.getFiler();
-                String subclassFullyQualifiedName = annotatedClass.getQualifiedName() + suffixForGeneratedClass;
+                    JavaFile javaFile = subclassGenerator.createTestSubclass(annotatedElement, targetAnnotation);
+                    JavaFileObject subclassFile = filer.createSourceFile(subclassFullyQualifiedName);
 
-                JavaFileObject subclassFile = null;
-                try {
-                    subclassFile = filer.createSourceFile(subclassFullyQualifiedName);
-                } catch (IOException e) {
-                    throw new RuntimeException("An error occurred while attempting to create subclass file with a name - '" + subclassFullyQualifiedName + "', reason - " + e.getMessage(), e);
-                }
-
-                try (PrintWriter out = new PrintWriter(subclassFile.openWriter())) {
+                    out = new PrintWriter(subclassFile.openWriter());
                     javaFile.writeTo(out);
-                } catch (IOException e) {
-                    throw new RuntimeException("An error occurred while attempting to write Java file named - '" + subclassFile.getName() + "'", e);
+                }
+                catch (Throwable t) {
+                    logError("An error occurred while processing annotated element - '" + annotatedClass.getQualifiedName() + "'");
+                    String rootCauseMessage = ExceptionUtils.getRootCauseMessage(t);
+                    logError("Root cause message: " + rootCauseMessage);
+                    String stackTrace = ExceptionUtils.getStackTrace(t);
+                    logError("Stack trace: \n" + stackTrace);
+                }
+                finally {
+                    if (out != null) {
+                        out.close();
+                    }
                 }
 
+                logInfo("Generated test subclass: " + subclassFullyQualifiedName);
             }
         }
+
+        logInfo("Finished, total classes processed: " + totalClassesProcessed);
 
         return true;
     }
