@@ -1,7 +1,7 @@
 package dev.spec2test.feature2junit.gherkin;
 
 import dev.spec2test.common.fileutils.AptFileUtils;
-import dev.spec2test.feature2junit.MessageSupport;
+import dev.spec2test.common.MessageSupport;
 import io.cucumber.gherkin.GherkinParser;
 import io.cucumber.messages.types.Envelope;
 import io.cucumber.messages.types.Feature;

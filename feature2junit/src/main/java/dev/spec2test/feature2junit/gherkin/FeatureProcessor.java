@@ -2,8 +2,8 @@ package dev.spec2test.feature2junit.gherkin;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import dev.spec2test.feature2junit.MessageSupport;
-import dev.spec2test.feature2junit.ProcessingException;
+import dev.spec2test.common.MessageSupport;
+import dev.spec2test.common.ProcessingException;
 import io.cucumber.messages.types.Background;
 import io.cucumber.messages.types.Feature;
 import io.cucumber.messages.types.FeatureChild;

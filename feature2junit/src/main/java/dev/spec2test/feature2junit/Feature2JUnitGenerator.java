@@ -2,6 +2,7 @@ package dev.spec2test.feature2junit;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
+import dev.spec2test.common.MessageSupport;
 import java.io.PrintWriter;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;

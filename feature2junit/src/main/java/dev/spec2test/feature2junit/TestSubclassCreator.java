@@ -4,6 +4,8 @@ import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
+import dev.spec2test.common.MessageSupport;
+import dev.spec2test.common.ProcessingException;
 import dev.spec2test.feature2junit.gherkin.CustomGherkinParser;
 import dev.spec2test.feature2junit.gherkin.FeatureProcessor;
 import io.cucumber.messages.types.Feature;

@@ -3,7 +3,7 @@ package dev.spec2test.feature2junit.gherkin;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import dev.spec2test.feature2junit.MessageSupport;
+import dev.spec2test.common.MessageSupport;
 import dev.spec2test.feature2junit.gherkin.utils.ParameterNamingUtils;
 import dev.spec2test.feature2junit.gherkin.utils.TableUtils;
 import io.cucumber.messages.types.DataTable;

@@ -4,7 +4,7 @@ import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
-import dev.spec2test.feature2junit.MessageSupport;
+import dev.spec2test.common.MessageSupport;
 import dev.spec2test.feature2junit.gherkin.utils.MethodNamingUtils;
 import dev.spec2test.feature2junit.gherkin.utils.TableUtils;
 import io.cucumber.java.en.Given;

@@ -1,4 +1,4 @@
-package dev.spec2test.feature2junit;
+package dev.spec2test.common;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.Diagnostic;

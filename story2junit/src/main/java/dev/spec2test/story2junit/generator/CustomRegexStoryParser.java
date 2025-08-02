@@ -1,15 +1,17 @@
 package dev.spec2test.story2junit.generator;
 
+import dev.spec2test.common.MessageSupport;
 import dev.spec2test.common.fileutils.AptFileUtils;
-import dev.spec2test.common.fileutils.AptMessageUtils;
+import javax.annotation.processing.ProcessingEnvironment;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.jbehave.core.model.Story;
 import org.jbehave.core.parsers.RegexStoryParser;
 
-import javax.annotation.processing.ProcessingEnvironment;
+@RequiredArgsConstructor
+class CustomRegexStoryParser extends RegexStoryParser implements MessageSupport {
 
-
-class CustomRegexStoryParser extends RegexStoryParser {
-
+    @Getter
     private final ProcessingEnvironment processingEnv;
 
     public CustomRegexStoryParser(ProcessingEnvironment processingEnv, ProcessingEnvironment env) {
@@ -35,7 +37,7 @@ class CustomRegexStoryParser extends RegexStoryParser {
             // Do something with the parsed story
             return story;
         } catch (Throwable e) {
-            AptMessageUtils.messageError("Error parsing story:\n" + e.getMessage(), processingEnv);
+            logError("Error parsing story:\n" + e.getMessage(), processingEnv);
             throw e;
         }
     }

@@ -3,16 +3,20 @@ package dev.spec2test.story2junit.generator;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
 import dev.spec2test.story2junit.Story2JUnit;
-
-import javax.annotation.processing.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Set;
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Filer;
+import javax.annotation.processing.Processor;
+import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Set;
 
 @SupportedAnnotationTypes("dev.spec2test.story2junit.Story2JUnit")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
@@ -85,15 +89,11 @@ public class Story2JUnitGenerator extends AbstractProcessor {
 
     private void message(String message) {
 
-//        System.out.println("### " + message);
-        processingEnv.getMessager().printMessage(
-                Diagnostic.Kind.MANDATORY_WARNING, "### " + message);
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.MANDATORY_WARNING, message);
     }
 
     private void messageError(String message) {
 
-//        System.out.println("### " + message);
-        processingEnv.getMessager().printMessage(
-                Diagnostic.Kind.ERROR, "### " + message);
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, message);
     }
 }

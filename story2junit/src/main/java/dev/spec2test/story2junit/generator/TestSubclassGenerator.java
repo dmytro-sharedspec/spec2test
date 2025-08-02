@@ -1,8 +1,30 @@
 package dev.spec2test.story2junit.generator;
 
-import com.squareup.javapoet.*;
+import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.TypeSpec;
+import dev.spec2test.common.MessageSupport;
 import dev.spec2test.story2junit.Story2JUnit;
 import dev.spec2test.story2junit.StoryFilePath;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.processing.Generated;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.Name;
+import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.TypeElement;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.jbehave.core.annotations.Given;
 import org.jbehave.core.annotations.Then;
@@ -12,21 +34,11 @@ import org.jbehave.core.model.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.concurrent.NotThreadSafe;
-import javax.annotation.processing.Generated;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.*;
-import javax.tools.Diagnostic;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+@RequiredArgsConstructor
 @NotThreadSafe
-class TestSubclassGenerator {
+class TestSubclassGenerator implements MessageSupport {
 
+    @Getter
     private final ProcessingEnvironment processingEnv;
 
     public TestSubclassGenerator(ProcessingEnvironment processingEnv, ProcessingEnvironment env) {
@@ -44,14 +56,14 @@ class TestSubclassGenerator {
 
         Element enclosingElement = typeElement.getEnclosingElement();
         PackageElement packageElement = enclosingElement instanceof PackageElement ? (PackageElement) enclosingElement : null;
-        message("package = " + packageElement.getQualifiedName());
+        logInfo("package = " + packageElement.getQualifiedName());
         String packageName = packageElement.getQualifiedName().toString();
 
         TypeSpec typeSpec;
         try {
             typeSpec = generateClass(typeElement, featureFilePath, story);
         } catch (Throwable t) {
-            messageError("An error occurred while generating test subclass for " + typeElement.getSimpleName() + ": " + t.getMessage());
+            logError("An error occurred while generating test subclass for " + typeElement.getSimpleName() + ": " + t.getMessage());
             throw new RuntimeException("An error occurred while generating test subclass for " + typeElement.getSimpleName(), t);
         }
 
@@ -356,17 +368,4 @@ class TestSubclassGenerator {
         return sanitizedMethodName;
     }
 
-    private void message(String message) {
-
-//        System.out.println("### " + message);
-        processingEnv.getMessager().printMessage(
-                Diagnostic.Kind.MANDATORY_WARNING, "### " + message);
-    }
-
-    private void messageError(String message) {
-
-//        System.out.println("### " + message);
-        processingEnv.getMessager().printMessage(
-                Diagnostic.Kind.ERROR, "### " + message);
-    }
 }
