@@ -9,6 +9,7 @@ import dev.spec2test.common.LoggingSupport;
 import dev.spec2test.common.ProcessingException;
 import dev.spec2test.feature2junit.gherkin.FeatureFileParser;
 import dev.spec2test.feature2junit.gherkin.FeatureProcessor;
+import dev.spec2test.feature2junit.gherkin.utils.JavaDocUtils;
 import io.cucumber.messages.types.Feature;
 import java.io.IOException;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -61,20 +62,8 @@ public class TestSubclassCreator implements LoggingSupport {
          */
         //                .addJavadoc(CodeBlock.of(feature.getKeyword() + ": " + feature.getName()))
         //                .addJavadoc(CodeBlock.of("\n" + feature.getDescription()))
-        String description = feature.getDescription();
-        StringBuilder featureTextSb = new StringBuilder()
-                .append("/**")
-                .append("\n * ").append(feature.getKeyword()).append(": ").append(feature.getName());
-        if (StringUtils.isNotBlank(description)) {
-            String[] lines = description.split("\n");
-            for (String line : lines) {
-                featureTextSb.append("\n * ").append(line);
-            }
-        }
-        featureTextSb.append("\n */\n");
-        //        + ": " + feature.getName();
-        //        featureText += "\n" + feature.getDescription();
-        classBuilder.addInitializerBlock(CodeBlock.of(featureTextSb.toString()));
+        String featureTextJavaDoc = JavaDocUtils.toJavaDoc(feature.getKeyword(), feature.getName(), feature.getDescription());
+        classBuilder.addInitializerBlock(CodeBlock.of(featureTextJavaDoc));
 
         /**
          * {@link Generated} annotation

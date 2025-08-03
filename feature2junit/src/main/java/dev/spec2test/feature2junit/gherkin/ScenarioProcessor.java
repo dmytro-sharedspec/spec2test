@@ -5,6 +5,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import dev.spec2test.common.LoggingSupport;
 import dev.spec2test.common.ProcessingException;
+import dev.spec2test.feature2junit.gherkin.utils.JavaDocUtils;
 import dev.spec2test.feature2junit.gherkin.utils.ParameterNamingUtils;
 import dev.spec2test.feature2junit.gherkin.utils.TableUtils;
 import io.cucumber.messages.types.DataTable;
@@ -45,6 +46,12 @@ public class ScenarioProcessor implements LoggingSupport {
                 .methodBuilder(scenarioMethodName)
                 //                .addParameter(TestInfo.class, "testInfo")
                 .addModifiers(Modifier.PUBLIC);
+
+        String description = scenario.getDescription();
+        if (StringUtils.isNotBlank(description)) {
+            description = JavaDocUtils.trimLeadingAndTrailingWhitespace(description);
+            scenarioMethodBuilder.addJavadoc(description);
+        }
 
         List<Examples> examples = scenario.getExamples();
         List<String> scenarioParameterNames;
