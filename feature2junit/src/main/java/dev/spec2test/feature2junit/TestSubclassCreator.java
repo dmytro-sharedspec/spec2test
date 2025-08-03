@@ -10,8 +10,13 @@ import dev.spec2test.common.ProcessingException;
 import dev.spec2test.feature2junit.gherkin.FeatureFileParser;
 import dev.spec2test.feature2junit.gherkin.FeatureProcessor;
 import dev.spec2test.feature2junit.gherkin.utils.JavaDocUtils;
+import dev.spec2test.feature2junit.gherkin.utils.TagUtils;
 import io.cucumber.messages.types.Feature;
+import io.cucumber.messages.types.Tag;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.processing.Generated;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -19,9 +24,9 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Tags;
 import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestMethodOrder;
 
@@ -56,6 +61,12 @@ public class TestSubclassCreator implements LoggingSupport {
                 .classBuilder(subclassSimpleName)
                 .superclass(typeElement.asType())
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT);
+
+        List<Tag> tags = feature.getTags();
+        if (tags != null && !tags.isEmpty()) {
+            AnnotationSpec jUnitTagsAnnotation = TagUtils.toJUnitTagsAnnotation(tags);
+            classBuilder.addAnnotation(jUnitTagsAnnotation);
+        }
 
         /**
          * put feature text into an initializer block

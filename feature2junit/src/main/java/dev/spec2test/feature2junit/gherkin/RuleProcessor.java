@@ -5,15 +5,19 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import dev.spec2test.common.LoggingSupport;
 import dev.spec2test.common.ProcessingException;
+import dev.spec2test.feature2junit.gherkin.utils.JavaDocUtils;
+import dev.spec2test.feature2junit.gherkin.utils.TagUtils;
 import io.cucumber.messages.types.Background;
 import io.cucumber.messages.types.Rule;
 import io.cucumber.messages.types.RuleChild;
 import io.cucumber.messages.types.Scenario;
+import io.cucumber.messages.types.Tag;
 import java.util.List;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
@@ -31,6 +35,18 @@ public class RuleProcessor implements LoggingSupport {
         TypeSpec.Builder nestedRuleClassBuilder = TypeSpec
                 .classBuilder("Rule_" + ruleNumber)
                 .addModifiers(Modifier.PUBLIC);
+
+        String description = rule.getDescription();
+        if (StringUtils.isNotBlank(description)) {
+            description = JavaDocUtils.trimLeadingAndTrailingWhitespace(description);
+            nestedRuleClassBuilder.addJavadoc(description);
+        }
+
+        List<Tag> tags = rule.getTags();
+        if (tags != null && !tags.isEmpty()) {
+            AnnotationSpec jUnitTagsAnnotation = TagUtils.toJUnitTagsAnnotation(tags);
+            nestedRuleClassBuilder.addAnnotation(jUnitTagsAnnotation);
+        }
 
         AnnotationSpec orderAnnotation = AnnotationSpec
                 .builder(Order.class)

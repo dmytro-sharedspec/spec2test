@@ -8,6 +8,7 @@ import dev.spec2test.common.ProcessingException;
 import dev.spec2test.feature2junit.gherkin.utils.JavaDocUtils;
 import dev.spec2test.feature2junit.gherkin.utils.ParameterNamingUtils;
 import dev.spec2test.feature2junit.gherkin.utils.TableUtils;
+import dev.spec2test.feature2junit.gherkin.utils.TagUtils;
 import io.cucumber.messages.types.DataTable;
 import io.cucumber.messages.types.Examples;
 import io.cucumber.messages.types.Location;
@@ -15,6 +16,7 @@ import io.cucumber.messages.types.Scenario;
 import io.cucumber.messages.types.Step;
 import io.cucumber.messages.types.TableCell;
 import io.cucumber.messages.types.TableRow;
+import io.cucumber.messages.types.Tag;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -46,6 +48,12 @@ public class ScenarioProcessor implements LoggingSupport {
                 .methodBuilder(scenarioMethodName)
                 //                .addParameter(TestInfo.class, "testInfo")
                 .addModifiers(Modifier.PUBLIC);
+
+        List<Tag> tags = scenario.getTags();
+        if (tags != null && !tags.isEmpty()) {
+            AnnotationSpec jUnitTagsAnnotation = TagUtils.toJUnitTagsAnnotation(tags);
+            scenarioMethodBuilder.addAnnotation(jUnitTagsAnnotation);
+        }
 
         String description = scenario.getDescription();
         if (StringUtils.isNotBlank(description)) {
