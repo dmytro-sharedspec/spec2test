@@ -18,6 +18,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.TestClassOrder;
@@ -53,45 +54,62 @@ public class TestSubclassCreator implements LoggingSupport {
         TypeSpec.Builder classBuilder = TypeSpec
                 .classBuilder(subclassSimpleName)
                 .superclass(typeElement.asType())
-                .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
-                .addInitializerBlock(CodeBlock.of("/**\n* this class bla...\n*/\n"))
-                /**
-                 * javadoc
-                 */
-                .addJavadoc(CodeBlock.of(feature.getKeyword() + ": " + feature.getName()))
-                .addJavadoc(CodeBlock.of("\n" + feature.getDescription()))
-                /**
-                 * {@link Generated} annotation
-                 */
-                .addAnnotation(AnnotationSpec
-                        .builder(Generated.class)
-                        .addMember("value", "\"" + Feature2JUnitGenerator.class.getName() + "\"")
-                        .build()
-                )
-                /**
-                 * {@link TestMethodOrder} annotation
-                 */
-                .addAnnotation(AnnotationSpec
-                        .builder(TestMethodOrder.class)
-                        .addMember("value", "$T.class", ClassName.get(MethodOrderer.OrderAnnotation.class))
-                        .build()
-                )
-                /**
-                 * {@link TestClassOrder} annotation
-                 */
-                .addAnnotation(AnnotationSpec
-                        .builder(TestClassOrder.class)
-                        .addMember("value", "$T.class", ClassName.get(ClassOrderer.OrderAnnotation.class))
-                        .build()
-                )
-                /**
-                 * {@link FeatureFilePath} annotation
-                 */
-                .addAnnotation(AnnotationSpec
-                        .builder(FeatureFilePath.class)
-                        .addMember("value", "\"" + featureFilePath + "\"")
-                        .build()
-                );
+                .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT);
+
+        /**
+         * put feature text into an initializer block
+         */
+        //                .addJavadoc(CodeBlock.of(feature.getKeyword() + ": " + feature.getName()))
+        //                .addJavadoc(CodeBlock.of("\n" + feature.getDescription()))
+        String description = feature.getDescription();
+        StringBuilder featureTextSb = new StringBuilder()
+                .append("/**")
+                .append("\n * ").append(feature.getKeyword()).append(": ").append(feature.getName());
+        if (StringUtils.isNotBlank(description)) {
+            String[] lines = description.split("\n");
+            for (String line : lines) {
+                featureTextSb.append("\n * ").append(line);
+            }
+        }
+        featureTextSb.append("\n */\n");
+        //        + ": " + feature.getName();
+        //        featureText += "\n" + feature.getDescription();
+        classBuilder.addInitializerBlock(CodeBlock.of(featureTextSb.toString()));
+
+        /**
+         * {@link Generated} annotation
+         */
+        classBuilder.addAnnotation(AnnotationSpec
+                .builder(Generated.class)
+                .addMember("value", "\"" + Feature2JUnitGenerator.class.getName() + "\"")
+                .build()
+        );
+        /**
+         * {@link TestMethodOrder} annotation
+         */
+        classBuilder.addAnnotation(AnnotationSpec
+                .builder(TestMethodOrder.class)
+                .addMember("value", "$T.class", ClassName.get(MethodOrderer.OrderAnnotation.class))
+                .build()
+        );
+        if (feature.getChildren().stream().anyMatch(child -> child.getRule().isPresent())) {
+            /**
+             * {@link TestClassOrder} annotation
+             */
+            classBuilder.addAnnotation(AnnotationSpec
+                    .builder(TestClassOrder.class)
+                    .addMember("value", "$T.class", ClassName.get(ClassOrderer.OrderAnnotation.class))
+                    .build()
+            );
+        }
+        /**
+         * {@link FeatureFilePath} annotation
+         */
+        classBuilder.addAnnotation(AnnotationSpec
+                .builder(FeatureFilePath.class)
+                .addMember("value", "\"" + featureFilePath + "\"")
+                .build()
+        );
 
         FeatureProcessor featureProcessor = new FeatureProcessor(processingEnv);
         featureProcessor.processFeature(feature, classBuilder);
