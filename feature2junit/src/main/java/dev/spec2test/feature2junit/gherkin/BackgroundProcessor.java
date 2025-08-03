@@ -4,7 +4,9 @@ import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import dev.spec2test.common.LoggingSupport;
+import dev.spec2test.feature2junit.GeneratorOptions;
 import dev.spec2test.feature2junit.gherkin.utils.JavaDocUtils;
+import dev.spec2test.feature2junit.gherkin.utils.LocationUtils;
 import io.cucumber.messages.types.Background;
 import io.cucumber.messages.types.Step;
 import java.util.ArrayList;
@@ -49,6 +51,11 @@ public class BackgroundProcessor implements LoggingSupport {
         MethodSpec.Builder backgroundMethodBuilder = MethodSpec
                 .methodBuilder(backgroundMethodName)
                 .addModifiers(Modifier.PUBLIC);
+
+        if (GeneratorOptions.addSourceLineAnnotations.isSet(processingEnv)) {
+            AnnotationSpec locationAnnotation = LocationUtils.toJUnitTagsAnnotation(background.getLocation());
+            backgroundMethodBuilder.addAnnotation(locationAnnotation);
+        }
 
         String description = background.getDescription();
         if (StringUtils.isNotBlank(description)) {

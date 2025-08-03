@@ -6,12 +6,15 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import dev.spec2test.common.LoggingSupport;
 import dev.spec2test.common.ProcessingException;
+import dev.spec2test.feature2junit.GeneratorOptions;
+import dev.spec2test.feature2junit.gherkin.utils.LocationUtils;
 import dev.spec2test.feature2junit.gherkin.utils.MethodNamingUtils;
 import dev.spec2test.feature2junit.gherkin.utils.TableUtils;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.cucumber.messages.types.DataTable;
+import io.cucumber.messages.types.Location;
 import io.cucumber.messages.types.Step;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -192,8 +195,16 @@ public class StepProcessor implements LoggingSupport {
         /**
          * add javadoc for the step as it appears in the feature file
          */
-        String stepFirstLine = step.getKeyword() + " " + step.getText();
-        scenarioMethodBuilder.addCode("/**\n * $L\n */\n", stepFirstLine);
+        String stepFirstLine = step.getKeyword() + step.getText();
+//        scenarioMethodBuilder.addCode("/**\n * $L\n */\n", stepFirstLine);
+        scenarioMethodBuilder.addCode("/**");
+        scenarioMethodBuilder.addCode("\n * $L", stepFirstLine);
+        if (GeneratorOptions.addSourceLineAnnotations.isSet(processingEnv)) {
+            Location stepLocation = step.getLocation();
+            scenarioMethodBuilder.addCode("\n * (source line - $L", stepLocation.getLine() + ")");
+//            nestedRuleClassBuilder.addAnnotation(locationAnnotation);
+        }
+        scenarioMethodBuilder.addCode("\n */\n");
 
         String parameterValuesPart = parameterValuesSB.toString();
         CodeBlock codeBlock =

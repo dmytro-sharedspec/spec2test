@@ -5,7 +5,9 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import dev.spec2test.common.LoggingSupport;
 import dev.spec2test.common.ProcessingException;
+import dev.spec2test.feature2junit.GeneratorOptions;
 import dev.spec2test.feature2junit.gherkin.utils.JavaDocUtils;
+import dev.spec2test.feature2junit.gherkin.utils.LocationUtils;
 import dev.spec2test.feature2junit.gherkin.utils.ParameterNamingUtils;
 import dev.spec2test.feature2junit.gherkin.utils.TableUtils;
 import dev.spec2test.feature2junit.gherkin.utils.TagUtils;
@@ -84,6 +86,12 @@ public class ScenarioProcessor implements LoggingSupport {
         }
 
         addOrderAnnotation(scenarioMethodBuilder, scenarioNumber);
+
+        if (GeneratorOptions.addSourceLineAnnotations.isSet(processingEnv)) {
+            AnnotationSpec locationAnnotation = LocationUtils.toJUnitTagsAnnotation(scenario.getLocation());
+            scenarioMethodBuilder.addAnnotation(locationAnnotation);
+        }
+
         addDisplayNameAnnotation(scenarioMethodBuilder, scenario);
 
         for (Step scenarioStep : scenarioSteps) {

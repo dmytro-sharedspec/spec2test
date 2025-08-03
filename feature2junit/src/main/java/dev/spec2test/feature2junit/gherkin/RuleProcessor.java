@@ -5,7 +5,9 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import dev.spec2test.common.LoggingSupport;
 import dev.spec2test.common.ProcessingException;
+import dev.spec2test.feature2junit.GeneratorOptions;
 import dev.spec2test.feature2junit.gherkin.utils.JavaDocUtils;
+import dev.spec2test.feature2junit.gherkin.utils.LocationUtils;
 import dev.spec2test.feature2junit.gherkin.utils.TagUtils;
 import io.cucumber.messages.types.Background;
 import io.cucumber.messages.types.Rule;
@@ -46,6 +48,11 @@ public class RuleProcessor implements LoggingSupport {
         if (tags != null && !tags.isEmpty()) {
             AnnotationSpec jUnitTagsAnnotation = TagUtils.toJUnitTagsAnnotation(tags);
             nestedRuleClassBuilder.addAnnotation(jUnitTagsAnnotation);
+        }
+
+        if (GeneratorOptions.addSourceLineAnnotations.isSet(processingEnv)) {
+            AnnotationSpec locationAnnotation = LocationUtils.toJUnitTagsAnnotation(rule.getLocation());
+            nestedRuleClassBuilder.addAnnotation(locationAnnotation);
         }
 
         AnnotationSpec orderAnnotation = AnnotationSpec
