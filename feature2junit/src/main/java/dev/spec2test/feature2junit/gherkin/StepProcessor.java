@@ -7,7 +7,6 @@ import com.squareup.javapoet.ParameterSpec;
 import dev.spec2test.common.LoggingSupport;
 import dev.spec2test.common.ProcessingException;
 import dev.spec2test.feature2junit.GeneratorOptions;
-import dev.spec2test.feature2junit.gherkin.utils.LocationUtils;
 import dev.spec2test.feature2junit.gherkin.utils.MethodNamingUtils;
 import dev.spec2test.feature2junit.gherkin.utils.TableUtils;
 import io.cucumber.java.en.Given;
@@ -186,8 +185,6 @@ public class StepProcessor implements LoggingSupport {
             parameterValuesSB.append("createDataTable(");
             parameterValuesSB.append("\"\"\"\n");
             parameterValuesSB.append(dataTableAsString);
-//            parameterValuesSB.append("|column1|column2|\n");
-//            parameterValuesSB.append("|value1 |value2 |\n");
             parameterValuesSB.append("\n\"\"\"");
             parameterValuesSB.append(")");
         }
@@ -202,7 +199,6 @@ public class StepProcessor implements LoggingSupport {
         if (GeneratorOptions.addSourceLineAnnotations.isSet(processingEnv)) {
             Location stepLocation = step.getLocation();
             scenarioMethodBuilder.addCode("\n * (source line - $L", stepLocation.getLine() + ")");
-//            nestedRuleClassBuilder.addAnnotation(locationAnnotation);
         }
         scenarioMethodBuilder.addCode("\n */\n");
 
@@ -326,7 +322,6 @@ public class StepProcessor implements LoggingSupport {
             // process scenario parameters
             String paramsPatternPart = StringUtils.join(scenarioParameterNames, "|");
             Pattern scenarioParametersPattern = Pattern.compile(
-//                    "(?<parameter>(<)([^\s>])([^>]*?)(>))"
                     "(?<parameter>(?<parameterValue>(<)(" + paramsPatternPart + ")(>)))"
             );
             stepPattern = processWithParameterPattern(stepPattern,
@@ -370,17 +365,12 @@ public class StepProcessor implements LoggingSupport {
             int searchStartPos = lastParameterEnd;
             if (searchStartPos < parameterStart) {
                 String before = stepFirstLine.substring(searchStartPos, parameterStart);
-//                gwtAnnotationValueSB.append(before);
                 stepAnnotationPatternSB.append(before);
             }
 
-//            String parameterMarker = "$L";
-//            gwtAnnotationValueSB.append(parameterMarker);
             stepAnnotationPatternSB.append("$p" + (parameterValues.size() + 1));
 
             String parameterValue = matcher.group("parameterValue");
-//            parameterValue = parameterValue.substring(1, parameterValue.length() - 1); // Remove the quotes
-
             parameterValues.add(parameterValue);
 
             lastParameterEnd = parameterEnd;
@@ -389,7 +379,6 @@ public class StepProcessor implements LoggingSupport {
         if (lastParameterEnd < stepFirstLine.length()) {
             // There is some text after the last parameter
             String after = stepFirstLine.substring(lastParameterEnd);
-//            gwtAnnotationValueSB.append(after);
             stepAnnotationPatternSB.append(after);
         }
 
