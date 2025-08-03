@@ -54,6 +54,7 @@ public class TestSubclassCreator implements LoggingSupport {
                 .classBuilder(subclassSimpleName)
                 .superclass(typeElement.asType())
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                .addInitializerBlock(CodeBlock.of("/**\n* this class bla...\n*/\n"))
                 /**
                  * javadoc
                  */

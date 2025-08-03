@@ -44,7 +44,7 @@ public class StepProcessor implements LoggingSupport {
             Step step, MethodSpec.Builder scenarioMethodBuilder,
             List<MethodSpec> scenarioStepsMethodSpecs) {
 
-        return processStep(step, scenarioMethodBuilder, scenarioStepsMethodSpecs, null, null, null);
+        return processStep(step, scenarioMethodBuilder, scenarioStepsMethodSpecs, null, null);
     }
 
     public MethodSpec processStep(
@@ -52,8 +52,7 @@ public class StepProcessor implements LoggingSupport {
             MethodSpec.Builder scenarioMethodBuilder,
             List<MethodSpec> scenarioStepsMethodSpecs,
             List<String> scenarioParameterNames,
-            List<String> testMethodParameterNames,
-            String javaDoc
+            List<String> testMethodParameterNames
     ) {
 
         long stepLine = step.getLocation().getLine();
@@ -74,10 +73,6 @@ public class StepProcessor implements LoggingSupport {
         MethodSpec.Builder stepMethodBuilder = MethodSpec
                 .methodBuilder(stepMethodName)
                 .addModifiers(Modifier.PROTECTED, Modifier.ABSTRACT);
-
-        if (javaDoc != null) {
-            stepMethodBuilder.addJavadoc(javaDoc);
-        }
 
         AnnotationSpec annotationSpec = buildGWTAnnotation(scenarioStepsMethodSpecs,
                 stepMethodName,
@@ -193,6 +188,12 @@ public class StepProcessor implements LoggingSupport {
             parameterValuesSB.append("\n\"\"\"");
             parameterValuesSB.append(")");
         }
+
+        /**
+         * add javadoc for the step as it appears in the feature file
+         */
+        String stepFirstLine = step.getKeyword() + " " + step.getText();
+        scenarioMethodBuilder.addCode("/**\n * $L\n */\n", stepFirstLine);
 
         String parameterValuesPart = parameterValuesSB.toString();
         CodeBlock codeBlock =

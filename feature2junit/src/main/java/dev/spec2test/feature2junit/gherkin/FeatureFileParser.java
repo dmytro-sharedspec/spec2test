@@ -37,7 +37,7 @@ public class FeatureFileParser implements LoggingSupport {
         String fileContent = loadFileContent(featureFilePath);
         InputStream inputStream = new ByteArrayInputStream(fileContent.getBytes(StandardCharsets.UTF_8));
 
-        GherkinDialectProvider.additionalFeatureKeywords = Set.of("Narrative");
+        GherkinDialectProvider.additionalFeatureKeywords = Set.of("Narrative"); // todo - parameterize this
 
         Stream<Envelope> envelopeStream = gherkinParser.parse(featureFilePath, inputStream);
 

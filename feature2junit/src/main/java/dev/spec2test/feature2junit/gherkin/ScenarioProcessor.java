@@ -52,7 +52,6 @@ public class ScenarioProcessor implements LoggingSupport {
 
         if (examples != null && !examples.isEmpty()) {
 
-            scenarioMethodBuilder.addComment("This scenario has examples: " + examples);
             scenarioParameterNames = addJUnitAnnotationsForParameterizedTest(scenarioMethodBuilder, scenario);
             testMethodParameterNames = new ArrayList<>(scenarioParameterNames.size());
 
@@ -75,12 +74,11 @@ public class ScenarioProcessor implements LoggingSupport {
         for (Step scenarioStep : scenarioSteps) {
 
             List<MethodSpec> methodSpecs = classBuilder.methodSpecs;
-            String javaDoc = methodSpecs.isEmpty() ? "First method javadoc comment" : null;
 
             StepProcessor stepProcessor = new StepProcessor(processingEnv);
             MethodSpec stepMethodSpec = stepProcessor.processStep(
                     scenarioStep, scenarioMethodBuilder, scenarioStepsMethodSpecs,
-                    scenarioParameterNames, testMethodParameterNames, javaDoc
+                    scenarioParameterNames, testMethodParameterNames
             );
             scenarioStepsMethodSpecs.add(stepMethodSpec);
 
