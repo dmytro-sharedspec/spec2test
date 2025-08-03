@@ -4,6 +4,7 @@ import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import dev.spec2test.common.LoggingSupport;
+import dev.spec2test.feature2junit.gherkin.utils.JavaDocUtils;
 import io.cucumber.messages.types.Background;
 import io.cucumber.messages.types.Step;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestInfo;
@@ -24,15 +26,15 @@ public class BackgroundProcessor implements LoggingSupport {
 
     MethodSpec.Builder processFeatureBackground(Background background, TypeSpec.Builder classBuilder) {
 
-        return processFeatureBackground(background, classBuilder, "featureBackground");
+        return processBackground(background, classBuilder, "featureBackground");
     }
 
     public MethodSpec.Builder processRuleBackground(Background background, TypeSpec.Builder classBuilder) {
 
-        return processFeatureBackground(background, classBuilder, "ruleBackground");
+        return processBackground(background, classBuilder, "ruleBackground");
     }
 
-    private MethodSpec.Builder processFeatureBackground(
+    private MethodSpec.Builder processBackground(
             Background background,
             TypeSpec.Builder classBuilder,
             String backgroundMethodName) {
@@ -44,18 +46,24 @@ public class BackgroundProcessor implements LoggingSupport {
         List<Step> backgroundSteps = background.getSteps();
         List<MethodSpec> backgroundStepsMethodSpecs = new ArrayList<>(backgroundSteps.size());
 
-        MethodSpec.Builder featureBackgroundMethodBuilder = MethodSpec
+        MethodSpec.Builder backgroundMethodBuilder = MethodSpec
                 .methodBuilder(backgroundMethodName)
                 .addModifiers(Modifier.PUBLIC);
 
-        addJUnitAnnotations(featureBackgroundMethodBuilder, background);
+        String description = background.getDescription();
+        if (StringUtils.isNotBlank(description)) {
+            description = JavaDocUtils.trimLeadingAndTrailingWhitespace(description);
+            backgroundMethodBuilder.addJavadoc(description);
+        }
 
-        featureBackgroundMethodBuilder.addParameter(TestInfo.class, "testInfo");
+        addJUnitAnnotations(backgroundMethodBuilder, background);
+
+        backgroundMethodBuilder.addParameter(TestInfo.class, "testInfo");
 
         for (Step scenarioStep : backgroundSteps) {
 
             StepProcessor stepProcessor = new StepProcessor(processingEnv);
-            MethodSpec stepMethodSpec = stepProcessor.processStep(scenarioStep, featureBackgroundMethodBuilder, backgroundStepsMethodSpecs);
+            MethodSpec stepMethodSpec = stepProcessor.processStep(scenarioStep, backgroundMethodBuilder, backgroundStepsMethodSpecs);
             backgroundStepsMethodSpecs.add(stepMethodSpec);
 
             String stepMethodName = stepMethodSpec.name;
@@ -70,7 +78,7 @@ public class BackgroundProcessor implements LoggingSupport {
             }
         }
 
-        return featureBackgroundMethodBuilder;
+        return backgroundMethodBuilder;
     }
 
     private void addJUnitAnnotations(MethodSpec.Builder scenarioMethodBuilder, Background background) {
