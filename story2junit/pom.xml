@@ -38,7 +38,7 @@
         <dependency>
             <groupId>dev.spec2test</groupId>
             <artifactId>common</artifactId>
-            <version>0.1.1-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 <!--        <dependency>-->
 <!--            <groupId>com.google.auto.service</groupId>-->
