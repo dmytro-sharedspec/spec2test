@@ -94,7 +94,8 @@ public class StepProcessor implements LoggingSupport {
         }
         // check if step has a data table
         if (step.getDataTable().isPresent()) {
-            String parameterName = "p" + (parameterValues.size()); // data table is the last parameter
+//            String parameterName = "p" + (parameterValues.size()); // data table is the last parameter
+            String parameterName = "dataTable";
             ParameterSpec dataTableParameterSpec = ParameterSpec
                     .builder(io.cucumber.datatable.DataTable.class, parameterName)
                     .build();

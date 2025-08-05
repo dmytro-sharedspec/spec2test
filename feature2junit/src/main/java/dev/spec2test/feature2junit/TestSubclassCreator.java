@@ -4,12 +4,14 @@ import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import dev.spec2test.common.LoggingSupport;
 import dev.spec2test.common.ProcessingException;
 import dev.spec2test.feature2junit.gherkin.FeatureFileParser;
 import dev.spec2test.feature2junit.gherkin.FeatureProcessor;
 import dev.spec2test.feature2junit.gherkin.utils.JavaDocUtils;
+import dev.spec2test.feature2junit.gherkin.utils.TableUtils;
 import dev.spec2test.feature2junit.gherkin.utils.TagUtils;
 import io.cucumber.messages.types.Feature;
 import io.cucumber.messages.types.Tag;
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.processing.Generated;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -113,6 +116,20 @@ public class TestSubclassCreator implements LoggingSupport {
 
         FeatureProcessor featureProcessor = new FeatureProcessor(processingEnv);
         featureProcessor.processFeature(feature, classBuilder);
+
+        /**
+         * add createDataTable method
+         */
+        List<MethodSpec> methodSpecs = classBuilder.methodSpecs;
+        Optional<MethodSpec> methodWithDataTableParameter = methodSpecs.stream()
+                .filter(methodSpec -> methodSpec.parameters.stream()
+                        .anyMatch(parameterSpec -> parameterSpec.name.equals("dataTable"))).findFirst();
+        if (methodWithDataTableParameter.isPresent()) {
+            MethodSpec getTableConverterMethod = TableUtils.createGetTableConverterMethod(processingEnv);
+            classBuilder.addMethod(getTableConverterMethod);
+            MethodSpec createDataTableMethod = TableUtils.createDataTableMethod(processingEnv);
+            classBuilder.addMethod(createDataTableMethod);
+        }
 
         TypeSpec typeSpec = classBuilder.build();
 
