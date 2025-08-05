@@ -33,7 +33,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 @RequiredArgsConstructor
-public class ScenarioProcessor implements LoggingSupport {
+class ScenarioProcessor implements LoggingSupport {
 
     @Getter
     private final ProcessingEnvironment processingEnv;

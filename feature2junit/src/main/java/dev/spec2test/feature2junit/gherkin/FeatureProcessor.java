@@ -15,6 +15,9 @@ import javax.annotation.processing.ProcessingEnvironment;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Processes a Gherkin feature and generates corresponding JUnit test methods.
+ */
 @RequiredArgsConstructor
 @NotThreadSafe
 public class FeatureProcessor implements LoggingSupport {
@@ -22,6 +25,11 @@ public class FeatureProcessor implements LoggingSupport {
     @Getter
     private final ProcessingEnvironment processingEnv;
 
+    /**
+     * Processes a Gherkin feature and generates JUnit test methods for its children.
+     * @param feature the Gherkin feature to process
+     * @param classBuilder the TypeSpec.Builder for the class being generated
+     */
     public void processFeature(Feature feature, TypeSpec.Builder classBuilder) {
 
         List<FeatureChild> children = feature.getChildren();

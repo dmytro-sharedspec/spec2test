@@ -11,8 +11,16 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Utility class for working with Cucumber DataTable objects.
+ */
 public class TableUtils {
 
+    /**
+     * Calculates the maximum length of each column in a DataTable.
+     * @param dataTableMsg the DataTable object to analyze
+     * @return a list of integers representing the maximum length of each column
+     */
     public static List<Integer> workOutMaxColumnLength(DataTable dataTableMsg) {
 
         List<TableRow> rows = dataTableMsg.getRows();
@@ -40,6 +48,12 @@ public class TableUtils {
         return maxColumnLength;
     }
 
+    /**
+     * Converts a DataTable object to a string representation, with each column padded to the maximum length.
+     * @param dataTableMsg the DataTable object to convert
+     * @param maxColumnLength a list of integers representing the maximum length of each column
+     * @return a string representation of the DataTable, with columns padded
+     */
     public static String convertDataTableToString(DataTable dataTableMsg, List<Integer> maxColumnLength) {
 
         StringBuilder sb = new StringBuilder();
@@ -76,6 +90,11 @@ public class TableUtils {
         return sb.toString();
     }
 
+    /**
+     * Creates an abstract method specification for getting a {@link TableConverter}.
+     * @param processingEnv the processing environment
+     * @return a {@link MethodSpec} for the getTableConverter method
+     */
     public static MethodSpec createGetTableConverterMethod(ProcessingEnvironment processingEnv) {
 
         MethodSpec methodSpec = MethodSpec.methodBuilder("getTableConverter")
@@ -86,6 +105,11 @@ public class TableUtils {
         return methodSpec;
     }
 
+    /**
+     * Creates a method specification for creating a {@link io.cucumber.datatable.DataTable} from a string representation of table lines.
+     * @param processingEnv the processing environment
+     * @return a {@link MethodSpec} for the createDataTable method
+     */
     public static MethodSpec createDataTableMethod(ProcessingEnvironment processingEnv) {
 
         MethodSpec.Builder methodSpecBuilder = MethodSpec.methodBuilder("createDataTable")

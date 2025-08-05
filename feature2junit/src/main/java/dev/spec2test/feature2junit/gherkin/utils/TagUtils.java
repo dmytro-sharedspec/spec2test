@@ -6,9 +6,17 @@ import java.util.List;
 import lombok.experimental.UtilityClass;
 import org.junit.jupiter.api.Tags;
 
+/**
+ * Utility class for converting Gherkin tags to JUnit annotations.
+ */
 @UtilityClass
 public class TagUtils {
 
+    /**
+     * Converts a list of Gherkin tags to a JUnit Tags annotation.
+     * @param tags the list of Gherkin tags to convert
+     * @return an {@link AnnotationSpec} representing the JUnit Tags annotation
+     */
     public static AnnotationSpec toJUnitTagsAnnotation(List<Tag> tags) {
 
         AnnotationSpec.Builder annotationSpecBuilder;

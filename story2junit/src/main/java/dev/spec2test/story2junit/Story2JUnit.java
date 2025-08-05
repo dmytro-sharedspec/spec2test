@@ -5,12 +5,16 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Annotation to specify a story file for which to generate a JUnit test subclass.
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
 public @interface Story2JUnit {
 
     /**
-     * Path to the story file
+     * Path of the story file for which to generate a JUnit test subclass.
+     * @return the path to the story file
      */
     String value();
 

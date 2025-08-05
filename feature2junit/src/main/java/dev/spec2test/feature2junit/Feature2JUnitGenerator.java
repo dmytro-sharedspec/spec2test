@@ -18,6 +18,9 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
+/**
+ * Annotation processor that generates JUnit test subclasses based on the {@link Feature2JUnit} annotation.
+ */
 @SupportedAnnotationTypes("dev.spec2test.feature2junit.Feature2JUnit")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(Processor.class)

@@ -21,7 +21,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestInfo;
 
 @RequiredArgsConstructor
-public class BackgroundProcessor implements LoggingSupport {
+class BackgroundProcessor implements LoggingSupport {
 
     @Getter
     private final ProcessingEnvironment processingEnv;
@@ -31,7 +31,7 @@ public class BackgroundProcessor implements LoggingSupport {
         return processBackground(background, classBuilder, "featureBackground");
     }
 
-    public MethodSpec.Builder processRuleBackground(Background background, TypeSpec.Builder classBuilder) {
+    MethodSpec.Builder processRuleBackground(Background background, TypeSpec.Builder classBuilder) {
 
         return processBackground(background, classBuilder, "ruleBackground");
     }

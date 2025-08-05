@@ -18,12 +18,13 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
+/**
+ * APT processor that generates JUnit test subclasses based on the Story2JUnit annotation.
+ */
 @SupportedAnnotationTypes("dev.spec2test.story2junit.Story2JUnit")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(Processor.class)
 public class Story2JUnitGenerator extends AbstractProcessor {
-
-//    private CustomRegexStoryParser storyParser = new CustomRegexStoryParser();
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {

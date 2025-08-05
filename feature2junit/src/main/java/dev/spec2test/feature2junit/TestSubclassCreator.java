@@ -33,15 +33,29 @@ import org.junit.jupiter.api.Tags;
 import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestMethodOrder;
 
+/**
+ * Creates a JUnit test subclass for a given type element annotated with {@link Feature2JUnit}.
+ */
 @NotThreadSafe
 public class TestSubclassCreator implements LoggingSupport {
 
     private final ProcessingEnvironment processingEnv;
 
+    /**
+     * Constructor for TestSubclassCreator.
+     * @param processingEnv the processing environment used for annotation processing
+     */
     public TestSubclassCreator(ProcessingEnvironment processingEnv) {
         this.processingEnv = processingEnv;
     }
 
+    /**
+     * Creates a JUnit test subclass for the given type element annotated with {@link Feature2JUnit}.
+     * @param typeElement the type element to create a test subclass for
+     * @param targetAnnotation the annotation containing the feature file path
+     * @return a {@link JavaFile} representing the generated test subclass
+     * @throws IOException if an error occurs during file generation
+     */
     public JavaFile createTestSubclass(TypeElement typeElement, Feature2JUnit targetAnnotation) throws IOException {
 
         FeatureFileParser gherkinParser = new FeatureFileParser(processingEnv);

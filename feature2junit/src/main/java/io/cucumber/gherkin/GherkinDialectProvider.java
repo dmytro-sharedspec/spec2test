@@ -14,19 +14,33 @@ import static java.util.Objects.requireNonNull;
  */
 public class GherkinDialectProvider {
 
+    /**
+     * Additional feature keywords to be added to the default dialect.
+     */
     public static Set<String> additionalFeatureKeywords;
 
     private final String defaultDialectName;
     private GherkinDialect defaultDialect;
 
+    /**
+     * Creates a GherkinDialectProvider with the specified default dialect name.
+     * @param defaultDialectName the name of the default dialect, e.g. "en" for English
+     */
     public GherkinDialectProvider(String defaultDialectName) {
         this.defaultDialectName = requireNonNull(defaultDialectName);
     }
 
+    /**
+     * Creates a GherkinDialectProvider with the default dialect set to "en" (English).
+     */
     public GherkinDialectProvider() {
         this("en");
     }
 
+    /**
+     * Returns the default Gherkin dialect.
+     * @return the default Gherkin dialect
+     */
     public GherkinDialect getDefaultDialect() {
         if (defaultDialect == null) {
             this.defaultDialect = getDialect(defaultDialectName)
@@ -36,6 +50,11 @@ public class GherkinDialectProvider {
         return defaultDialect;
     }
 
+    /**
+     * Returns the Gherkin dialect for the specified language.
+     * @param language the language code, e.g. "en" for English
+     * @return an Optional containing the Gherkin dialect for the specified language, or an empty Optional if no such dialect exists
+     */
     public Optional<GherkinDialect> getDialect(String language) {
         requireNonNull(language);
         Optional<GherkinDialect> dialectResult = Optional.ofNullable(GherkinDialects.DIALECTS.get(language));
@@ -76,6 +95,10 @@ public class GherkinDialectProvider {
         return extendedDialect;
     }
 
+    /**
+     * Returns a set of all available Gherkin dialects.
+     * @return a set of language codes for all available Gherkin dialects
+     */
     public Set<String> getLanguages() {
         return GherkinDialects.DIALECTS.keySet();
     }

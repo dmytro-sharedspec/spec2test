@@ -18,6 +18,9 @@ import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 import lombok.Getter;
 
+/**
+ * Parses a Gherkin feature file and extracts the Feature object.
+ */
 public class FeatureFileParser implements LoggingSupport {
 
     @Getter
@@ -25,6 +28,10 @@ public class FeatureFileParser implements LoggingSupport {
 
     private GherkinParser gherkinParser;
 
+    /**
+     * Creates a FeatureFileParser instance.
+     * @param processingEnv the processing environment used to access the file system
+     */
     public FeatureFileParser(ProcessingEnvironment processingEnv) {
 
         this.processingEnv = processingEnv;
@@ -32,6 +39,12 @@ public class FeatureFileParser implements LoggingSupport {
         gherkinParser = GherkinParser.builder().includePickles(false).build();
     }
 
+    /**
+     * Parses a Gherkin feature file using the provided file path and returns the Feature object.
+     * @param featureFilePath the path to the feature file, relative to the classpath
+     * @return the Feature object extracted from the Gherkin document
+     * @throws IOException if an error occurs while reading the file or parsing the Gherkin document
+     */
     public Feature parseUsingPath(String featureFilePath) throws IOException {
 
         String fileContent = loadFileContent(featureFilePath);

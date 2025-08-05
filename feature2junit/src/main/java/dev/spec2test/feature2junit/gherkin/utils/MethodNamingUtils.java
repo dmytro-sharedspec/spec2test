@@ -1,7 +1,15 @@
 package dev.spec2test.feature2junit.gherkin.utils;
 
+/**
+ * Utility class for generating method names from Gherkin step definitions.
+ */
 public class MethodNamingUtils {
 
+    /**
+     * Generates a method name from the first line of a Gherkin step definition.
+     * @param stepFirstLine the first line of the Gherkin step definition
+     * @return a sanitized method name suitable for use in Java code
+     */
     public static String getStepMethodName(String stepFirstLine) {
 
         StringBuilder methodNameBuilder = new StringBuilder();

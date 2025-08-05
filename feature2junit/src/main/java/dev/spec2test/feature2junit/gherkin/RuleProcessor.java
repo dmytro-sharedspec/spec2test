@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 
 @RequiredArgsConstructor
-public class RuleProcessor implements LoggingSupport {
+class RuleProcessor implements LoggingSupport {
 
     @Getter
     private final ProcessingEnvironment processingEnv;

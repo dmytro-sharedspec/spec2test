@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 @RequiredArgsConstructor
-public class StepProcessor implements LoggingSupport {
+class StepProcessor implements LoggingSupport {
 
     @Getter
     private final ProcessingEnvironment processingEnv;
@@ -42,7 +42,7 @@ public class StepProcessor implements LoggingSupport {
 
     }
 
-    public MethodSpec processStep(
+    MethodSpec processStep(
             Step step, MethodSpec.Builder scenarioMethodBuilder,
             List<MethodSpec> scenarioStepsMethodSpecs) {
 
