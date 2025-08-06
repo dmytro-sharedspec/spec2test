@@ -5,10 +5,9 @@
     <parent>
         <groupId>dev.spec2test</groupId>
         <artifactId>spec2junit</artifactId>
-        <version>0.1.1-SNAPSHOT</version>
+        <version>0.1.2-SNAPSHOT</version>
     </parent>
     <artifactId>story2junit</artifactId>
-<!--    <version>0.1.1-SNAPSHOT</version>-->
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Used to generate JUnit test classes given JBehave '.story' file</description>
     <url>https://github.com/dmytro-sharedspec/spec2junit/tree/main</url>

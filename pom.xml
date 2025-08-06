@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>dev.spec2test</groupId>
   <artifactId>spec2junit</artifactId>
-  <version>0.1.1-SNAPSHOT</version>
+  <version>0.1.2-SNAPSHOT</version>
   <name>${project.groupId}:${project.artifactId}</name>
   <description>Used to generate JUnit test classes from a specification file</description>
   <url>https://github.com/dmytro-sharedspec/spec2junit/tree/main</url>
@@ -131,12 +131,14 @@
         <executions>
           <execution>
             <id>sign-artifacts</id>
-            <phase>verify</phase>
+<!--            <phase>verify</phase>-->
+<!--            <phase>install</phase>-->
+            <phase>deploy</phase>
             <goals>
               <goal>sign</goal>
             </goals>
             <configuration>
-              <skip>true</skip>
+<!--              <skip>true</skip>-->
             </configuration>
           </execution>
         </executions>
