@@ -1,14 +1,12 @@
 package dev.spec2test.feature2junit;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  *
  */
 @Target(ElementType.TYPE)
+@Inherited
 @Retention(RetentionPolicy.RUNTIME)
 public @interface FeatureFilePath {
 

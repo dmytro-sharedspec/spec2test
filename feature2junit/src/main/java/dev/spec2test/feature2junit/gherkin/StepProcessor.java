@@ -13,8 +13,10 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.cucumber.messages.types.DataTable;
+import io.cucumber.messages.types.DocString;
 import io.cucumber.messages.types.Location;
 import io.cucumber.messages.types.Step;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -92,12 +95,22 @@ class StepProcessor implements LoggingSupport {
                     .build();
             stepMethodBuilder.addParameter(parameterSpec);
         }
-        // check if step has a data table
+        /**
+         * check if step has a data table
+         */
         if (step.getDataTable().isPresent()) {
 //            String parameterName = "p" + (parameterValues.size()); // data table is the last parameter
-            String parameterName = "dataTable";
             ParameterSpec dataTableParameterSpec = ParameterSpec
-                    .builder(io.cucumber.datatable.DataTable.class, parameterName)
+                    .builder(io.cucumber.datatable.DataTable.class, "dataTable")
+                    .build();
+            stepMethodBuilder.addParameter(dataTableParameterSpec);
+        }
+        /**
+         * check if step has doc string
+         */
+        else if (step.getDocString().isPresent()) {
+            ParameterSpec dataTableParameterSpec = ParameterSpec
+                    .builder(String.class, "docString")
                     .build();
             stepMethodBuilder.addParameter(dataTableParameterSpec);
         }
@@ -165,8 +178,7 @@ class StepProcessor implements LoggingSupport {
                  * no quote marks in this case as we are passing a reference to a Scenario test method parameter
                  */
                 parameterValuesSB.append(scenarioParameter);
-            }
-            else {
+            } else {
                 parameterValuesSB.append("\"");
                 parameterValuesSB.append(parameterValue);
                 parameterValuesSB.append("\"");
@@ -188,6 +200,18 @@ class StepProcessor implements LoggingSupport {
             parameterValuesSB.append(dataTableAsString);
             parameterValuesSB.append("\n\"\"\"");
             parameterValuesSB.append(")");
+
+        } else if (step.getDocString().isPresent()) {
+
+            if (!parameterValues.isEmpty()) {
+                parameterValuesSB.append(", ");
+            }
+
+            DocString docString1 = step.getDocString().get();
+            String docString = docString1.getContent();
+            parameterValuesSB.append("\"\"\"\n");
+            parameterValuesSB.append(docString);
+            parameterValuesSB.append("\n\"\"\"");
         }
 
         /**
@@ -240,14 +264,11 @@ class StepProcessor implements LoggingSupport {
         AnnotationSpec.Builder annotationSpecBuilder;
         if (stepMethodName.startsWith("given")) {
             annotationSpecBuilder = AnnotationSpec.builder(Given.class);
-        }
-        else if (stepMethodName.startsWith("when")) {
+        } else if (stepMethodName.startsWith("when")) {
             annotationSpecBuilder = AnnotationSpec.builder(When.class);
-        }
-        else if (stepMethodName.startsWith("then")) {
+        } else if (stepMethodName.startsWith("then")) {
             annotationSpecBuilder = AnnotationSpec.builder(Then.class);
-        }
-        else if (stepMethodName.startsWith("and") || stepMethodName.startsWith("but")) {
+        } else if (stepMethodName.startsWith("and") || stepMethodName.startsWith("but")) {
             // 'And' is a special case, which is worked out using previous non And step keyword
             if (scenarioStepsMethodSpecs.isEmpty()) {
                 throw new ProcessingException(
@@ -263,16 +284,13 @@ class StepProcessor implements LoggingSupport {
                 if (annotationName.equals(Given.class.getName())) {
                     gwtAnnotation = Given.class;
                     break;
-                }
-                else if (annotationName.equals(When.class.getName())) {
+                } else if (annotationName.equals(When.class.getName())) {
                     gwtAnnotation = When.class;
                     break;
-                }
-                else if (annotationName.equals(Then.class.getName())) {
+                } else if (annotationName.equals(Then.class.getName())) {
                     gwtAnnotation = Then.class;
                     break;
-                }
-                else {
+                } else {
                     continue; // skip
                 }
             }
@@ -284,8 +302,7 @@ class StepProcessor implements LoggingSupport {
 
             annotationSpecBuilder = AnnotationSpec.builder(gwtAnnotation);
 
-        }
-        else {
+        } else {
             throw new ProcessingException(
                     "Step method name does not start with a valid keyword (Given, When, Then, And): "
                             + stepMethodName);
