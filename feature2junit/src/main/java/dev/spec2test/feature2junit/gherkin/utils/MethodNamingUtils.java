@@ -1,5 +1,10 @@
 package dev.spec2test.feature2junit.gherkin.utils;
 
+import com.squareup.javapoet.MethodSpec;
+import dev.spec2test.common.ProcessingException;
+
+import java.util.List;
+
 /**
  * Utility class for generating method names from Gherkin step definitions.
  */
@@ -7,10 +12,12 @@ public class MethodNamingUtils {
 
     /**
      * Generates a method name from the first line of a Gherkin step definition.
-     * @param stepFirstLine the first line of the Gherkin step definition
+     *
+     * @param stepFirstLine            the first line of the Gherkin step definition
+     * @param scenarioStepsMethodSpecs
      * @return a sanitized method name suitable for use in Java code
      */
-    public static String getStepMethodName(String stepFirstLine) {
+    public static String getStepMethodName(String stepFirstLine, List<MethodSpec> scenarioStepsMethodSpecs) {
 
         StringBuilder methodNameBuilder = new StringBuilder();
 
@@ -18,6 +25,10 @@ public class MethodNamingUtils {
         for (int i = 0; i < words.length; i++) {
 
             String word = words[i];
+
+            if (i == 0 && word.equalsIgnoreCase("and") || word.equalsIgnoreCase("but")) {
+                word = getPreviousGWTStepWord(stepFirstLine, scenarioStepsMethodSpecs);
+            }
 
             // Remove invalid characters
             StringBuilder sanitizedWordBuilder = new StringBuilder();
@@ -59,5 +70,31 @@ public class MethodNamingUtils {
 
         String sanitizedMethodName = methodNameBuilder.toString();
         return sanitizedMethodName;
+    }
+
+    private static String getPreviousGWTStepWord(String stepFirstLine, List<MethodSpec> scenarioStepsMethodSpecs) {
+
+        /**
+         * need to replace the 'And' or 'But' keywords with one from GWT as those are just aliases
+         */
+        if (scenarioStepsMethodSpecs.isEmpty()) {
+            throw new ProcessingException(
+                    "Step's first line - '" + stepFirstLine
+                            + "' starts with 'And', but there are no previous scenario steps defined");
+        }
+
+        MethodSpec lastScenarioMethodSpec = scenarioStepsMethodSpecs.get(scenarioStepsMethodSpecs.size() - 1);
+        String lastMethodName = lastScenarioMethodSpec.name;
+        if (lastMethodName.startsWith("given")) {
+            return "given";
+        } else if (lastMethodName.startsWith("when")) {
+            return "when";
+        } else if (lastMethodName.startsWith("then")) {
+            return "then";
+        } else {
+            throw new ProcessingException(
+                    "Step's first line - '" + stepFirstLine
+                            + "' starts with 'And', but the previous step is not a GWT step");
+        }
     }
 }

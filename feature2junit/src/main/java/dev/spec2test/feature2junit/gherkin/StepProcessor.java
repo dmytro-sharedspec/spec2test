@@ -73,7 +73,9 @@ class StepProcessor implements LoggingSupport {
          * create a potential new method to add to the test class
          * it won't be actually added if a method with exactly the same signature already exists
          */
-        MethodSignatureAttributes stepMethodSignatureAttributes = extractMethodSignature(stepFirstLine, scenarioParameterNames);
+        MethodSignatureAttributes stepMethodSignatureAttributes = extractMethodSignature(
+                stepFirstLine, scenarioParameterNames, scenarioStepsMethodSpecs
+        );
         String stepMethodName = stepMethodSignatureAttributes.methodName;
         MethodSpec.Builder stepMethodBuilder = MethodSpec
                 .methodBuilder(stepMethodName)
@@ -329,7 +331,7 @@ class StepProcessor implements LoggingSupport {
 
     private MethodSignatureAttributes extractMethodSignature(
             String stepFirstLine,
-            List<String> scenarioParameterNames) {
+            List<String> scenarioParameterNames, List<MethodSpec> scenarioStepsMethodSpecs) {
 
         List<String> parameterValues = new ArrayList<>();
 
@@ -347,7 +349,7 @@ class StepProcessor implements LoggingSupport {
                     parameterValues);
         }
 
-        String stepMethodName = MethodNamingUtils.getStepMethodName(stepPattern);
+        String stepMethodName = MethodNamingUtils.getStepMethodName(stepPattern, scenarioStepsMethodSpecs);
 
         MethodSignatureAttributes signatureAttributes = new MethodSignatureAttributes(
                 stepPattern,

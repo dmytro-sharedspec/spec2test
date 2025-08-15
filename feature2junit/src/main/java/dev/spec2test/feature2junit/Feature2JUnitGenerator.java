@@ -31,6 +31,8 @@ public class Feature2JUnitGenerator extends AbstractProcessor implements Logging
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
+        if (roundEnv.processingOver() || roundEnv.errorRaised()) return false;
+
         int totalClassesProcessed = 0;
 
         logInfo("Running " + this.getClass().getSimpleName());
