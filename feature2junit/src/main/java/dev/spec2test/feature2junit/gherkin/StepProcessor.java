@@ -135,6 +135,20 @@ class StepProcessor implements LoggingSupport {
             List<String> parameterValues, Step step,
             List<String> scenarioParameterNames, List<String> testMethodParameterNames
     ) {
+
+        /**
+         * add javadoc for the step as it appears in the feature file
+         */
+        String stepFirstLine = step.getKeyword() + step.getText();
+//        scenarioMethodBuilder.addCode("/**\n * $L\n */\n", stepFirstLine);
+        scenarioMethodBuilder.addCode("/**");
+        scenarioMethodBuilder.addCode("\n * $L", stepFirstLine);
+        if (GeneratorOptions.addSourceLineAnnotations.isSet(processingEnv)) {
+            Location stepLocation = step.getLocation();
+            scenarioMethodBuilder.addCode("\n * (source line - $L", stepLocation.getLine() + ")");
+        }
+        scenarioMethodBuilder.addCode("\n */\n");
+
         /**
          * replace all occurrences of '$' with a '$L' placeholders and replace back with '$'
          */
@@ -211,23 +225,40 @@ class StepProcessor implements LoggingSupport {
 
             DocString docString1 = step.getDocString().get();
             String docString = docString1.getContent();
-            parameterValuesSB.append("\"\"\"\n");
-            parameterValuesSB.append(docString);
-            parameterValuesSB.append("\n\"\"\"");
-        }
+            /**
+             * in case we are processing a scenario with examples table i.e. Scenario Template type
+             * then we need to replace any references to scenario parameters with reference value from the examples table
+             */
+            if (scenarioParameterNames != null && !scenarioParameterNames.isEmpty()) {
 
-        /**
-         * add javadoc for the step as it appears in the feature file
-         */
-        String stepFirstLine = step.getKeyword() + step.getText();
-//        scenarioMethodBuilder.addCode("/**\n * $L\n */\n", stepFirstLine);
-        scenarioMethodBuilder.addCode("/**");
-        scenarioMethodBuilder.addCode("\n * $L", stepFirstLine);
-        if (GeneratorOptions.addSourceLineAnnotations.isSet(processingEnv)) {
-            Location stepLocation = step.getLocation();
-            scenarioMethodBuilder.addCode("\n * (source line - $L", stepLocation.getLine() + ")");
+                StringBuilder docStringVarSb = new StringBuilder();
+                docStringVarSb.append("String docString = \"\"\"\n");
+                docStringVarSb.append(docString);
+                docStringVarSb.append("\n\"\"\"");
+                String docStringVar = docStringVarSb.toString();
+                CodeBlock docStringVarBlock = CodeBlock.of(docStringVar);
+                scenarioMethodBuilder.addStatement(docStringVarBlock);
+
+                // what we want: docString = docString.replaceAll("\s<keyword>\s", " " + keyword + " ");
+                for (String scenarioParameterName : scenarioParameterNames) {
+
+//                    String replacePattern = "\\s<" + scenarioParameterName + ">\\s";
+                    String replacePattern = "<" + scenarioParameterName + ">";
+                    CodeBlock replaceCall = CodeBlock.of("docString = docString.replaceAll($S, "
+//                                    + "\" \" + " + scenarioParameterName + " + \" \"" + ")", replacePattern);
+                                    + scenarioParameterName + ")", replacePattern);
+                    scenarioMethodBuilder.addStatement(replaceCall);
+                }
+
+                parameterValuesSB.delete(0, parameterValuesSB.length()); // clear the StringBuilder
+                parameterValuesSB.append("docString");
+
+            } else {
+                parameterValuesSB.append("\"\"\"\n");
+                parameterValuesSB.append(docString);
+                parameterValuesSB.append("\n\"\"\"");
+            }
         }
-        scenarioMethodBuilder.addCode("\n */\n");
 
         String parameterValuesPart = parameterValuesSB.toString();
         CodeBlock codeBlock =
@@ -236,8 +267,9 @@ class StepProcessor implements LoggingSupport {
         scenarioMethodBuilder.addStatement(codeBlock);
     }
 
-    private String getScenarioParameter(
-            String parameterValue, List<String> scenarioParameterNames, List<String> testMethodParameterNames) {
+    private String getScenarioParameter(String parameterValue, List<String> scenarioParameterNames,
+                                        List<String> testMethodParameterNames
+    ) {
 
         if (scenarioParameterNames == null || scenarioParameterNames.isEmpty()) {
             return null; // no scenario parameters defined

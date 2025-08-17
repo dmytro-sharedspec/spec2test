@@ -7,16 +7,19 @@ import io.cucumber.gherkin.GherkinParser;
 import io.cucumber.messages.types.Envelope;
 import io.cucumber.messages.types.Feature;
 import io.cucumber.messages.types.GherkinDocument;
+import lombok.Getter;
+
+import javax.annotation.processing.Filer;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.FileObject;
+import javax.tools.StandardLocation;
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.stream.Stream;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.tools.FileObject;
-import javax.tools.StandardLocation;
-import lombok.Getter;
 
 /**
  * Parses a Gherkin feature file and extracts the Feature object.
@@ -30,6 +33,7 @@ public class FeatureFileParser implements LoggingSupport {
 
     /**
      * Creates a FeatureFileParser instance.
+     *
      * @param processingEnv the processing environment used to access the file system
      */
     public FeatureFileParser(ProcessingEnvironment processingEnv) {
@@ -41,6 +45,7 @@ public class FeatureFileParser implements LoggingSupport {
 
     /**
      * Parses a Gherkin feature file using the provided file path and returns the Feature object.
+     *
      * @param featureFilePath the path to the feature file, relative to the classpath
      * @return the Feature object extracted from the Gherkin document
      * @throws IOException if an error occurs while reading the file or parsing the Gherkin document
@@ -66,10 +71,53 @@ public class FeatureFileParser implements LoggingSupport {
 
     private String loadFileContent(String featureFilePath) throws IOException {
 
-        FileObject specFile = processingEnv.getFiler().getResource(StandardLocation.CLASS_PATH, "", featureFilePath); // works from IDE & maven lifecycle build goal
-        CharSequence charContent = specFile.getCharContent(false);
+//        logWarning("Loading feature file, featureFilePath = '" + featureFilePath + "'");
 
-        String featureContent = charContent.toString();
-        return featureContent;
+        Filer filer = processingEnv.getFiler();
+        try {
+
+            FileObject specFile = null;
+//            try {
+//                specFile = filer.getResource(StandardLocation.SOURCE_PATH, "", featureFilePath);
+//                logWarning("Found feature file in SOURCE_PATH: " + featureFilePath);
+//            } catch (FileNotFoundException e) {
+//                // silently ignore this attempted location
+//                logWarning("Could not find feature file in SOURCE_PATH: " + featureFilePath);
+//            }
+//            if (specFile == null) {
+//                try {
+//                    specFile = filer.getResource(StandardLocation.SOURCE_OUTPUT, "", featureFilePath);
+//                    logWarning("Found feature file in SOURCE_OUTPUT: " + featureFilePath);
+//                } catch (FileNotFoundException e) {
+//                    // silently ignore this attempted location
+//                    logWarning("Could not find feature file in SOURCE_OUTPUT: " + featureFilePath);
+//                }
+//            }
+//            if (specFile == null) {
+//                try {
+//                    specFile = filer.getResource(StandardLocation.CLASS_OUTPUT, "", featureFilePath);
+//                    logWarning("Found feature file in CLASS_OUTPUT: " + featureFilePath);
+//                } catch (FileNotFoundException e) {
+//                    // silently ignore this attempted location
+//                    logWarning("Could not find feature file in CLASS_OUTPUT: " + featureFilePath);
+//                }
+//            }
+
+//            if (specFile == null) {
+            // works from IDE & maven lifecycle build goal
+            specFile = filer.getResource(StandardLocation.CLASS_PATH, "", featureFilePath);
+//            logWarning("Found feature file in CLASS_PATH: " + featureFilePath);
+//            }
+
+//            logWarning("Reading feature file content from: " + specFile.toUri());
+            CharSequence charContent = specFile.getCharContent(false);
+            String featureContent = charContent.toString();
+
+            return featureContent;
+
+        } catch (FileNotFoundException e) {
+            logWarning("Could not find feature file in CLASS_PATH: " + featureFilePath);
+            throw e;
+        }
     }
 }

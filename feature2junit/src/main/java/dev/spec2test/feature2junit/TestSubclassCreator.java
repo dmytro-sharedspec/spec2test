@@ -1,11 +1,6 @@
 package dev.spec2test.feature2junit;
 
-import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.*;
 import dev.spec2test.common.LoggingSupport;
 import dev.spec2test.common.ProcessingException;
 import dev.spec2test.feature2junit.gherkin.FeatureFileParser;
@@ -15,23 +10,18 @@ import dev.spec2test.feature2junit.gherkin.utils.TableUtils;
 import dev.spec2test.feature2junit.gherkin.utils.TagUtils;
 import io.cucumber.messages.types.Feature;
 import io.cucumber.messages.types.Tag;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import org.junit.jupiter.api.ClassOrderer;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.TestClassOrder;
+import org.junit.jupiter.api.TestMethodOrder;
+
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.processing.Generated;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.PackageElement;
-import javax.lang.model.element.TypeElement;
-import org.junit.jupiter.api.ClassOrderer;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Tags;
-import org.junit.jupiter.api.TestClassOrder;
-import org.junit.jupiter.api.TestMethodOrder;
+import javax.lang.model.element.*;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Creates a JUnit test subclass for a given type element annotated with {@link Feature2JUnit}.
@@ -58,26 +48,39 @@ public class TestSubclassCreator implements LoggingSupport {
      */
     public JavaFile createTestSubclass(TypeElement typeElement, Feature2JUnit targetAnnotation) throws IOException {
 
-        FeatureFileParser gherkinParser = new FeatureFileParser(processingEnv);
-
-        String featureFilePath = targetAnnotation.value();
-        Feature feature = gherkinParser.parseUsingPath(featureFilePath);
-
         Element enclosingElement = typeElement.getEnclosingElement();
         if (enclosingElement instanceof PackageElement == false) {
             throw new ProcessingException(
                     "The class annotated with @" + Feature2JUnit.class.getSimpleName() + " must be in a package, but it is not. "
                             + "Enclosing element: " + enclosingElement);
         }
+
         PackageElement packageElement = (PackageElement) enclosingElement;
         String packageName = packageElement.getQualifiedName().toString();
+        String annotatedClassName = typeElement.getSimpleName().toString();
 
-        String subclassSimpleName = typeElement.getSimpleName() + "Scenarios";
+        FeatureFileParser gherkinParser = new FeatureFileParser(processingEnv);
+
+        String featureFilePath = targetAnnotation.value();
+
+        String featureFilePathForParsing;
+        if (featureFilePath == null || featureFilePath.isBlank()) {
+//            moduleAndPkg = packageName.replaceAll("\\.", "/");
+            featureFilePathForParsing = packageName.replaceAll("\\.", "/")
+                    + "/" + annotatedClassName + ".feature";
+        } else {
+            featureFilePathForParsing= featureFilePath;
+        }
+        Feature feature = gherkinParser.parseUsingPath(featureFilePathForParsing);
+
+//        String subclassSimpleName = typeElement.getSimpleName() + "Scenarios";
+        String subclassSimpleName = typeElement.getSimpleName() + "Test";
 
         TypeSpec.Builder classBuilder = TypeSpec
                 .classBuilder(subclassSimpleName)
                 .superclass(typeElement.asType())
-                .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT);
+//                .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT);
+                .addModifiers(Modifier.PUBLIC);
 
         List<Tag> tags = feature.getTags();
         if (tags != null && !tags.isEmpty()) {
@@ -122,9 +125,15 @@ public class TestSubclassCreator implements LoggingSupport {
         /**
          * {@link FeatureFilePath} annotation
          */
+        String featureFilePathForAnnotation;
+        if (featureFilePath == null || featureFilePath.isBlank()) {
+            featureFilePathForAnnotation = packageName.replaceAll("\\.", "/") + "/" + annotatedClassName + ".feature";
+        } else {
+            featureFilePathForAnnotation= featureFilePath;
+        }
         classBuilder.addAnnotation(AnnotationSpec
                 .builder(FeatureFilePath.class)
-                .addMember("value", "\"" + featureFilePath + "\"")
+                .addMember("value", "\"" + featureFilePathForAnnotation + "\"")
                 .build()
         );
 
@@ -139,10 +148,10 @@ public class TestSubclassCreator implements LoggingSupport {
                 .filter(methodSpec -> methodSpec.parameters.stream()
                         .anyMatch(parameterSpec -> parameterSpec.name.equals("dataTable"))).findFirst();
         if (methodWithDataTableParameter.isPresent()) {
-            MethodSpec getTableConverterMethod = TableUtils.createGetTableConverterMethod(processingEnv);
-            classBuilder.addMethod(getTableConverterMethod);
-            MethodSpec createDataTableMethod = TableUtils.createDataTableMethod(processingEnv);
-            classBuilder.addMethod(createDataTableMethod);
+//            MethodSpec getTableConverterMethod = TableUtils.createGetTableConverterMethod(processingEnv);
+//            classBuilder.addMethod(getTableConverterMethod);
+//            MethodSpec createDataTableMethod = TableUtils.createDataTableMethod(processingEnv);
+//            classBuilder.addMethod(createDataTableMethod);
         }
 
         TypeSpec typeSpec = classBuilder.build();

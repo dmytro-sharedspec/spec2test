@@ -26,7 +26,8 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 @AutoService(Processor.class)
 public class Feature2JUnitGenerator extends AbstractProcessor implements LoggingSupport {
 
-    private final String suffixForGeneratedClass = "Scenarios";
+//    private final String suffixForGeneratedClass = "Scenarios";
+    private final String suffixForGeneratedClass = "Test";
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {

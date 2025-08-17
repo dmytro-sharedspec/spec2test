@@ -16,5 +16,5 @@ public @interface Feature2JUnit {
      * Path to the feature file
      * @return the path to the Gherkin feature file, relative to the classpath
      */
-    String value();
+    String value() default "";
 }

@@ -113,7 +113,7 @@ class ScenarioProcessor implements LoggingSupport {
 
             if (existingMethodSpec == null) {
                 // If the method already exists, we can skip creating it again
-                classBuilder.addMethod(stepMethodSpec);
+//                classBuilder.addMethod(stepMethodSpec);
             }
         }
 
