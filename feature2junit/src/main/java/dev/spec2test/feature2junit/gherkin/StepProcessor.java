@@ -4,9 +4,10 @@ import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
+import dev.spec2test.common.GeneratorOptions;
 import dev.spec2test.common.LoggingSupport;
+import dev.spec2test.common.OptionsSupport;
 import dev.spec2test.common.ProcessingException;
-import dev.spec2test.feature2junit.GeneratorOptions;
 import dev.spec2test.feature2junit.gherkin.utils.MethodNamingUtils;
 import dev.spec2test.feature2junit.gherkin.utils.TableUtils;
 import io.cucumber.java.en.Given;
@@ -16,24 +17,26 @@ import io.cucumber.messages.types.DataTable;
 import io.cucumber.messages.types.DocString;
 import io.cucumber.messages.types.Location;
 import io.cucumber.messages.types.Step;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Modifier;
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 
 @RequiredArgsConstructor
-class StepProcessor implements LoggingSupport {
+class StepProcessor implements LoggingSupport, OptionsSupport {
 
     @Getter
     private final ProcessingEnvironment processingEnv;
+
+    @Getter
+    private final GeneratorOptions options;
 
     private static final Pattern parameterPattern = Pattern.compile("(?<parameter>(\")(?<parameterValue>[^\"]+?)(\"))");
 
@@ -143,7 +146,7 @@ class StepProcessor implements LoggingSupport {
 //        scenarioMethodBuilder.addCode("/**\n * $L\n */\n", stepFirstLine);
         scenarioMethodBuilder.addCode("/**");
         scenarioMethodBuilder.addCode("\n * $L", stepFirstLine);
-        if (GeneratorOptions.addSourceLineAnnotations.isSet(processingEnv)) {
+        if (options.isAddSourceLineAnnotations()) {
             Location stepLocation = step.getLocation();
             scenarioMethodBuilder.addCode("\n * (source line - $L", stepLocation.getLine() + ")");
         }

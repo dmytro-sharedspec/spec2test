@@ -3,16 +3,13 @@ package dev.spec2test.feature2junit.gherkin;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
+import dev.spec2test.common.GeneratorOptions;
 import dev.spec2test.common.LoggingSupport;
-import dev.spec2test.feature2junit.GeneratorOptions;
+import dev.spec2test.common.OptionsSupport;
 import dev.spec2test.feature2junit.gherkin.utils.JavaDocUtils;
 import dev.spec2test.feature2junit.gherkin.utils.LocationUtils;
 import io.cucumber.messages.types.Background;
 import io.cucumber.messages.types.Step;
-import java.util.ArrayList;
-import java.util.List;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Modifier;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -20,11 +17,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestInfo;
 
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Modifier;
+import java.util.ArrayList;
+import java.util.List;
+
 @RequiredArgsConstructor
-class BackgroundProcessor implements LoggingSupport {
+class BackgroundProcessor implements LoggingSupport, OptionsSupport {
 
     @Getter
     private final ProcessingEnvironment processingEnv;
+
+    @Getter
+    private final GeneratorOptions options;
 
     MethodSpec.Builder processFeatureBackground(Background background, TypeSpec.Builder classBuilder) {
 
@@ -52,7 +57,7 @@ class BackgroundProcessor implements LoggingSupport {
                 .methodBuilder(backgroundMethodName)
                 .addModifiers(Modifier.PUBLIC);
 
-        if (GeneratorOptions.addSourceLineAnnotations.isSet(processingEnv)) {
+        if (options.isAddSourceLineAnnotations()) {
             AnnotationSpec locationAnnotation = LocationUtils.toJUnitTagsAnnotation(background.getLocation());
             backgroundMethodBuilder.addAnnotation(locationAnnotation);
         }
@@ -69,7 +74,7 @@ class BackgroundProcessor implements LoggingSupport {
 
         for (Step scenarioStep : backgroundSteps) {
 
-            StepProcessor stepProcessor = new StepProcessor(processingEnv);
+            StepProcessor stepProcessor = new StepProcessor(processingEnv, options);
             MethodSpec stepMethodSpec = stepProcessor.processStep(scenarioStep, backgroundMethodBuilder, backgroundStepsMethodSpecs);
             backgroundStepsMethodSpecs.add(stepMethodSpec);
 
@@ -79,9 +84,9 @@ class BackgroundProcessor implements LoggingSupport {
                             .findFirst()
                             .orElse(null);
 
-            if (existingMethodSpec == null) {
+            if (existingMethodSpec == null && options.isShouldBeAbstract()) {
                 // If the method already exists, we can skip creating it again
-//                classBuilder.addMethod(stepMethodSpec);
+                classBuilder.addMethod(stepMethodSpec);
             }
         }
 

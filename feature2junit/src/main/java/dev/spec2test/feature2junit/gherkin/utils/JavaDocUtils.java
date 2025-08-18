@@ -44,10 +44,10 @@ public class JavaDocUtils {
      * Generates a JavaDoc content string for a given keyword, name, and description. Similar to
      * {@link #toJavaDoc(String, String, String)} but doesn't include the JavaDoc comment syntax (i.e., no "/**" or " * ").
      *
-     * @param keyword
-     * @param name
-     * @param description
-     * @return
+     * @param keyword the keyword of the element
+     * @param name the name of the element, i.e. part of text that's on the same line as the keyword
+     * @param description the description of the element
+     * @return JavaDoc content comprised of the keyword, name, and description formatted as a string.
      */
     public static String toJavaDocContent(String keyword, @Nullable String name, @Nullable String description) {
 

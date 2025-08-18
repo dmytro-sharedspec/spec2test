@@ -2,7 +2,9 @@ package dev.spec2test.feature2junit;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
+import dev.spec2test.common.GeneratorOptions;
 import dev.spec2test.common.LoggingSupport;
+
 import java.io.PrintWriter;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
@@ -16,6 +18,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
@@ -26,8 +29,8 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 @AutoService(Processor.class)
 public class Feature2JUnitGenerator extends AbstractProcessor implements LoggingSupport {
 
-//    private final String suffixForGeneratedClass = "Scenarios";
-    private final String suffixForGeneratedClass = "Test";
+    //    private final String suffixForGeneratedClass = "Scenarios";
+    static final String defaultSuffixForGeneratedClass = "Test";
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -56,8 +59,23 @@ public class Feature2JUnitGenerator extends AbstractProcessor implements Logging
 
                 Filer filer = processingEnv.getFiler();
                 Feature2JUnit targetAnnotation = annotatedClass.getAnnotation(Feature2JUnit.class);
-                String subclassFullyQualifiedName = annotatedClass.getQualifiedName() + suffixForGeneratedClass;
-                TestSubclassCreator subclassGenerator = new TestSubclassCreator(processingEnv);
+
+                Feature2JUnitOptions optionsAnnotation = annotatedClass.getAnnotation(Feature2JUnitOptions.class);
+                GeneratorOptions generatorOptions;
+                if (optionsAnnotation != null) {
+                    generatorOptions = GeneratorOptions.builder()
+                            .addSourceLineAnnotations(optionsAnnotation.addSourceLineAnnotations())
+                            .addSourceLineBeforeStepCalls(optionsAnnotation.addSourceLineBeforeStepCalls())
+                            .shouldBeAbstract(optionsAnnotation.shouldBeAbstract())
+                            .classSuffix(optionsAnnotation.classSuffix().trim())
+                            .build();
+                } else {
+                    generatorOptions = GeneratorOptions.defaultOptions();
+                }
+
+                String subclassFullyQualifiedName = annotatedClass.getQualifiedName() + generatorOptions.getClassSuffix();
+
+                TestSubclassCreator subclassGenerator = new TestSubclassCreator(processingEnv, generatorOptions);
 
                 PrintWriter out = null;
                 try {
@@ -67,15 +85,13 @@ public class Feature2JUnitGenerator extends AbstractProcessor implements Logging
 
                     out = new PrintWriter(subclassFile.openWriter());
                     javaFile.writeTo(out);
-                }
-                catch (Throwable t) {
+                } catch (Throwable t) {
                     logError("An error occurred while processing annotated element - '" + annotatedClass.getQualifiedName() + "'");
                     String rootCauseMessage = ExceptionUtils.getRootCauseMessage(t);
                     logError("Root cause message: " + rootCauseMessage);
                     String stackTrace = ExceptionUtils.getStackTrace(t);
                     logError("Stack trace: \n" + stackTrace);
-                }
-                finally {
+                } finally {
                     if (out != null) {
                         out.close();
                     }

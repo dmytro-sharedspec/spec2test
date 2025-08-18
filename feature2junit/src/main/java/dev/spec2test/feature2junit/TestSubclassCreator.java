@@ -1,14 +1,18 @@
 package dev.spec2test.feature2junit;
 
 import com.squareup.javapoet.*;
+import dev.spec2test.common.GeneratorOptions;
 import dev.spec2test.common.LoggingSupport;
+import dev.spec2test.common.OptionsSupport;
 import dev.spec2test.common.ProcessingException;
 import dev.spec2test.feature2junit.gherkin.FeatureFileParser;
 import dev.spec2test.feature2junit.gherkin.FeatureProcessor;
 import dev.spec2test.feature2junit.gherkin.utils.JavaDocUtils;
+import dev.spec2test.feature2junit.gherkin.utils.TableUtils;
 import dev.spec2test.feature2junit.gherkin.utils.TagUtils;
 import io.cucumber.messages.types.Feature;
 import io.cucumber.messages.types.Tag;
+import lombok.Getter;
 import org.junit.jupiter.api.*;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -26,17 +30,21 @@ import java.util.Optional;
  * Creates a JUnit test subclass for a given type element annotated with {@link Feature2JUnit}.
  */
 @NotThreadSafe
-public class TestSubclassCreator implements LoggingSupport {
+public class TestSubclassCreator implements LoggingSupport, OptionsSupport {
 
     private final ProcessingEnvironment processingEnv;
 
+    @Getter
+    private final GeneratorOptions options;
+
     /**
      * Constructor for TestSubclassCreator.
-     *
+     * @param generatorOptions the generator options to use for test generation
      * @param processingEnv the processing environment used for annotation processing
      */
-    public TestSubclassCreator(ProcessingEnvironment processingEnv) {
+    public TestSubclassCreator(ProcessingEnvironment processingEnv, GeneratorOptions generatorOptions) {
         this.processingEnv = processingEnv;
+        this.options = generatorOptions;
     }
 
     /**
@@ -74,14 +82,17 @@ public class TestSubclassCreator implements LoggingSupport {
         }
         Feature feature = gherkinParser.parseUsingPath(featureFilePathForParsing);
 
-//        String subclassSimpleName = typeElement.getSimpleName() + "Scenarios";
-        String subclassSimpleName = typeElement.getSimpleName() + "Test";
+        String suffixToApply = options.getClassSuffix();
+        String subclassSimpleName = typeElement.getSimpleName() + suffixToApply;
 
         TypeSpec.Builder classBuilder = TypeSpec
                 .classBuilder(subclassSimpleName)
                 .superclass(typeElement.asType())
-//                .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT);
                 .addModifiers(Modifier.PUBLIC);
+
+        if (options.isShouldBeAbstract()) {
+            classBuilder.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT);
+        }
 
         List<Tag> tags = feature.getTags();
         if (tags != null && !tags.isEmpty()) {
@@ -152,7 +163,7 @@ public class TestSubclassCreator implements LoggingSupport {
                 .build()
         );
 
-        FeatureProcessor featureProcessor = new FeatureProcessor(processingEnv);
+        FeatureProcessor featureProcessor = new FeatureProcessor(processingEnv, options);
         featureProcessor.processFeature(feature, classBuilder);
 
         /**
@@ -162,11 +173,11 @@ public class TestSubclassCreator implements LoggingSupport {
         Optional<MethodSpec> methodWithDataTableParameter = methodSpecs.stream()
                 .filter(methodSpec -> methodSpec.parameters.stream()
                         .anyMatch(parameterSpec -> parameterSpec.name.equals("dataTable"))).findFirst();
-        if (methodWithDataTableParameter.isPresent()) {
-//            MethodSpec getTableConverterMethod = TableUtils.createGetTableConverterMethod(processingEnv);
-//            classBuilder.addMethod(getTableConverterMethod);
-//            MethodSpec createDataTableMethod = TableUtils.createDataTableMethod(processingEnv);
-//            classBuilder.addMethod(createDataTableMethod);
+        if (methodWithDataTableParameter.isPresent() && options.isShouldBeAbstract()) {
+            MethodSpec getTableConverterMethod = TableUtils.createGetTableConverterMethod(processingEnv);
+            classBuilder.addMethod(getTableConverterMethod);
+            MethodSpec createDataTableMethod = TableUtils.createDataTableMethod(processingEnv);
+            classBuilder.addMethod(createDataTableMethod);
         }
 
         TypeSpec typeSpec = classBuilder.build();

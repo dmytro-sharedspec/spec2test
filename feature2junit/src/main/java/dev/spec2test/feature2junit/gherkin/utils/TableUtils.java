@@ -5,10 +5,12 @@ import io.cucumber.messages.types.DataTable;
 import io.cucumber.messages.types.TableCell;
 import io.cucumber.messages.types.TableRow;
 import io.cucumber.datatable.DataTable.TableConverter;
+
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
+
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -18,6 +20,7 @@ public class TableUtils {
 
     /**
      * Calculates the maximum length of each column in a DataTable.
+     *
      * @param dataTableMsg the DataTable object to analyze
      * @return a list of integers representing the maximum length of each column
      */
@@ -35,8 +38,7 @@ public class TableUtils {
 
                 if (maxColumnLength.size() <= i) {
                     maxColumnLength.add(cellText.length());
-                }
-                else {
+                } else {
                     int currentMaxLength = maxColumnLength.get(i);
                     if (cellText.length() > currentMaxLength) {
                         maxColumnLength.set(i, cellText.length());
@@ -50,7 +52,8 @@ public class TableUtils {
 
     /**
      * Converts a DataTable object to a string representation, with each column padded to the maximum length.
-     * @param dataTableMsg the DataTable object to convert
+     *
+     * @param dataTableMsg    the DataTable object to convert
      * @param maxColumnLength a list of integers representing the maximum length of each column
      * @return a string representation of the DataTable, with columns padded
      */
@@ -92,13 +95,17 @@ public class TableUtils {
 
     /**
      * Creates an abstract method specification for getting a {@link TableConverter}.
+     *
      * @param processingEnv the processing environment
      * @return a {@link MethodSpec} for the getTableConverter method
      */
     public static MethodSpec createGetTableConverterMethod(ProcessingEnvironment processingEnv) {
 
         MethodSpec methodSpec = MethodSpec.methodBuilder("getTableConverter")
-                .addModifiers(Modifier.PROTECTED, Modifier.ABSTRACT)
+                .addModifiers(
+                        Modifier.PROTECTED,
+                        Modifier.ABSTRACT
+                )
                 .returns(TableConverter.class)
                 .build();
 
@@ -107,6 +114,7 @@ public class TableUtils {
 
     /**
      * Creates a method specification for creating a {@link io.cucumber.datatable.DataTable} from a string representation of table lines.
+     *
      * @param processingEnv the processing environment
      * @return a {@link MethodSpec} for the createDataTable method
      */

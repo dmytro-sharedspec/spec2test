@@ -3,26 +3,12 @@ package dev.spec2test.feature2junit.gherkin;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
+import dev.spec2test.common.GeneratorOptions;
 import dev.spec2test.common.LoggingSupport;
+import dev.spec2test.common.OptionsSupport;
 import dev.spec2test.common.ProcessingException;
-import dev.spec2test.feature2junit.GeneratorOptions;
-import dev.spec2test.feature2junit.gherkin.utils.JavaDocUtils;
-import dev.spec2test.feature2junit.gherkin.utils.LocationUtils;
-import dev.spec2test.feature2junit.gherkin.utils.ParameterNamingUtils;
-import dev.spec2test.feature2junit.gherkin.utils.TableUtils;
-import dev.spec2test.feature2junit.gherkin.utils.TagUtils;
-import io.cucumber.messages.types.DataTable;
-import io.cucumber.messages.types.Examples;
-import io.cucumber.messages.types.Location;
-import io.cucumber.messages.types.Scenario;
-import io.cucumber.messages.types.Step;
-import io.cucumber.messages.types.TableCell;
-import io.cucumber.messages.types.TableRow;
-import io.cucumber.messages.types.Tag;
-import java.util.ArrayList;
-import java.util.List;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Modifier;
+import dev.spec2test.feature2junit.gherkin.utils.*;
+import io.cucumber.messages.types.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -32,11 +18,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Modifier;
+import java.util.ArrayList;
+import java.util.List;
+
 @RequiredArgsConstructor
-class ScenarioProcessor implements LoggingSupport {
+class ScenarioProcessor implements LoggingSupport, OptionsSupport {
 
     @Getter
     private final ProcessingEnvironment processingEnv;
+
+    @Getter
+    private final GeneratorOptions options;
 
     MethodSpec.Builder processScenario(int scenarioNumber, Scenario scenario, TypeSpec.Builder classBuilder) {
 
@@ -77,8 +71,7 @@ class ScenarioProcessor implements LoggingSupport {
                 testMethodParameterNames.add(methodParameterName);
                 scenarioMethodBuilder.addParameter(String.class, methodParameterName);
             }
-        }
-        else {
+        } else {
             scenarioParameterNames = null;
             testMethodParameterNames = null;
 
@@ -87,7 +80,7 @@ class ScenarioProcessor implements LoggingSupport {
 
         addOrderAnnotation(scenarioMethodBuilder, scenarioNumber);
 
-        if (GeneratorOptions.addSourceLineAnnotations.isSet(processingEnv)) {
+        if (options.isAddSourceLineAnnotations()) {
             AnnotationSpec locationAnnotation = LocationUtils.toJUnitTagsAnnotation(scenario.getLocation());
             scenarioMethodBuilder.addAnnotation(locationAnnotation);
         }
@@ -98,7 +91,7 @@ class ScenarioProcessor implements LoggingSupport {
 
             List<MethodSpec> methodSpecs = classBuilder.methodSpecs;
 
-            StepProcessor stepProcessor = new StepProcessor(processingEnv);
+            StepProcessor stepProcessor = new StepProcessor(processingEnv, options);
             MethodSpec stepMethodSpec = stepProcessor.processStep(
                     scenarioStep, scenarioMethodBuilder, scenarioStepsMethodSpecs,
                     scenarioParameterNames, testMethodParameterNames
@@ -111,9 +104,9 @@ class ScenarioProcessor implements LoggingSupport {
                             .findFirst()
                             .orElse(null);
 
-            if (existingMethodSpec == null) {
+            if (existingMethodSpec == null && options.isShouldBeAbstract()) {
                 // If the method already exists, we can skip creating it again
-//                classBuilder.addMethod(stepMethodSpec);
+                classBuilder.addMethod(stepMethodSpec);
             }
         }
 

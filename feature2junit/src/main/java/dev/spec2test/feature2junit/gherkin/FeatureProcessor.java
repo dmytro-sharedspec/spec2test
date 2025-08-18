@@ -2,28 +2,30 @@ package dev.spec2test.feature2junit.gherkin;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
+import dev.spec2test.common.GeneratorOptions;
 import dev.spec2test.common.LoggingSupport;
+import dev.spec2test.common.OptionsSupport;
 import dev.spec2test.common.ProcessingException;
-import io.cucumber.messages.types.Background;
-import io.cucumber.messages.types.Feature;
-import io.cucumber.messages.types.FeatureChild;
-import io.cucumber.messages.types.Rule;
-import io.cucumber.messages.types.Scenario;
-import java.util.List;
-import javax.annotation.concurrent.NotThreadSafe;
-import javax.annotation.processing.ProcessingEnvironment;
+import io.cucumber.messages.types.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.processing.ProcessingEnvironment;
+import java.util.List;
 
 /**
  * Processes a Gherkin feature and generates corresponding JUnit test methods.
  */
 @RequiredArgsConstructor
 @NotThreadSafe
-public class FeatureProcessor implements LoggingSupport {
+public class FeatureProcessor implements LoggingSupport, OptionsSupport {
 
     @Getter
     private final ProcessingEnvironment processingEnv;
+
+    @Getter
+    private final GeneratorOptions options;
 
     /**
      * Processes a Gherkin feature and generates JUnit test methods for its children.
@@ -41,7 +43,7 @@ public class FeatureProcessor implements LoggingSupport {
 
             if (child.getBackground().isPresent()) {
 
-                BackgroundProcessor backgroundProcessor = new BackgroundProcessor(processingEnv);
+                BackgroundProcessor backgroundProcessor = new BackgroundProcessor(processingEnv, options);
 
                 Background background = child.getBackground().get();
                 MethodSpec.Builder featureBackgroundMethodBuilder = backgroundProcessor.processFeatureBackground(background, classBuilder);
@@ -53,14 +55,14 @@ public class FeatureProcessor implements LoggingSupport {
 
                 featureRuleCount++;
                 Rule rule = child.getRule().get();
-                RuleProcessor ruleProcessor = new RuleProcessor(processingEnv);
+                RuleProcessor ruleProcessor = new RuleProcessor(processingEnv, options);
                 ruleProcessor.processRule(featureRuleCount, rule, classBuilder);
             }
             else if (child.getScenario().isPresent()) {
 
                 Scenario scenario = child.getScenario().get();
                 featureScenarioCount++;
-                ScenarioProcessor scenarioProcessor = new ScenarioProcessor(processingEnv);
+                ScenarioProcessor scenarioProcessor = new ScenarioProcessor(processingEnv, options);
                 MethodSpec.Builder scenarioMethodBuilder = scenarioProcessor.processScenario(featureScenarioCount, scenario, classBuilder);
 
                 MethodSpec scenarioMethod = scenarioMethodBuilder.build();

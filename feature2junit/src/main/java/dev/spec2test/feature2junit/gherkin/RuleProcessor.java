@@ -3,20 +3,14 @@ package dev.spec2test.feature2junit.gherkin;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
+import dev.spec2test.common.GeneratorOptions;
 import dev.spec2test.common.LoggingSupport;
+import dev.spec2test.common.OptionsSupport;
 import dev.spec2test.common.ProcessingException;
-import dev.spec2test.feature2junit.GeneratorOptions;
 import dev.spec2test.feature2junit.gherkin.utils.JavaDocUtils;
 import dev.spec2test.feature2junit.gherkin.utils.LocationUtils;
 import dev.spec2test.feature2junit.gherkin.utils.TagUtils;
-import io.cucumber.messages.types.Background;
-import io.cucumber.messages.types.Rule;
-import io.cucumber.messages.types.RuleChild;
-import io.cucumber.messages.types.Scenario;
-import io.cucumber.messages.types.Tag;
-import java.util.List;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Modifier;
+import io.cucumber.messages.types.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -24,11 +18,18 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Modifier;
+import java.util.List;
+
 @RequiredArgsConstructor
-class RuleProcessor implements LoggingSupport {
+class RuleProcessor implements LoggingSupport, OptionsSupport {
 
     @Getter
     private final ProcessingEnvironment processingEnv;
+
+    @Getter
+    private final GeneratorOptions options;
 
     void processRule(int ruleNumber, Rule rule, TypeSpec.Builder classBuilder) {
 
@@ -48,7 +49,7 @@ class RuleProcessor implements LoggingSupport {
             nestedRuleClassBuilder.addAnnotation(jUnitTagsAnnotation);
         }
 
-        if (GeneratorOptions.addSourceLineAnnotations.isSet(processingEnv)) {
+        if (options.isAddSourceLineAnnotations()) {
             AnnotationSpec locationAnnotation = LocationUtils.toJUnitTagsAnnotation(rule.getLocation());
             nestedRuleClassBuilder.addAnnotation(locationAnnotation);
         }
@@ -86,23 +87,21 @@ class RuleProcessor implements LoggingSupport {
                 Scenario scenario = child.getScenario().get();
 
                 ruleScenarioNumber++;
-                ScenarioProcessor scenarioProcessor = new ScenarioProcessor(processingEnv);
+                ScenarioProcessor scenarioProcessor = new ScenarioProcessor(processingEnv, options);
                 MethodSpec.Builder scenarioMethodBuilder = scenarioProcessor.processScenario(ruleScenarioNumber, scenario, classBuilder);
 
                 MethodSpec scenarioMethod = scenarioMethodBuilder.build();
                 nestedRuleClassBuilder.addMethod(scenarioMethod);
-            }
-            else if (child.getBackground().isPresent()) {
+            } else if (child.getBackground().isPresent()) {
 
                 Background background = child.getBackground().get();
 
-                BackgroundProcessor backgroundProcessor = new BackgroundProcessor(processingEnv);
+                BackgroundProcessor backgroundProcessor = new BackgroundProcessor(processingEnv, options);
                 MethodSpec.Builder ruleBackgroundMethodBuilder = backgroundProcessor.processRuleBackground(background, classBuilder);
 
                 MethodSpec backgroundMethod = ruleBackgroundMethodBuilder.build();
                 nestedRuleClassBuilder.addMethod(backgroundMethod);
-            }
-            else {
+            } else {
                 throw new ProcessingException("Unsupported rule child type: " + child);
             }
         }
