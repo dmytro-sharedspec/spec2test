@@ -32,8 +32,6 @@ class RuleProcessor implements LoggingSupport {
 
     void processRule(int ruleNumber, Rule rule, TypeSpec.Builder classBuilder) {
 
-        String ruleName = rule.getName();
-
         TypeSpec.Builder nestedRuleClassBuilder = TypeSpec
                 .classBuilder("Rule_" + ruleNumber)
                 .addModifiers(Modifier.PUBLIC);
@@ -70,6 +68,7 @@ class RuleProcessor implements LoggingSupport {
         /**
          * add {@link DisplayName} annotation
          */
+        String ruleName = rule.getName();
         nestedRuleClassBuilder.addAnnotation(
                 AnnotationSpec.builder(DisplayName.class)
                         .addMember("value", "\"Rule: " + ruleName + "\"")

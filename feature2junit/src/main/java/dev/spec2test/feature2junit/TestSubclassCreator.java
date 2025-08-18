@@ -6,19 +6,18 @@ import dev.spec2test.common.ProcessingException;
 import dev.spec2test.feature2junit.gherkin.FeatureFileParser;
 import dev.spec2test.feature2junit.gherkin.FeatureProcessor;
 import dev.spec2test.feature2junit.gherkin.utils.JavaDocUtils;
-import dev.spec2test.feature2junit.gherkin.utils.TableUtils;
 import dev.spec2test.feature2junit.gherkin.utils.TagUtils;
 import io.cucumber.messages.types.Feature;
 import io.cucumber.messages.types.Tag;
-import org.junit.jupiter.api.ClassOrderer;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.TestClassOrder;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.processing.Generated;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.*;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.TypeElement;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +32,7 @@ public class TestSubclassCreator implements LoggingSupport {
 
     /**
      * Constructor for TestSubclassCreator.
+     *
      * @param processingEnv the processing environment used for annotation processing
      */
     public TestSubclassCreator(ProcessingEnvironment processingEnv) {
@@ -41,7 +41,8 @@ public class TestSubclassCreator implements LoggingSupport {
 
     /**
      * Creates a JUnit test subclass for the given type element annotated with {@link Feature2JUnit}.
-     * @param typeElement the type element to create a test subclass for
+     *
+     * @param typeElement      the type element to create a test subclass for
      * @param targetAnnotation the annotation containing the feature file path
      * @return a {@link JavaFile} representing the generated test subclass
      * @throws IOException if an error occurs during file generation
@@ -69,7 +70,7 @@ public class TestSubclassCreator implements LoggingSupport {
             featureFilePathForParsing = packageName.replaceAll("\\.", "/")
                     + "/" + annotatedClassName + ".feature";
         } else {
-            featureFilePathForParsing= featureFilePath;
+            featureFilePathForParsing = featureFilePath;
         }
         Feature feature = gherkinParser.parseUsingPath(featureFilePathForParsing);
 
@@ -93,8 +94,22 @@ public class TestSubclassCreator implements LoggingSupport {
          */
         //                .addJavadoc(CodeBlock.of(feature.getKeyword() + ": " + feature.getName()))
         //                .addJavadoc(CodeBlock.of("\n" + feature.getDescription()))
-        String featureTextJavaDoc = JavaDocUtils.toJavaDoc(feature.getKeyword(), feature.getName(), feature.getDescription());
-        classBuilder.addInitializerBlock(CodeBlock.of(featureTextJavaDoc));
+        String featureTextJavaDoc = JavaDocUtils.toJavaDocContent(feature.getKeyword(), feature.getName(), feature.getDescription());
+//        classBuilder.addInitializerBlock(CodeBlock.of(featureTextJavaDoc));
+        classBuilder.addJavadoc(CodeBlock.of(featureTextJavaDoc));
+
+        /**
+         * {@link org.junit.jupiter.api.DisplayName} annotation
+         */
+        String featureFileName = featureFilePathForParsing.substring(
+                featureFilePathForParsing.lastIndexOf("/") + 1,
+                featureFilePathForParsing.lastIndexOf(".")
+        );
+        classBuilder.addAnnotation(AnnotationSpec
+                .builder(DisplayName.class)
+                .addMember("value", "\"" + featureFileName + "\"")
+                .build()
+        );
 
         /**
          * {@link Generated} annotation
@@ -129,7 +144,7 @@ public class TestSubclassCreator implements LoggingSupport {
         if (featureFilePath == null || featureFilePath.isBlank()) {
             featureFilePathForAnnotation = packageName.replaceAll("\\.", "/") + "/" + annotatedClassName + ".feature";
         } else {
-            featureFilePathForAnnotation= featureFilePath;
+            featureFilePathForAnnotation = featureFilePath;
         }
         classBuilder.addAnnotation(AnnotationSpec
                 .builder(FeatureFilePath.class)
