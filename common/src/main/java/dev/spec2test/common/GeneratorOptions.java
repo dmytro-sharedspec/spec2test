@@ -1,15 +1,11 @@
 package dev.spec2test.common;
 
-import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * Options for the generator that can be used to customize the generated test classes.
  */
 @Getter
-@Builder
-@RequiredArgsConstructor
 public class GeneratorOptions {
 
     /**
@@ -36,14 +32,55 @@ public class GeneratorOptions {
     private final boolean addSourceLineBeforeStepCalls;
 
     /**
-     * @return default generator options.
+     * If set to true, the generator will add a call to a failing JUnit assumption for scenarios that have no steps.
      */
-    public static GeneratorOptions defaultOptions() {
-        return GeneratorOptions.builder()
-                .shouldBeAbstract(false)
-                .addSourceLineAnnotations(false)
-                .addSourceLineBeforeStepCalls(false)
-                .classSuffix("Test")
-                .build();
+    private final boolean failScenariosWithNoSteps;
+
+    /**
+     * If set to true, the generator will add a failing test method for rules that have no scenarios.
+     */
+    private final boolean failRulesWithNoScenarios;
+
+    /**
+     * The value for JUnit's @{@link org.junit.jupiter.api.Tag} annotation that will be added to scenarios that do not
+     * contain any steps. If an empty or blank value is specified, no tag will be added.
+     */
+    private final String tagForScenariosWithNoSteps;
+
+    /**
+     * The value for JUnit's @{@link org.junit.jupiter.api.Tag} annotation that will be added to failing test method
+     * that was added for rules that do not contain any scenarios.
+     * If an empty or blank value is specified, no tag will be added.
+     */
+    private final String tagForRulesWithNoScenarios;
+
+    public GeneratorOptions() {
+        this.shouldBeAbstract = false;
+        this.classSuffix = "Test";
+        this.addSourceLineAnnotations = false;
+        this.addSourceLineBeforeStepCalls = false;
+        this.failScenariosWithNoSteps = true;
+        this.failRulesWithNoScenarios = true;
+        this.tagForScenariosWithNoSteps = "new";
+        this.tagForRulesWithNoScenarios = "new";
     }
+
+    public GeneratorOptions(boolean shouldBeAbstract,
+                            String classSuffix,
+                            boolean addSourceLineAnnotations,
+                            boolean addSourceLineBeforeStepCalls,
+                            boolean failScenariosWithNoSteps,
+                            boolean failRulesWithNoScenarios,
+                            String tagForScenariosWithNoSteps,
+                            String tagForRulesWithNoScenarios) {
+        this.shouldBeAbstract = shouldBeAbstract;
+        this.classSuffix = classSuffix;
+        this.addSourceLineAnnotations = addSourceLineAnnotations;
+        this.addSourceLineBeforeStepCalls = addSourceLineBeforeStepCalls;
+        this.failScenariosWithNoSteps = failScenariosWithNoSteps;
+        this.failRulesWithNoScenarios = failRulesWithNoScenarios;
+        this.tagForScenariosWithNoSteps = tagForScenariosWithNoSteps;
+        this.tagForRulesWithNoScenarios = tagForRulesWithNoScenarios;
+    }
+
 }

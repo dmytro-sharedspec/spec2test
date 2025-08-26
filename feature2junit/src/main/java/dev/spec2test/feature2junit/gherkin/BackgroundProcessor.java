@@ -84,7 +84,7 @@ class BackgroundProcessor implements LoggingSupport, OptionsSupport {
                             .findFirst()
                             .orElse(null);
 
-            if (existingMethodSpec == null && options.isShouldBeAbstract()) {
+            if (existingMethodSpec == null) {
                 // If the method already exists, we can skip creating it again
                 classBuilder.addMethod(stepMethodSpec);
             }

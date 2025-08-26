@@ -12,6 +12,7 @@ import io.cucumber.messages.types.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -87,27 +88,44 @@ class ScenarioProcessor implements LoggingSupport, OptionsSupport {
 
         addDisplayNameAnnotation(scenarioMethodBuilder, scenario);
 
-        for (Step scenarioStep : scenarioSteps) {
+        if (scenarioSteps.isEmpty()) {
 
-            List<MethodSpec> methodSpecs = classBuilder.methodSpecs;
-
-            StepProcessor stepProcessor = new StepProcessor(processingEnv, options);
-            MethodSpec stepMethodSpec = stepProcessor.processStep(
-                    scenarioStep, scenarioMethodBuilder, scenarioStepsMethodSpecs,
-                    scenarioParameterNames, testMethodParameterNames
-            );
-            scenarioStepsMethodSpecs.add(stepMethodSpec);
-
-            String stepMethodName = stepMethodSpec.name;
-            MethodSpec existingMethodSpec =
-                    allMethodSpecs.stream().filter(methodSpec -> methodSpec.name.equals(stepMethodName))
-                            .findFirst()
-                            .orElse(null);
-
-            if (existingMethodSpec == null && options.isShouldBeAbstract()) {
-                // If the method already exists, we can skip creating it again
-                classBuilder.addMethod(stepMethodSpec);
+            if (options.isFailScenariosWithNoSteps()) {
+                /**
+                 * add an empty method that throws an exception
+                 */
+                scenarioMethodBuilder.addStatement("$T.assumeTrue(false, \"Scenario has no steps\")", Assumptions.class);
             }
+
+            String tagForEmptyScenarios = options.getTagForScenariosWithNoSteps();
+            if (StringUtils.isNotBlank(tagForEmptyScenarios)) {
+                AnnotationSpec jUnitTagsAnnotation = TagUtils.toJUnitTagsAnnotation(tagForEmptyScenarios);
+                scenarioMethodBuilder.addAnnotation(jUnitTagsAnnotation);
+            }
+
+        } else {
+
+            for (Step scenarioStep : scenarioSteps) {
+
+                StepProcessor stepProcessor = new StepProcessor(processingEnv, options);
+                MethodSpec stepMethodSpec = stepProcessor.processStep(
+                        scenarioStep, scenarioMethodBuilder, scenarioStepsMethodSpecs,
+                        scenarioParameterNames, testMethodParameterNames
+                );
+                scenarioStepsMethodSpecs.add(stepMethodSpec);
+
+                String stepMethodName = stepMethodSpec.name;
+                MethodSpec existingMethodSpec =
+                        allMethodSpecs.stream().filter(methodSpec -> methodSpec.name.equals(stepMethodName))
+                                .findFirst()
+                                .orElse(null);
+
+                if (existingMethodSpec == null) {
+                    // If the method already exists, we can skip creating it again
+                    classBuilder.addMethod(stepMethodSpec);
+                }
+            }
+
         }
 
         return scenarioMethodBuilder;

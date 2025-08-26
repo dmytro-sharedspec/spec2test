@@ -4,22 +4,15 @@ import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
 import dev.spec2test.common.GeneratorOptions;
 import dev.spec2test.common.LoggingSupport;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import java.io.PrintWriter;
-import java.util.Set;
-import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.Filer;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.Processor;
-import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
+import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
-
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import java.io.PrintWriter;
+import java.util.Set;
 
 /**
  * Annotation processor that generates JUnit test subclasses based on the {@link Feature2JUnit} annotation.
@@ -63,14 +56,18 @@ public class Feature2JUnitGenerator extends AbstractProcessor implements Logging
                 Feature2JUnitOptions optionsAnnotation = annotatedClass.getAnnotation(Feature2JUnitOptions.class);
                 GeneratorOptions generatorOptions;
                 if (optionsAnnotation != null) {
-                    generatorOptions = GeneratorOptions.builder()
-                            .addSourceLineAnnotations(optionsAnnotation.addSourceLineAnnotations())
-                            .addSourceLineBeforeStepCalls(optionsAnnotation.addSourceLineBeforeStepCalls())
-                            .shouldBeAbstract(optionsAnnotation.shouldBeAbstract())
-                            .classSuffix(optionsAnnotation.classSuffix().trim())
-                            .build();
+                    generatorOptions = new GeneratorOptions(
+                            optionsAnnotation.shouldBeAbstract(),
+                            optionsAnnotation.classSuffix(),
+                            optionsAnnotation.addSourceLineAnnotations(),
+                            optionsAnnotation.addSourceLineBeforeStepCalls(),
+                            optionsAnnotation.failScenariosWithNoSteps(),
+                            optionsAnnotation.failRulesWithNoScenarios(),
+                            optionsAnnotation.tagForScenariosWithNoSteps().trim(),
+                            optionsAnnotation.tagForRulesWithNoScenarios().trim()
+                    );
                 } else {
-                    generatorOptions = GeneratorOptions.defaultOptions();
+                    generatorOptions = new GeneratorOptions();
                 }
 
                 String subclassFullyQualifiedName = annotatedClass.getQualifiedName() + generatorOptions.getClassSuffix();

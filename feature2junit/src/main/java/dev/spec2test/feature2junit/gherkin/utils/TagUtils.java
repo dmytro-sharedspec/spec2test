@@ -2,15 +2,30 @@ package dev.spec2test.feature2junit.gherkin.utils;
 
 import com.squareup.javapoet.AnnotationSpec;
 import io.cucumber.messages.types.Tag;
-import java.util.List;
 import lombok.experimental.UtilityClass;
 import org.junit.jupiter.api.Tags;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Utility class for converting Gherkin tags to JUnit annotations.
  */
 @UtilityClass
 public class TagUtils {
+
+    /**
+     * @param tagNames the names of the tags to convert
+     * @return an {@link AnnotationSpec} representing the JUnit Tags annotation
+     */
+    public static AnnotationSpec toJUnitTagsAnnotation(String... tagNames) {
+
+        List<String> tagNamesList = Arrays.asList(tagNames);
+
+        AnnotationSpec.Builder annotationSpecBuilderFromTagNames = annotationSpecBuilderFromTagNames(tagNamesList);
+        AnnotationSpec annotationSpec = annotationSpecBuilderFromTagNames.build();
+        return annotationSpec;
+    }
 
     /**
      * Converts a list of Gherkin tags to a JUnit Tags annotation.
@@ -21,16 +36,28 @@ public class TagUtils {
 
         AnnotationSpec.Builder annotationSpecBuilder;
 
-        if (tags.size() > 1) {
+        List<String> tagNames = tags.stream()
+                .map(tag -> tag.getName().trim())
+                .map(tagName -> tagName.startsWith("@") ? tagName.substring(1) : tagName)
+                .toList();
+
+        annotationSpecBuilder = annotationSpecBuilderFromTagNames(tagNames);
+
+        AnnotationSpec annotationSpec = annotationSpecBuilder.build();
+        return annotationSpec;
+    }
+
+    private static AnnotationSpec.Builder annotationSpecBuilderFromTagNames(List<String> tagNames) {
+
+        AnnotationSpec.Builder annotationSpecBuilder;
+
+        if (tagNames.size() > 1) {
             /**
              * use {@link Tags}
              */
             annotationSpecBuilder = AnnotationSpec.builder(Tags.class);
 
-            for (Tag tag : tags) {
-
-                String tagName = tag.getName().trim();
-                tagName = tagName.startsWith("@") ? tagName.substring(1) : tagName;
+            for (String tagName : tagNames) {
 
                 AnnotationSpec tagAnnotationSpec = AnnotationSpec.builder(org.junit.jupiter.api.Tag.class)
                         .addMember("value", "\"" + tagName + "\"")
@@ -42,17 +69,13 @@ public class TagUtils {
             /**
              * use {@link org.junit.jupiter.api.Tag}
              */
-            Tag tag = tags.get(0);
-
-            String tagName = tag.getName().trim();
-            tagName = tagName.startsWith("@") ? tagName.substring(1) : tagName;
+            String tagName = tagNames.get(0);
 
             annotationSpecBuilder = AnnotationSpec.builder(org.junit.jupiter.api.Tag.class)
                     .addMember("value", "\"" + tagName + "\"");
         }
 
-        AnnotationSpec annotationSpec = annotationSpecBuilder.build();
-        return annotationSpec;
+        return annotationSpecBuilder;
     }
 
 }
