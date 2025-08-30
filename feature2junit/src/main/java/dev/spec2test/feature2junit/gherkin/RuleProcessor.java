@@ -3,10 +3,7 @@ package dev.spec2test.feature2junit.gherkin;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import dev.spec2test.common.GeneratorOptions;
-import dev.spec2test.common.LoggingSupport;
-import dev.spec2test.common.OptionsSupport;
-import dev.spec2test.common.ProcessingException;
+import dev.spec2test.common.*;
 import dev.spec2test.feature2junit.gherkin.utils.JavaDocUtils;
 import dev.spec2test.feature2junit.gherkin.utils.LocationUtils;
 import dev.spec2test.feature2junit.gherkin.utils.TagUtils;
@@ -19,16 +16,20 @@ import org.junit.jupiter.api.*;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 import java.util.List;
 
 @RequiredArgsConstructor
-class RuleProcessor implements LoggingSupport, OptionsSupport {
+class RuleProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
 
     @Getter
     private final ProcessingEnvironment processingEnv;
 
     @Getter
     private final GeneratorOptions options;
+
+    @Getter
+    private final TypeElement baseType;
 
     void processRule(int ruleNumber, Rule rule, TypeSpec.Builder classBuilder) {
 
@@ -42,17 +43,16 @@ class RuleProcessor implements LoggingSupport, OptionsSupport {
             nestedRuleClassBuilder.addJavadoc(description);
         }
 
-        List<Tag> tags = rule.getTags();
-        if (tags != null && !tags.isEmpty()) {
-            AnnotationSpec jUnitTagsAnnotation = TagUtils.toJUnitTagsAnnotation(tags);
-            nestedRuleClassBuilder.addAnnotation(jUnitTagsAnnotation);
-        }
+        /**
+         * add {@link org.junit.jupiter.api.Nested} annotation
+         */
+        nestedRuleClassBuilder.addAnnotation(
+                AnnotationSpec.builder(Nested.class).build()
+        );
 
-        if (options.isAddSourceLineAnnotations()) {
-            AnnotationSpec locationAnnotation = LocationUtils.toJUnitTagsAnnotation(rule.getLocation());
-            nestedRuleClassBuilder.addAnnotation(locationAnnotation);
-        }
-
+        /**
+         * add {@link Order} annotation
+         */
         AnnotationSpec orderAnnotation = AnnotationSpec
                 .builder(Order.class)
                 .addMember("value", "" + ruleNumber)
@@ -60,11 +60,22 @@ class RuleProcessor implements LoggingSupport, OptionsSupport {
         nestedRuleClassBuilder.addAnnotation(orderAnnotation);
 
         /**
-         * add {@link org.junit.jupiter.api.Nested} annotation
+         * add {@link Tag} annotations
          */
-        nestedRuleClassBuilder.addAnnotation(
-                AnnotationSpec.builder(Nested.class).build()
-        );
+        List<Tag> tags = rule.getTags();
+        if (tags != null && !tags.isEmpty()) {
+            AnnotationSpec jUnitTagsAnnotation = TagUtils.toJUnitTagsAnnotation(tags);
+            nestedRuleClassBuilder.addAnnotation(jUnitTagsAnnotation);
+        }
+
+        /**
+         * add {@link SourceLine} annotation
+         */
+        if (options.isAddSourceLineAnnotations()) {
+            AnnotationSpec locationAnnotation = LocationUtils.toJUnitTagsAnnotation(rule.getLocation());
+            nestedRuleClassBuilder.addAnnotation(locationAnnotation);
+        }
+
         /**
          * add {@link DisplayName} annotation
          */
@@ -87,7 +98,7 @@ class RuleProcessor implements LoggingSupport, OptionsSupport {
                 Scenario scenario = child.getScenario().get();
 
                 ruleScenarioNumber++;
-                ScenarioProcessor scenarioProcessor = new ScenarioProcessor(processingEnv, options);
+                ScenarioProcessor scenarioProcessor = new ScenarioProcessor(processingEnv, options, baseType);
                 MethodSpec.Builder scenarioMethodBuilder = scenarioProcessor.processScenario(ruleScenarioNumber, scenario, classBuilder);
 
                 MethodSpec scenarioMethod = scenarioMethodBuilder.build();

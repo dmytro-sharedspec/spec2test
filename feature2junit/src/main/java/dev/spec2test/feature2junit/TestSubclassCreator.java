@@ -39,8 +39,9 @@ public class TestSubclassCreator implements LoggingSupport, OptionsSupport {
 
     /**
      * Constructor for TestSubclassCreator.
+     *
      * @param generatorOptions the generator options to use for test generation
-     * @param processingEnv the processing environment used for annotation processing
+     * @param processingEnv    the processing environment used for annotation processing
      */
     public TestSubclassCreator(ProcessingEnvironment processingEnv, GeneratorOptions generatorOptions) {
         this.processingEnv = processingEnv;
@@ -91,8 +92,65 @@ public class TestSubclassCreator implements LoggingSupport, OptionsSupport {
                 .addModifiers(Modifier.PUBLIC);
 
         if (options.isShouldBeAbstract()) {
-            classBuilder.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT);
+            classBuilder.addModifiers(Modifier.ABSTRACT);
         }
+
+        /**
+         * put feature text into an initializer block
+         */
+        //                .addJavadoc(CodeBlock.of(feature.getKeyword() + ": " + feature.getName()))
+        //                .addJavadoc(CodeBlock.of("\n" + feature.getDescription()))
+//        String featureTextJavaDoc = JavaDocUtils.toJavaDocContent(feature.getKeyword(), feature.getName(), feature.getDescription());
+        String featureTextJavaDoc = JavaDocUtils.toJavaDoc(feature.getKeyword(), feature.getName(), feature.getDescription());
+        classBuilder.addInitializerBlock(CodeBlock.of(featureTextJavaDoc));
+//        classBuilder.addJavadoc(CodeBlock.of(featureTextJavaDoc));
+
+        FeatureProcessor featureProcessor = new FeatureProcessor(processingEnv, options, typeElement);
+        featureProcessor.processFeature(feature, classBuilder);
+
+        /**
+         * add createDataTable method
+         */
+        List<MethodSpec> methodSpecs = classBuilder.methodSpecs;
+        Optional<MethodSpec> methodWithDataTableParameter = methodSpecs.stream()
+                .filter(methodSpec -> methodSpec.parameters.stream()
+                        .anyMatch(parameterSpec -> parameterSpec.name.equals("dataTable"))).findFirst();
+        if (methodWithDataTableParameter.isPresent() && options.isShouldBeAbstract()) {
+            MethodSpec getTableConverterMethod = TableUtils.createGetTableConverterMethod(processingEnv);
+            classBuilder.addMethod(getTableConverterMethod);
+            MethodSpec createDataTableMethod = TableUtils.createDataTableMethod(processingEnv);
+            classBuilder.addMethod(createDataTableMethod);
+        }
+
+        /**
+         * add JavaDoc instructions on how to use this class
+         */
+        String classJavaDoc;
+        if (classBuilder.modifiers.contains(Modifier.ABSTRACT)) {
+            classJavaDoc = """
+                    To implement tests in this generated class, extend it and implement all abstract methods.
+                    """;
+        } else {
+            classJavaDoc = """
+                    To implement tests in this generated class, move any methods with failing assumptions into the base
+                    class and implement them.
+                    """;
+        }
+        classBuilder.addJavadoc(CodeBlock.of(classJavaDoc));
+
+        addClassAnnotations(feature, classBuilder, featureFilePathForParsing, featureFilePath, packageName, annotatedClassName);
+
+        TypeSpec typeSpec = classBuilder.build();
+
+        JavaFile javaFile = JavaFile
+                .builder(packageName, typeSpec)
+                .indent("    ")
+                .build();
+
+        return javaFile;
+    }
+
+    private static void addClassAnnotations(Feature feature, TypeSpec.Builder classBuilder, String featureFilePathForParsing, String featureFilePath, String packageName, String annotatedClassName) {
 
         List<Tag> tags = feature.getTags();
         if (tags != null && !tags.isEmpty()) {
@@ -101,16 +159,7 @@ public class TestSubclassCreator implements LoggingSupport, OptionsSupport {
         }
 
         /**
-         * put feature text into an initializer block
-         */
-        //                .addJavadoc(CodeBlock.of(feature.getKeyword() + ": " + feature.getName()))
-        //                .addJavadoc(CodeBlock.of("\n" + feature.getDescription()))
-        String featureTextJavaDoc = JavaDocUtils.toJavaDocContent(feature.getKeyword(), feature.getName(), feature.getDescription());
-//        classBuilder.addInitializerBlock(CodeBlock.of(featureTextJavaDoc));
-        classBuilder.addJavadoc(CodeBlock.of(featureTextJavaDoc));
-
-        /**
-         * {@link org.junit.jupiter.api.DisplayName} annotation
+         * {@link DisplayName} annotation
          */
         String featureFileName = featureFilePathForParsing.substring(
                 featureFilePathForParsing.lastIndexOf("/") + 1,
@@ -126,9 +175,10 @@ public class TestSubclassCreator implements LoggingSupport, OptionsSupport {
          * {@link Generated} annotation
          */
         classBuilder.addAnnotation(AnnotationSpec
-                .builder(Generated.class)
-                .addMember("value", "\"" + Feature2JUnitGenerator.class.getName() + "\"")
-                .build()
+                        .builder(Generated.class)
+                        .addMember("value", "\"" + Feature2JUnitGenerator.class.getName() + "\"")
+//                .addMember("comments", "\"GWT methods have been created with failing assumptions. Copy these into the base class and implement them.\"")
+                        .build()
         );
         /**
          * {@link TestMethodOrder} annotation
@@ -162,32 +212,6 @@ public class TestSubclassCreator implements LoggingSupport, OptionsSupport {
                 .addMember("value", "\"" + featureFilePathForAnnotation + "\"")
                 .build()
         );
-
-        FeatureProcessor featureProcessor = new FeatureProcessor(processingEnv, options);
-        featureProcessor.processFeature(feature, classBuilder);
-
-        /**
-         * add createDataTable method
-         */
-        List<MethodSpec> methodSpecs = classBuilder.methodSpecs;
-        Optional<MethodSpec> methodWithDataTableParameter = methodSpecs.stream()
-                .filter(methodSpec -> methodSpec.parameters.stream()
-                        .anyMatch(parameterSpec -> parameterSpec.name.equals("dataTable"))).findFirst();
-        if (methodWithDataTableParameter.isPresent() && options.isShouldBeAbstract()) {
-            MethodSpec getTableConverterMethod = TableUtils.createGetTableConverterMethod(processingEnv);
-            classBuilder.addMethod(getTableConverterMethod);
-            MethodSpec createDataTableMethod = TableUtils.createDataTableMethod(processingEnv);
-            classBuilder.addMethod(createDataTableMethod);
-        }
-
-        TypeSpec typeSpec = classBuilder.build();
-
-        JavaFile javaFile = JavaFile
-                .builder(packageName, typeSpec)
-                .indent("    ")
-                .build();
-
-        return javaFile;
     }
 
     @Override

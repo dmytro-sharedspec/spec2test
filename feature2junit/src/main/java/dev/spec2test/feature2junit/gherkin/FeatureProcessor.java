@@ -2,16 +2,14 @@ package dev.spec2test.feature2junit.gherkin;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import dev.spec2test.common.GeneratorOptions;
-import dev.spec2test.common.LoggingSupport;
-import dev.spec2test.common.OptionsSupport;
-import dev.spec2test.common.ProcessingException;
+import dev.spec2test.common.*;
 import io.cucumber.messages.types.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.TypeElement;
 import java.util.List;
 
 /**
@@ -19,13 +17,16 @@ import java.util.List;
  */
 @RequiredArgsConstructor
 @NotThreadSafe
-public class FeatureProcessor implements LoggingSupport, OptionsSupport {
+public class FeatureProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
 
     @Getter
     private final ProcessingEnvironment processingEnv;
 
     @Getter
     private final GeneratorOptions options;
+
+    @Getter
+    private final TypeElement baseType;
 
     /**
      * Processes a Gherkin feature and generates JUnit test methods for its children.
@@ -55,14 +56,14 @@ public class FeatureProcessor implements LoggingSupport, OptionsSupport {
 
                 featureRuleCount++;
                 Rule rule = child.getRule().get();
-                RuleProcessor ruleProcessor = new RuleProcessor(processingEnv, options);
+                RuleProcessor ruleProcessor = new RuleProcessor(processingEnv, options, baseType);
                 ruleProcessor.processRule(featureRuleCount, rule, classBuilder);
             }
             else if (child.getScenario().isPresent()) {
 
                 Scenario scenario = child.getScenario().get();
                 featureScenarioCount++;
-                ScenarioProcessor scenarioProcessor = new ScenarioProcessor(processingEnv, options);
+                ScenarioProcessor scenarioProcessor = new ScenarioProcessor(processingEnv, options, baseType);
                 MethodSpec.Builder scenarioMethodBuilder = scenarioProcessor.processScenario(featureScenarioCount, scenario, classBuilder);
 
                 MethodSpec scenarioMethod = scenarioMethodBuilder.build();

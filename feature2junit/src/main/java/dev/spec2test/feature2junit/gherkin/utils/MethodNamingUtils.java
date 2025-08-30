@@ -30,37 +30,52 @@ public class MethodNamingUtils {
                 word = getPreviousGWTStepWord(stepFirstLine, scenarioStepsMethodSpecs);
             }
 
-            // Remove invalid characters
             StringBuilder sanitizedWordBuilder = new StringBuilder();
-            for (char c : word.toCharArray()) {
 
-                if (sanitizedWordBuilder.length() == 0) {
-                    // nothing added yet - so check if char is suitable as a starting char
-                    if (Character.isJavaIdentifierStart(c)) {
-                        char wordFirstChar;
-                        if (methodNameBuilder.length() == 0) {
-                            // first word in method name - so use lower case
-                            wordFirstChar = Character.toLowerCase(c);
+            boolean isFirstWord = methodNameBuilder.isEmpty();
+
+            if (isFirstWord) {
+                // first word in method name - should not be capitalized and should start with
+                // a character suitable for a method name
+                for (char c : word.toCharArray()) {
+                    if (sanitizedWordBuilder.length() == 0) {
+                        // nothing added yet - so check if char is suitable as a starting char
+                        if (Character.isJavaIdentifierStart(c)) {
+                            char wordFirstChar = Character.toLowerCase(c);
+                            sanitizedWordBuilder.append(wordFirstChar);
                         } else {
-                            // not the first word - so use upper case
-                            wordFirstChar = Character.toUpperCase(c);
+                            // skip characters that are not allowed for method name start
                         }
-                        sanitizedWordBuilder.append(wordFirstChar);
                     } else {
-                        // skip
+                        if (Character.isJavaIdentifierPart(c)) {
+                            // always convert to lower case
+                            char charInLowerCase = Character.toLowerCase(c);
+                            sanitizedWordBuilder.append(charInLowerCase);
+                        } else {
+                            // skip
+                        }
                     }
+                }
 
-                } else {
+            } else {
+                /**
+                 * all other words should be capitalized
+                 */
+                for (char c : word.toCharArray()) {
 
                     if (Character.isJavaIdentifierPart(c)) {
                         // always convert to lower case
-                        char charInLowerCase = Character.toLowerCase(c);
-                        sanitizedWordBuilder.append(charInLowerCase);
+                        char charToAppend;
+                        if (sanitizedWordBuilder.isEmpty()) {
+                            charToAppend = Character.toUpperCase(c);
+                        } else {
+                            charToAppend = Character.toLowerCase(c);
+                        }
+                        sanitizedWordBuilder.append(charToAppend);
                     } else {
                         // skip
                     }
                 }
-
             }
 
             String sanitizedWord = sanitizedWordBuilder.toString();

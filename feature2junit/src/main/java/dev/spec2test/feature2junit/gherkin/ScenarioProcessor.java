@@ -3,14 +3,10 @@ package dev.spec2test.feature2junit.gherkin;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import dev.spec2test.common.GeneratorOptions;
-import dev.spec2test.common.LoggingSupport;
-import dev.spec2test.common.OptionsSupport;
-import dev.spec2test.common.ProcessingException;
+import dev.spec2test.common.*;
 import dev.spec2test.feature2junit.gherkin.utils.*;
 import io.cucumber.messages.types.*;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.DisplayName;
@@ -20,18 +16,44 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Modifier;
+import javax.lang.model.element.*;
+import javax.lang.model.util.Elements;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-@RequiredArgsConstructor
-class ScenarioProcessor implements LoggingSupport, OptionsSupport {
+//@RequiredArgsConstructor
+class ScenarioProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
 
     @Getter
     private final ProcessingEnvironment processingEnv;
 
     @Getter
     private final GeneratorOptions options;
+
+    @Getter
+    private final TypeElement baseType;
+
+    private final Set<String> baseClassMethodNames;
+
+    public ScenarioProcessor(ProcessingEnvironment processingEnv, GeneratorOptions options, TypeElement baseType) {
+        this.processingEnv = processingEnv;
+        this.options = options;
+        this.baseType = baseType;
+
+        baseClassMethodNames = new HashSet<>();
+
+        Elements elementUtils = processingEnv.getElementUtils();
+        List<? extends Element> allMembers = elementUtils.getAllMembers(baseType);
+        allMembers.stream().filter(element ->
+                element.getKind() == ElementKind.METHOD
+                        && (element.getModifiers().isEmpty() || !element.getModifiers().contains(Modifier.PRIVATE))
+        ).forEach(field -> {
+            baseClassMethodNames.add(field.getSimpleName().toString());
+        });
+    }
+
 
     MethodSpec.Builder processScenario(int scenarioNumber, Scenario scenario, TypeSpec.Builder classBuilder) {
 
@@ -122,7 +144,13 @@ class ScenarioProcessor implements LoggingSupport, OptionsSupport {
 
                 if (existingMethodSpec == null) {
                     // If the method already exists, we can skip creating it again
-                    classBuilder.addMethod(stepMethodSpec);
+                    boolean baseClassHasMethod = baseClassMethodNames.contains(stepMethodName);
+                    if (baseClassHasMethod) {
+                        logInfo("Skipping generation of method '" + stepMethodName + "', as base class already contains it");
+//                        logInfo("Skipping generation of  Base class " + baseType.getQualifiedName() + " already has method '" + stepMethodName + "', ");
+                    } else {
+                        classBuilder.addMethod(stepMethodSpec);
+                    }
                 }
             }
 

@@ -83,7 +83,7 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
         String stepMethodName = stepMethodSignatureAttributes.methodName;
         MethodSpec.Builder stepMethodBuilder = MethodSpec
                 .methodBuilder(stepMethodName)
-                .addModifiers(Modifier.PROTECTED);
+                .addModifiers(Modifier.PUBLIC);
 
         if (options.isShouldBeAbstract()) {
             stepMethodBuilder.addModifiers(Modifier.ABSTRACT);
@@ -356,9 +356,10 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
 
         String stepPattern = signatureAttributes.stepPattern;
 
-        String[] args = new String[parameterValues.size()];
+        String[] args = new String[parameterValues.size() + 1];
         for (int j = 0; j < parameterValues.size(); j++) {
-            args[j] = "$p" + (j + 1);
+//            args[j] = "$p" + (j + 1);
+            args[j] = "(?<p" + (j + 1) + ">.*)";
         }
         String stepPatternWithMarkers =
                 stepPattern.replaceAll("\s\\$p[0-9]{1,2}(\s|$)", " \\$L$1");
@@ -366,6 +367,10 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
         String[] words = stepPatternWithMarkers.split("\\s+");
         String[] stepTitleWords = Arrays.copyOfRange(words, 1, words.length); // trim the keyword
         String stepAnnotationValueTrimmed = StringUtils.join(stepTitleWords, " ");
+
+        // prepend '^' and append '$' to the annotation pattern value so that IDE plugins discover this step
+        stepAnnotationValueTrimmed = "^" + stepAnnotationValueTrimmed + "$L";
+        args[args.length - 1] = "$"; // for the '$' at the end of the pattern
 
         annotationSpecBuilder.addMember("value", "\"" + stepAnnotationValueTrimmed + "\"", (Object[]) args);
         AnnotationSpec annotationSpec = annotationSpecBuilder.build();
