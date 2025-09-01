@@ -44,7 +44,7 @@ public class FeatureProcessor implements LoggingSupport, OptionsSupport, BaseTyp
 
             if (child.getBackground().isPresent()) {
 
-                BackgroundProcessor backgroundProcessor = new BackgroundProcessor(processingEnv, options);
+                BackgroundProcessor backgroundProcessor = new BackgroundProcessor(processingEnv, options, baseType);
 
                 Background background = child.getBackground().get();
                 MethodSpec.Builder featureBackgroundMethodBuilder = backgroundProcessor.processFeatureBackground(background, classBuilder);

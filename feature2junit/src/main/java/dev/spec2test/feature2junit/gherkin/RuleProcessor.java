@@ -7,8 +7,8 @@ import dev.spec2test.common.*;
 import dev.spec2test.feature2junit.gherkin.utils.JavaDocUtils;
 import dev.spec2test.feature2junit.gherkin.utils.LocationUtils;
 import dev.spec2test.feature2junit.gherkin.utils.TagUtils;
-import io.cucumber.messages.types.*;
 import io.cucumber.messages.types.Tag;
+import io.cucumber.messages.types.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -80,6 +80,9 @@ class RuleProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
          * add {@link DisplayName} annotation
          */
         String ruleName = rule.getName();
+        if (ruleName != null) {
+            ruleName = ruleName.replaceAll("\"", "\\\\\"");
+        }
         nestedRuleClassBuilder.addAnnotation(
                 AnnotationSpec.builder(DisplayName.class)
                         .addMember("value", "\"Rule: " + ruleName + "\"")
@@ -110,7 +113,7 @@ class RuleProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
 
                 Background background = child.getBackground().get();
 
-                BackgroundProcessor backgroundProcessor = new BackgroundProcessor(processingEnv, options);
+                BackgroundProcessor backgroundProcessor = new BackgroundProcessor(processingEnv, options, baseType);
                 MethodSpec.Builder ruleBackgroundMethodBuilder = backgroundProcessor.processRuleBackground(background, classBuilder);
 
                 MethodSpec backgroundMethod = ruleBackgroundMethodBuilder.build();
@@ -127,7 +130,7 @@ class RuleProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
             MethodSpec.Builder noScenariosInRuleMSB = MethodSpec
                     .methodBuilder("noScenariosInRule")
                     .addModifiers(Modifier.PUBLIC);
-            noScenariosInRuleMSB.addStatement("$T.assumeTrue(false, \"Rule doesn't have any scenarios\")", Assumptions.class);
+            noScenariosInRuleMSB.addStatement("$T.fail(\"Rule doesn't have any scenarios\")", Assertions.class);
 
             AnnotationSpec testAnnotation = AnnotationSpec
                     .builder(Test.class)

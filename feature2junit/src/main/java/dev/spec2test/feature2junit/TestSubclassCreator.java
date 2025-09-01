@@ -7,9 +7,7 @@ import dev.spec2test.common.OptionsSupport;
 import dev.spec2test.common.ProcessingException;
 import dev.spec2test.feature2junit.gherkin.FeatureFileParser;
 import dev.spec2test.feature2junit.gherkin.FeatureProcessor;
-import dev.spec2test.feature2junit.gherkin.utils.JavaDocUtils;
-import dev.spec2test.feature2junit.gherkin.utils.TableUtils;
-import dev.spec2test.feature2junit.gherkin.utils.TagUtils;
+import dev.spec2test.feature2junit.gherkin.utils.*;
 import io.cucumber.messages.types.Feature;
 import io.cucumber.messages.types.Tag;
 import lombok.Getter;
@@ -24,7 +22,7 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 /**
  * Creates a JUnit test subclass for a given type element annotated with {@link Feature2JUnit}.
@@ -112,14 +110,21 @@ public class TestSubclassCreator implements LoggingSupport, OptionsSupport {
          * add createDataTable method
          */
         List<MethodSpec> methodSpecs = classBuilder.methodSpecs;
-        Optional<MethodSpec> methodWithDataTableParameter = methodSpecs.stream()
-                .filter(methodSpec -> methodSpec.parameters.stream()
-                        .anyMatch(parameterSpec -> parameterSpec.name.equals("dataTable"))).findFirst();
-        if (methodWithDataTableParameter.isPresent() && options.isShouldBeAbstract()) {
-            MethodSpec getTableConverterMethod = TableUtils.createGetTableConverterMethod(processingEnv);
-            classBuilder.addMethod(getTableConverterMethod);
-            MethodSpec createDataTableMethod = TableUtils.createDataTableMethod(processingEnv);
-            classBuilder.addMethod(createDataTableMethod);
+        boolean featureHasStepWithDataTable = FeatureStepUtils.featureHasStepWithDataTable(feature);
+        if (featureHasStepWithDataTable) {
+//        Optional<MethodSpec> methodWithDataTableParameter = methodSpecs.stream()
+//                .filter(methodSpec -> methodSpec.parameters.stream()
+//                        .anyMatch(parameterSpec -> parameterSpec.name.equals("dataTable"))).findFirst();
+            Set<String> allInheritedMethodNames = ElementMethodUtils.getAllInheritedMethodNames(processingEnv, typeElement);
+            boolean alreadyHasCreateDataTable = allInheritedMethodNames.contains("createDataTable");
+            if (!alreadyHasCreateDataTable) {
+                if (options.isShouldBeAbstract()) {
+                    MethodSpec getTableConverterMethod = TableUtils.createGetTableConverterMethod(processingEnv);
+                    classBuilder.addMethod(getTableConverterMethod);
+                }
+                MethodSpec createDataTableMethod = TableUtils.createDataTableMethod(processingEnv);
+                classBuilder.addMethod(createDataTableMethod);
+            }
         }
 
         /**

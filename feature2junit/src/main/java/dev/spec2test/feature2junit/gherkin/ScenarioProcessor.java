@@ -8,7 +8,7 @@ import dev.spec2test.feature2junit.gherkin.utils.*;
 import io.cucumber.messages.types.*;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -16,10 +16,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.*;
-import javax.lang.model.util.Elements;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -42,16 +41,7 @@ class ScenarioProcessor implements LoggingSupport, OptionsSupport, BaseTypeSuppo
         this.options = options;
         this.baseType = baseType;
 
-        baseClassMethodNames = new HashSet<>();
-
-        Elements elementUtils = processingEnv.getElementUtils();
-        List<? extends Element> allMembers = elementUtils.getAllMembers(baseType);
-        allMembers.stream().filter(element ->
-                element.getKind() == ElementKind.METHOD
-                        && (element.getModifiers().isEmpty() || !element.getModifiers().contains(Modifier.PRIVATE))
-        ).forEach(field -> {
-            baseClassMethodNames.add(field.getSimpleName().toString());
-        });
+        baseClassMethodNames = ElementMethodUtils.getAllInheritedMethodNames(processingEnv, baseType);
     }
 
 
@@ -116,7 +106,7 @@ class ScenarioProcessor implements LoggingSupport, OptionsSupport, BaseTypeSuppo
                 /**
                  * add an empty method that throws an exception
                  */
-                scenarioMethodBuilder.addStatement("$T.assumeTrue(false, \"Scenario has no steps\")", Assumptions.class);
+                scenarioMethodBuilder.addStatement("$T.fail(\"Scenario has no steps\")", Assertions.class);
             }
 
             String tagForEmptyScenarios = options.getTagForScenariosWithNoSteps();
@@ -161,9 +151,13 @@ class ScenarioProcessor implements LoggingSupport, OptionsSupport, BaseTypeSuppo
 
     private void addDisplayNameAnnotation(MethodSpec.Builder scenarioMethodBuilder, Scenario scenario) {
 
+        String scenarioName = scenario.getName();
+        if (scenarioName != null) {
+            scenarioName = scenarioName.replaceAll("\"", "\\\\\"");
+        }
         AnnotationSpec displayNameAnnotation = AnnotationSpec
                 .builder(DisplayName.class)
-                .addMember("value", "\"Scenario: " + scenario.getName() + "\"")
+                .addMember("value", "\"Scenario: " + scenarioName + "\"")
                 .build();
         scenarioMethodBuilder.addAnnotation(displayNameAnnotation);
     }
@@ -175,15 +169,6 @@ class ScenarioProcessor implements LoggingSupport, OptionsSupport, BaseTypeSuppo
                 .addMember("value", "" + scenarioNumber)
                 .build();
         scenarioMethodBuilder.addAnnotation(orderAnnotation);
-    }
-
-    private void addOrderAnnotation(MethodSpec.Builder scenarioMethodBuilder, Scenario scenario) {
-
-        AnnotationSpec displayNameAnnotation = AnnotationSpec
-                .builder(DisplayName.class)
-                .addMember("value", "\"Scenario: " + scenario.getName() + "\"")
-                .build();
-        scenarioMethodBuilder.addAnnotation(displayNameAnnotation);
     }
 
     private void addJUnitAnnotationsForSingleTest(MethodSpec.Builder scenarioMethodBuilder, Scenario scenario) {

@@ -3,15 +3,16 @@ package dev.spec2test.feature2junit.gherkin;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
+import dev.spec2test.common.BaseTypeSupport;
 import dev.spec2test.common.GeneratorOptions;
 import dev.spec2test.common.LoggingSupport;
 import dev.spec2test.common.OptionsSupport;
+import dev.spec2test.feature2junit.gherkin.utils.ElementMethodUtils;
 import dev.spec2test.feature2junit.gherkin.utils.JavaDocUtils;
 import dev.spec2test.feature2junit.gherkin.utils.LocationUtils;
 import io.cucumber.messages.types.Background;
 import io.cucumber.messages.types.Step;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,17 +20,33 @@ import org.junit.jupiter.api.TestInfo;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-@RequiredArgsConstructor
-class BackgroundProcessor implements LoggingSupport, OptionsSupport {
+//@RequiredArgsConstructor
+class BackgroundProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
 
     @Getter
     private final ProcessingEnvironment processingEnv;
 
     @Getter
     private final GeneratorOptions options;
+
+    @Getter
+    private final TypeElement baseType;
+
+    private final Set<String> baseClassMethodNames;
+
+    BackgroundProcessor(ProcessingEnvironment processingEnv, GeneratorOptions options, TypeElement baseType) {
+        this.processingEnv = processingEnv;
+        this.options = options;
+        this.baseType = baseType;
+
+        baseClassMethodNames = ElementMethodUtils.getAllInheritedMethodNames(processingEnv, baseType);
+    }
+
 
     MethodSpec.Builder processFeatureBackground(Background background, TypeSpec.Builder classBuilder) {
 
@@ -45,8 +62,6 @@ class BackgroundProcessor implements LoggingSupport, OptionsSupport {
             Background background,
             TypeSpec.Builder classBuilder,
             String backgroundMethodName) {
-
-        logInfo("Processing background: " + background.getName());
 
         List<MethodSpec> allMethodSpecs = classBuilder.methodSpecs;
 
@@ -86,7 +101,12 @@ class BackgroundProcessor implements LoggingSupport, OptionsSupport {
 
             if (existingMethodSpec == null) {
                 // If the method already exists, we can skip creating it again
-                classBuilder.addMethod(stepMethodSpec);
+                boolean baseClassHasMethod = baseClassMethodNames.contains(stepMethodName);
+                if (baseClassHasMethod) {
+                    logInfo("Skipping generation of method '" + stepMethodName + "', as base class already contains it");
+                } else {
+                    classBuilder.addMethod(stepMethodSpec);
+                }
             }
         }
 
@@ -95,9 +115,13 @@ class BackgroundProcessor implements LoggingSupport, OptionsSupport {
 
     private void addJUnitAnnotations(MethodSpec.Builder scenarioMethodBuilder, Background background) {
 
+        String backgroundName = background.getName();
+        if (backgroundName != null) {
+            backgroundName = backgroundName.replaceAll("\"", "\\\\\"");
+        }
         AnnotationSpec displayNameAnnotation = AnnotationSpec
                 .builder(DisplayName.class)
-                .addMember("value", "\"Background: " + background.getName() + "\"")
+                .addMember("value", "\"Background: " + backgroundName + "\"")
                 .build();
 
         AnnotationSpec testAnnotation = AnnotationSpec

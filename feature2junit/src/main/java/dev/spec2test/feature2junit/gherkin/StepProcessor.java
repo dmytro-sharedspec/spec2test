@@ -20,7 +20,7 @@ import io.cucumber.messages.types.Step;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Assertions;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
@@ -90,7 +90,7 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
         } else {
             // in case the generated test class is not abstract the body of the method should simply throw a
             // failing exception
-            stepMethodBuilder.addStatement("$T.assumeTrue(false, \"Step is not yet implemented\")", Assumptions.class);
+            stepMethodBuilder.addStatement("$T.fail(\"Step is not yet implemented\")", Assertions.class);
         }
 
         AnnotationSpec annotationSpec = buildGWTAnnotation(scenarioStepsMethodSpecs,

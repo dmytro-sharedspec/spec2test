@@ -1,17 +1,16 @@
 package dev.spec2test.feature2junit.gherkin.utils;
 
 import com.squareup.javapoet.MethodSpec;
+import io.cucumber.datatable.DataTable.TableConverter;
 import io.cucumber.messages.types.DataTable;
 import io.cucumber.messages.types.TableCell;
 import io.cucumber.messages.types.TableRow;
-import io.cucumber.datatable.DataTable.TableConverter;
+import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
-
-import org.apache.commons.lang3.StringUtils;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Utility class for working with Cucumber DataTable objects.
