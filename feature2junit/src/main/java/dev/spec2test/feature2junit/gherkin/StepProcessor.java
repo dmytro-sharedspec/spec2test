@@ -243,27 +243,37 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
              */
             if (scenarioParameterNames != null && !scenarioParameterNames.isEmpty()) {
 
-                StringBuilder docStringVarSb = new StringBuilder();
-                docStringVarSb.append("String docString = \"\"\"\n");
-                docStringVarSb.append(docString);
-                docStringVarSb.append("\n\"\"\"");
-                String docStringVar = docStringVarSb.toString();
-                CodeBlock docStringVarBlock = CodeBlock.of(docStringVar);
-                scenarioMethodBuilder.addStatement(docStringVarBlock);
+                parameterValuesSB.append("\"\"\"\n");
+                parameterValuesSB.append(docString);
+                parameterValuesSB.append("\n\"\"\"");
 
-                // what we want: docString = docString.replaceAll("\s<keyword>\s", " " + keyword + " ");
                 for (String scenarioParameterName : scenarioParameterNames) {
-
-//                    String replacePattern = "\\s<" + scenarioParameterName + ">\\s";
-                    String replacePattern = "<" + scenarioParameterName + ">";
-                    CodeBlock replaceCall = CodeBlock.of("docString = docString.replaceAll($S, "
-//                                    + "\" \" + " + scenarioParameterName + " + \" \"" + ")", replacePattern);
-                                    + scenarioParameterName + ")", replacePattern);
-                    scenarioMethodBuilder.addStatement(replaceCall);
+                    parameterValuesSB.append("\n.replaceAll(");
+                    parameterValuesSB.append("\"<" + scenarioParameterName + ">\"");
+                    parameterValuesSB.append(", ");
+                    parameterValuesSB.append(scenarioParameterName);
+                    parameterValuesSB.append(")");
                 }
 
-                parameterValuesSB.delete(0, parameterValuesSB.length()); // clear the StringBuilder
-                parameterValuesSB.append("docString");
+//                StringBuilder docStringVarSb = new StringBuilder();
+//                docStringVarSb.append("String docString = \"\"\"\n");
+//                docStringVarSb.append(docString);
+//                docStringVarSb.append("\n\"\"\"");
+//                String docStringVar = docStringVarSb.toString();
+//                CodeBlock docStringVarBlock = CodeBlock.of(docStringVar);
+//                scenarioMethodBuilder.addStatement(docStringVarBlock);
+//
+//                // what we want: docString = docString.replaceAll("\s<keyword>\s", " " + keyword + " ");
+//                for (String scenarioParameterName : scenarioParameterNames) {
+//
+//                    String replacePattern = "<" + scenarioParameterName + ">";
+//                    CodeBlock replaceCall = CodeBlock.of("docString = docString.replaceAll($S, "
+//                                    + scenarioParameterName + ")", replacePattern);
+//                    scenarioMethodBuilder.addStatement(replaceCall);
+//                }
+//
+//                parameterValuesSB.delete(0, parameterValuesSB.length()); // clear the StringBuilder
+//                parameterValuesSB.append("docString");
 
             } else {
                 parameterValuesSB.append("\"\"\"\n");

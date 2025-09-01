@@ -62,7 +62,7 @@ public class JavaDocUtils {
             String[] lines = description.split("\n");
             for (String line : lines) {
                 line = line.trim();
-                javaDocSB.append("\n").append(line);
+                javaDocSB.append("\n  ").append(line);
             }
         }
 
