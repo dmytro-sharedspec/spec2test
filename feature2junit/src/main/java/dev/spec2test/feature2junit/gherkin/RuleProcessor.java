@@ -1,6 +1,7 @@
 package dev.spec2test.feature2junit.gherkin;
 
 import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import dev.spec2test.common.*;
@@ -58,6 +59,14 @@ class RuleProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
                 .addMember("value", "" + ruleNumber)
                 .build();
         nestedRuleClassBuilder.addAnnotation(orderAnnotation);
+        /**
+         * add {@link TestMethodOrder} annotation
+         */
+        nestedRuleClassBuilder.addAnnotation(AnnotationSpec
+                .builder(TestMethodOrder.class)
+                .addMember("value", "$T.class", ClassName.get(MethodOrderer.OrderAnnotation.class))
+                .build()
+        );
 
         /**
          * add {@link Tag} annotations
