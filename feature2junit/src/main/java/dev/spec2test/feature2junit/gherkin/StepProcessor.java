@@ -94,7 +94,7 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
         }
 
         AnnotationSpec annotationSpec = buildGWTAnnotation(scenarioStepsMethodSpecs,
-                stepMethodName,
+                step.getKeyword().trim(), stepMethodName,
                 stepLine, stepMethodSignatureAttributes
         );
         stepMethodBuilder.addAnnotation(annotationSpec);
@@ -311,20 +311,25 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
 
     private AnnotationSpec buildGWTAnnotation(
             List<MethodSpec> scenarioStepsMethodSpecs,
-            String stepMethodName,
+            String stepKeyword, String stepMethodName,
             long stepLine,
             MethodSignatureAttributes signatureAttributes) {
 
         List<String> parameterValues = signatureAttributes.parameterValues;
 
+        String keywordLower = stepKeyword.toLowerCase();
+
         AnnotationSpec.Builder annotationSpecBuilder;
-        if (stepMethodName.startsWith("given")) {
+        if (keywordLower.equals("given")) {
             annotationSpecBuilder = AnnotationSpec.builder(Given.class);
-        } else if (stepMethodName.startsWith("when")) {
+        } else if (keywordLower.equals("when")) {
             annotationSpecBuilder = AnnotationSpec.builder(When.class);
-        } else if (stepMethodName.startsWith("then")) {
+        } else if (keywordLower.equals("then")) {
             annotationSpecBuilder = AnnotationSpec.builder(Then.class);
-        } else if (stepMethodName.startsWith("and") || stepMethodName.startsWith("but")) {
+        } else if (
+                keywordLower.equals("and") || keywordLower.equals("but")
+                || keywordLower.equals("*")
+        ) {
             // 'And' is a special case, which is worked out using previous non And step keyword
             if (scenarioStepsMethodSpecs.isEmpty()) {
                 throw new ProcessingException(

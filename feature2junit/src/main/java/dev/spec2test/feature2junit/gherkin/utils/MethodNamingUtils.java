@@ -26,7 +26,12 @@ public class MethodNamingUtils {
 
             String word = words[i];
 
-            if (i == 0 && word.equalsIgnoreCase("and") || word.equalsIgnoreCase("but")) {
+            if (i == 0 &&
+                    (word.equalsIgnoreCase("and")
+                            || word.equalsIgnoreCase("but")
+                            || word.equalsIgnoreCase("*")
+                    )
+            ) {
                 word = getPreviousGWTStepWord(stepFirstLine, scenarioStepsMethodSpecs);
             }
 
