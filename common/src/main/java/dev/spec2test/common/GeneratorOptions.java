@@ -54,6 +54,9 @@ public class GeneratorOptions {
      */
     private final String tagForRulesWithNoScenarios;
 
+    /**
+     * Default options
+     */
     public GeneratorOptions() {
         this.shouldBeAbstract = false;
         this.classSuffix = "Test";
@@ -65,6 +68,18 @@ public class GeneratorOptions {
         this.tagForRulesWithNoScenarios = "new";
     }
 
+    /**
+     * Custom options
+     *
+     * @param shouldBeAbstract             see {@link #shouldBeAbstract}
+     * @param classSuffix                  see {@link #classSuffix}
+     * @param addSourceLineAnnotations     see {@link #addSourceLineAnnotations}
+     * @param addSourceLineBeforeStepCalls see {@link #addSourceLineBeforeStepCalls}
+     * @param failScenariosWithNoSteps     see {@link #failScenariosWithNoSteps}
+     * @param failRulesWithNoScenarios     see {@link #failRulesWithNoScenarios}
+     * @param tagForScenariosWithNoSteps   see {@link #tagForScenariosWithNoSteps}
+     * @param tagForRulesWithNoScenarios   see {@link #tagForRulesWithNoScenarios}
+     */
     public GeneratorOptions(boolean shouldBeAbstract,
                             String classSuffix,
                             boolean addSourceLineAnnotations,
