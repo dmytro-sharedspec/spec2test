@@ -15,7 +15,7 @@ import java.io.PrintWriter;
 import java.util.Set;
 
 /**
- * Annotation processor that generates JUnit test subclasses based on the {@link Feature2JUnit} annotation.
+ * Annotation processor that generates JUnit test subclasses for classes annotated with {@link Feature2JUnit} annotation.
  */
 @SupportedAnnotationTypes("dev.spec2test.feature2junit.Feature2JUnit")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
