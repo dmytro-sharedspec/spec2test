@@ -18,6 +18,21 @@ public interface LoggingSupport {
     }
 
     /**
+     * Logs an error message and stack trace passed as a multiline string to the build log.
+     * @param message - the message to log
+     * @param stackTrace - the stack trace to log
+     */
+    default void logError(String message, String stackTrace) {
+
+        logMessage(message, Diagnostic.Kind.ERROR);
+
+        String[] lines = stackTrace.split("\\n");
+        for (String line : lines) {
+            logMessage(line, Diagnostic.Kind.ERROR);
+        }
+    }
+
+    /**
      * Logs a warning message to the build log.
      * @param message - the message to log
      */

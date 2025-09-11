@@ -87,7 +87,7 @@ public class Feature2JUnitGenerator extends AbstractProcessor implements Logging
                     String rootCauseMessage = ExceptionUtils.getRootCauseMessage(t);
                     logError("Root cause message: " + rootCauseMessage);
                     String stackTrace = ExceptionUtils.getStackTrace(t);
-                    logError("Stack trace: \n" + stackTrace);
+                    logError("Stack trace: \n", stackTrace);
                 } finally {
                     if (out != null) {
                         out.close();
