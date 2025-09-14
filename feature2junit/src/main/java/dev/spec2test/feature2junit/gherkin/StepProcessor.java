@@ -123,10 +123,10 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
          * check if step has doc string
          */
         else if (step.getDocString().isPresent()) {
-            ParameterSpec dataTableParameterSpec = ParameterSpec
+            ParameterSpec docStringSpec = ParameterSpec
                     .builder(String.class, "docString")
                     .build();
-            stepMethodBuilder.addParameter(dataTableParameterSpec);
+            stepMethodBuilder.addParameter(docStringSpec);
         }
 
         // add a call to the step method in the scenario method
@@ -237,6 +237,10 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
 
             DocString docString1 = step.getDocString().get();
             String docString = docString1.getContent();
+
+            // need to escape any occurrences of triple quotes in the doc string content
+            docString = docString.replaceAll("\"\"\"", "\\\\\"\"\"");
+
             /**
              * in case we are processing a scenario with examples table i.e. Scenario Template type
              * then we need to replace any references to scenario parameters with reference value from the examples table
@@ -254,26 +258,6 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
                     parameterValuesSB.append(scenarioParameterName);
                     parameterValuesSB.append(")");
                 }
-
-//                StringBuilder docStringVarSb = new StringBuilder();
-//                docStringVarSb.append("String docString = \"\"\"\n");
-//                docStringVarSb.append(docString);
-//                docStringVarSb.append("\n\"\"\"");
-//                String docStringVar = docStringVarSb.toString();
-//                CodeBlock docStringVarBlock = CodeBlock.of(docStringVar);
-//                scenarioMethodBuilder.addStatement(docStringVarBlock);
-//
-//                // what we want: docString = docString.replaceAll("\s<keyword>\s", " " + keyword + " ");
-//                for (String scenarioParameterName : scenarioParameterNames) {
-//
-//                    String replacePattern = "<" + scenarioParameterName + ">";
-//                    CodeBlock replaceCall = CodeBlock.of("docString = docString.replaceAll($S, "
-//                                    + scenarioParameterName + ")", replacePattern);
-//                    scenarioMethodBuilder.addStatement(replaceCall);
-//                }
-//
-//                parameterValuesSB.delete(0, parameterValuesSB.length()); // clear the StringBuilder
-//                parameterValuesSB.append("docString");
 
             } else {
                 parameterValuesSB.append("\"\"\"\n");
@@ -328,7 +312,7 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
             annotationSpecBuilder = AnnotationSpec.builder(Then.class);
         } else if (
                 keywordLower.equals("and") || keywordLower.equals("but")
-                || keywordLower.equals("*")
+                        || keywordLower.equals("*")
         ) {
             // 'And' is a special case, which is worked out using previous non And step keyword
             if (scenarioStepsMethodSpecs.isEmpty()) {
