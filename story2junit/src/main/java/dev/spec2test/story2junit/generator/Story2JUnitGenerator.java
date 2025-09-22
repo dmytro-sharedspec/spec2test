@@ -1,29 +1,24 @@
 package dev.spec2test.story2junit.generator;
 
-import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
 import dev.spec2test.story2junit.Story2JUnit;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Set;
-import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.Filer;
-import javax.annotation.processing.Processor;
-import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
+
+import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Set;
 
 /**
  * APT processor that generates JUnit test subclasses based on the Story2JUnit annotation.
  */
 @SupportedAnnotationTypes("dev.spec2test.story2junit.Story2JUnit")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@AutoService(Processor.class)
+//@AutoService(Processor.class)
 public class Story2JUnitGenerator extends AbstractProcessor {
 
     @Override

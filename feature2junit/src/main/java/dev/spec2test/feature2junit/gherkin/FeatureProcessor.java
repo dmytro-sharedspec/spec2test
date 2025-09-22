@@ -7,7 +7,6 @@ import io.cucumber.messages.types.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
 import java.util.List;
@@ -16,7 +15,6 @@ import java.util.List;
  * Processes a Gherkin feature and generates corresponding JUnit test methods.
  */
 @RequiredArgsConstructor
-@NotThreadSafe
 public class FeatureProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
 
     @Getter

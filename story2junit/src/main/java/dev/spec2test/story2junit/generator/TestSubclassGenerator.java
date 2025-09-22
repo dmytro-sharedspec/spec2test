@@ -1,28 +1,9 @@
 package dev.spec2test.story2junit.generator;
 
-import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.*;
 import dev.spec2test.common.LoggingSupport;
 import dev.spec2test.story2junit.Story2JUnit;
 import dev.spec2test.story2junit.StoryFilePath;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.annotation.concurrent.NotThreadSafe;
-import javax.annotation.processing.Generated;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.Name;
-import javax.lang.model.element.PackageElement;
-import javax.lang.model.element.TypeElement;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -34,8 +15,17 @@ import org.jbehave.core.model.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import javax.annotation.processing.Generated;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 @RequiredArgsConstructor
-@NotThreadSafe
 class TestSubclassGenerator implements LoggingSupport {
 
     @Getter

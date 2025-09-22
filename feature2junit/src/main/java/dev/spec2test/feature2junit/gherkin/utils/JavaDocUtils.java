@@ -1,7 +1,5 @@
 package dev.spec2test.feature2junit.gherkin.utils;
 
-import javax.annotation.Nullable;
-
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
@@ -19,7 +17,7 @@ public class JavaDocUtils {
      * @param description the description to include in the JavaDoc, can be null
      * @return a formatted JavaDoc comment as a string
      */
-    public static String toJavaDoc(String keyword, @Nullable String name, @Nullable String description) {
+    public static String toJavaDoc(String keyword, String name, String description) {
 
         StringBuilder javaDocSB = new StringBuilder()
                 .append("/**")
@@ -49,7 +47,7 @@ public class JavaDocUtils {
      * @param description the description of the element
      * @return JavaDoc content comprised of the keyword, name, and description formatted as a string.
      */
-    public static String toJavaDocContent(String keyword, @Nullable String name, @Nullable String description) {
+    public static String toJavaDocContent(String keyword, String name, String description) {
 
         StringBuilder javaDocSB = new StringBuilder()
                 .append(keyword).append(": ");

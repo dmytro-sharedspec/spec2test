@@ -13,7 +13,6 @@ import io.cucumber.messages.types.Tag;
 import lombok.Getter;
 import org.junit.jupiter.api.*;
 
-import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.processing.Generated;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -27,8 +26,7 @@ import java.util.Set;
 /**
  * Creates a JUnit test subclass for a given type element annotated with {@link Feature2JUnit}.
  */
-@NotThreadSafe
-public class TestSubclassCreator implements LoggingSupport, OptionsSupport {
+class TestSubclassCreator implements LoggingSupport, OptionsSupport {
 
     private final ProcessingEnvironment processingEnv;
 
