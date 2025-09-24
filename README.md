@@ -1,6 +1,6 @@
 # spec2test
 
-**spec2test** turns human-readable Gherkin specs into **pure JUnit** test code at **compile time**.
+**spec2test** turns natural-language Gherkin specs into **pure JUnit** test code at **compile time**.
 No regex “glue,” no runtime step discovery. Your `.feature` files become first-class Java code that compiles, runs, and fails fast.
 
 > Built around an annotation-processor approach (`feature2junit`) that parses feature files during `javac`, generating JUnit test skeletons where each **Given/When/Then** is converted into a strongly-named Java method call.
@@ -10,10 +10,19 @@ No regex “glue,” no runtime step discovery. Your `.feature` files become fir
 ## Why spec2test?
 
 * **Compile-time safety:** Eliminates “undefined step” surprises at runtime—mismatches surface as **compiler errors**.
+
 * **No regex glue:** Avoids brittle annotation regexes and accidental ambiguous matches.
+
 * **Spec-driven automation:** The **text in your feature** drives the generated method names and call sequence—**per-feature** scope, not a global step library.
-* **Simpler CI:** Fewer moving parts; tests are plain JUnit. If it compiles, it’s wired.
-* **IDE-friendly:** Navigate, search, and refactor using standard Java tooling. *(Step renames happen by changing the spec; the generator updates method names accordingly.)*
+
+* **Simpler CI:** Fewer moving parts; tests are plain JUnit. If it compiles, it’s wired.&#x20;
+
+* **IDE-friendly:** Works with standard Java tooling—navigate your Gherkin feature via its Java-equivalent, pure JUnit representation, use find usages, run individual Scenarios/Rules, set breakpoints, and debug like any JUnit test.&#x20;
+
+* **TDD-friendly:** Enables straightforward, **iterative** test‑first development—even before any application or test code exists. Start with an abstract, implementation‑free spec (e.g., only Rule and/or Scenario titles). The generator creates a failing JUnit method for each empty Rule/Scenario, so you immediately have red tests to drive development.
+
+  * Iterate: list Rules → add Scenario titles under the first Rule → pick one Scenario and add concrete steps in the Gherkin feature (still red; the generator turns them into failing step methods in the test) → implement those failing step methods → then implement just enough application code to make it pass (green) → repeat for the next Scenario. When all Scenarios under a Rule are green, move on to the next Rule.
+  * Keep discovering: add new Scenario or Rule titles anytime; they show up as failing tests until implemented.
 
 ---
 
@@ -24,12 +33,12 @@ No regex “glue,” no runtime step discovery. Your `.feature` files become fir
 
    * A **JUnit test class** (one per feature).
    * For each Scenario, a **`@Test`** method that calls **per-step methods** derived from step text.
-   * **Typed parameters** for step arguments (quotes in steps become `String` params; numbers become `int/long/double`, etc.). <!-- TODO: Confirm numeric typing rules -->
+   * **Typed parameters** for step arguments (quotes in steps become `String` params; numbers become `int/long/double`, etc.).&#x20;
 3. You implement automation **per feature** (no shared global step library).
    Common patterns:
 
    * **Delegate pattern (recommended):** Generated step methods call into your hand-written `*Steps` class.
-   * **Direct fill-in (prototype):** Temporarily implement TODOs in generated code (be aware: regenerated on compile). <!-- TODO: Confirm your preferred pattern -->
+   * **Direct fill-in (prototype):** Temporarily implement TODOs in generated code (be aware: regenerated on compile).&#x20;
 
 ---
 
@@ -85,7 +94,7 @@ class LoginFeatureTest {
 ## Installation
 
 > **Requirements:** Java **17+** (TBD), Maven/Gradle with **annotation processing** enabled, IDE with APT enabled (e.g., IntelliJ).
-> **Project layout:** By default, features can live under `src/test/java` or `src/test/resources`. <!-- TODO: Confirm your default path (you mentioned `src/test/java`) -->
+> **Project layout:** By default, features can live under `src/test/java` or `src/test/resources`.&#x20;
 
 ### Maven (example)
 
@@ -156,15 +165,13 @@ dependencies {
      }
      ```
 
-     And in the generated test, call your delegate (pattern varies; see Configuration). <!-- TODO: confirm how delegate is wired (naming convention? injection?) -->
+     And in the generated test, call your delegate (pattern varies; see Configuration).&#x20;
    * **Direct fill-in (prototype):** Replace TODOs in the generated class.
 5. **Run tests** with your normal JUnit runner (IDE, Maven/Gradle, CI).
 
 ---
 
 ## Configuration (processor options)
-
-<!-- TODO: Fill in actual option names / defaults -->
 
 * `featureRoot` – where to resolve relative `.feature` paths (default: `src/test/java`).
 * `outputPackage` – override generated package.
@@ -193,19 +200,14 @@ dependencies {
 ## Failure modes & ergonomics
 
 * **Changed step text?** Recompile → generator updates method names. If your delegate no longer matches, you get a **compile error** (early, fast).
-* **Wrong parameter shape?** Compile-time signature mismatch highlights the line. <!-- TODO: confirm typing rules -->
+* **Wrong parameter shape?** Compile-time signature mismatch highlights the line.&#x20;
 * **No delegate found?** Compile fails instead of a runtime “undefined step”.
 
 ---
 
 ## Roadmap
 
-* [ ] Confirm & document **delegate wiring** (naming convention, service loader, DI hook).
-* [ ] First-class **Scenario Outline** → JUnit parameterized tests.
-* [ ] Richer **Data Table** mappings (typed records, converters).
-* [ ] Gradle plugin & Maven starter archetype.
-* [ ] IntelliJ File Watcher / APT refresh tips.
-* [ ] Example projects (web UI, API, service).
+*
 
 ---
 
@@ -220,8 +222,6 @@ Issues and PRs welcome. Please include:
 ---
 
 ## License
-
-<!-- TODO: MIT/Apache-2.0? -->
 
 `TBD`
 
