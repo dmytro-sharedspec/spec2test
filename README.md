@@ -21,19 +21,20 @@ No regex “glue,” no runtime step discovery. Your `.feature` files become fir
 
 * **TDD-friendly:** Enables straightforward, **iterative** test‑first development—even before any application or test code exists. Start with an abstract, implementation‑free spec (e.g., only Rule and/or Scenario titles). The generator creates a failing JUnit method for each empty Rule/Scenario, so you immediately have red tests to drive development.
 
-  * Iterate: list Rules → add Scenario titles under the first Rule → pick one Scenario and add concrete steps in the Gherkin feature (still red; the generator turns them into failing step methods in the test) → implement those failing step methods → then implement just enough application code to make it pass (green) → repeat for the next Scenario. When all Scenarios under a Rule are green, move on to the next Rule.
+  * Iterate: list Rules → add Scenario titles under the first Rule → pick one Scenario and add concrete steps in the Gherkin feature (still red; the generator turns them into failing step methods in the test) → implement those abstract step methods → then implement just enough application code to make it pass (green) → repeat for the next Scenario. When all Scenarios under a Rule are green, move on to the next Rule.
   * Keep discovering: add new Scenario or Rule titles anytime; they show up as failing tests until implemented.
 
 ---
 
 ## How it works (at a glance)
 
-1. You point the **annotation processor** at a `.feature` file (e.g., via `@Feature2JUnit("path/to/feature.feature")`).
+1. Create an **abstract marker class** annotated with `@Feature2JUnit("relative/path/to.feature")` — this points the annotation processor at the feature.
 2. During compilation, `feature2junit` parses the feature and generates:
 
    * A **JUnit test class** (one per feature).
-   * For each Scenario, a **`@Test`** method that calls **per-step methods** derived from step text.
-   * **Typed parameters** for step arguments (quotes in steps become `String` params; numbers become `int/long/double`, etc.).&#x20;
+   * For each Scenario, a `@Test` method that calls **per-step methods** derived from step text.
+   * Parts of step's text that are wrapped in double quotes become step method arguments. [DocStrings](https://cucumber.io/docs/gherkin/reference/#doc-strings) and  [Data Tables](https://cucumber.io/docs/gherkin/reference/#data-tables) are also supported. 
+   * Gherkin `Rule`s are generated as nested test classes, and `Rule` and `Scenario` titles populate the JUnit `@DisplayName` annotations.
 3. You implement automation **per feature** (no shared global step library).
    Common patterns:
 
@@ -61,7 +62,7 @@ Feature: Login
 import com.yourorg.spec2test.Feature2JUnit; // TODO: confirm package
 
 @Feature2JUnit("specs/login.feature")
-public interface LoginFeature { }
+public abstract class LoginFeature { }
 ```
 
 ### Generated (simplified)
