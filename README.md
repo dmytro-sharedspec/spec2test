@@ -525,7 +525,7 @@ GNU General Public License v3.0
 | ------------------------- | ------------------------------------------------------------- | --------------------------------------------------- |
 | Wiring                    | Regex in annotations; runtime discovery                       | **Compile-time** generated JUnit                    |
 | Failure surface           | Often runtime “undefined step”                                | **Compiler errors** on mismatch                     |
-| Step granularity          | Shared/global libraries                                       | **Per-feature scoped**                              |
+| Step scope                | Shared/global libraries                                       | **Per-feature scoped**                              |
 | Step refactoring strategy | Search & replace text (often via complex regular expressions) | Compiler errors, method rename & inline refactoring |
 | Test Runner               | Custom runner & plugins                                       | Plain JUnit                                         |
 |                           |                                                               |                                                     |
