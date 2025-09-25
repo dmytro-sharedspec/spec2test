@@ -444,7 +444,7 @@ public class CartFeatureScenarios extends CartFeature {
 * **Use when:** You want a strict separation between generated and hand‑written code; or when you prefer clear override points and standard OO patterns.
 * **Benefits:** Enables parallel implementations of the same Scenarios—for example, a REST-based subclass (faster, less timeout-prone) and a UI-driven subclass (slower, more timeout-prone). This can enable you to keep a fast test suite for local development and a deeper end-to-end CI suite when you need maximum confidence.
   &#x20;
-* **Trade‑offs:** One extra subclass per feature to maintain; you’ll organize how these subclasses are discovered/run.
+* **Trade‑offs:** One extra subclass per feature to maintain.
 
 **Pattern B — Generated test class is concrete**
 
