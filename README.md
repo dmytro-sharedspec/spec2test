@@ -245,7 +245,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @FeatureFilePath("specs/cart.feature")
-public class CartFeatureScenarios extends CartFeature {
+public class CartFeatureTest extends CartFeature {
     {
         /**
          * Feature: online shopping cart
@@ -386,7 +386,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @FeatureFilePath("specs/cart.feature")
-public class CartFeatureScenarios extends CartFeature {
+public class CartFeatureTest extends CartFeature {
     {
         /**
          * Feature: online shopping cart
