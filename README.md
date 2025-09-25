@@ -461,7 +461,7 @@ All configuration is provided via the `@Feature2JUnitOptions` annotation. You ca
 * **On the marker class** (applies to that feature only).
 * **On a shared base test class** (options are **inherited** by subclasses/marker classes in your test hierarchy).
 
-A typical option controls whether the generated test class should be **abstract or concrete**, which maps directly to the two usage patterns above. For the complete list of options and defaults, refer to the `@Feature2JUnitOptions` Javadoc or the annotation source.
+A typical option controls whether the generated test class should be **abstract or concrete**, which maps directly to the two usage patterns above. For the complete list of options and defaults, refer to the `@Feature2JUnitOptions` JavaDoc or the annotation source code.
 
 **Example — per‑feature options on the marker class**
 
@@ -521,11 +521,11 @@ GNU General Public License v3.0
 
 ## Appendix: Cucumber/JBehave vs spec2test
 
-| Topic                     | Cucumber/JBehave                                              | spec2test                                            |
-| ------------------------- | ------------------------------------------------------------- | ---------------------------------------------------- |
-| Wiring                    | Regex in annotations; runtime discovery                       | **Compile-time** generated JUnit                     |
-| Failure surface           | Often runtime “undefined step”                                | **Compiler errors** on mismatch                      |
-| Step granularity          | Shared/global libraries                                       | **Per-feature scoped**                               |
-| Step refactoring strategy | Search & replace text (often via complex regular expressions) | Compiler errors, method rename & inline refactorings |
-| Test Runner               | Custom runner & plugins                                       | Plain JUnit                                          |
-|                           |                                                               |                                                      |
+| Topic                     | Cucumber/JBehave                                              | spec2test                                           |
+| ------------------------- | ------------------------------------------------------------- | --------------------------------------------------- |
+| Wiring                    | Regex in annotations; runtime discovery                       | **Compile-time** generated JUnit                    |
+| Failure surface           | Often runtime “undefined step”                                | **Compiler errors** on mismatch                     |
+| Step granularity          | Shared/global libraries                                       | **Per-feature scoped**                              |
+| Step refactoring strategy | Search & replace text (often via complex regular expressions) | Compiler errors, method rename & inline refactoring |
+| Test Runner               | Custom runner & plugins                                       | Plain JUnit                                         |
+|                           |                                                               |                                                     |
