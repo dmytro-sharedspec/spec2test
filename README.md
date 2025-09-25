@@ -33,152 +33,459 @@ No regex “glue,” no runtime step discovery. Your `.feature` files become fir
 
    * A **JUnit test class** (one per feature).
    * For each Scenario, a `@Test` method that calls **per-step methods** derived from step text.
-   * Parts of step's text that are wrapped in double quotes become step method arguments. [DocStrings](https://cucumber.io/docs/gherkin/reference/#doc-strings) and  [Data Tables](https://cucumber.io/docs/gherkin/reference/#data-tables) are also supported. 
-   * Gherkin `Rule`s are generated as nested test classes, and `Rule` and `Scenario` titles populate the JUnit `@DisplayName` annotations.
+   * Parts of step's text that are wrapped in double quotes become step method arguments. [DocStrings](https://cucumber.io/docs/gherkin/reference/#doc-strings) and [Data Tables](https://cucumber.io/docs/gherkin/reference/#data-tables) are also supported. 
+   * Gherkin `Rule` elements are generated as nested test classes, and `Rule` and `Scenario` titles populate the JUnit `@DisplayName` annotations.
 3. You implement automation **per feature** (no shared global step library).
-   Common patterns:
-
-   * **Delegate pattern (recommended):** Generated step methods call into your hand-written `*Steps` class.
-   * **Direct fill-in (prototype):** Temporarily implement TODOs in generated code (be aware: regenerated on compile).&#x20;
+   See **Usage examples** for the two supported patterns.
 
 ---
 
-## Example
+## Usage example
 
-### Input (`src/test/java/specs/login.feature`)
+1. **Create or place** a `.feature` file under your chosen directory (e.g., `src/test/resources/specs/...`).
+
+**Example** (`specs/cart.feature`):
 
 ```gherkin
-Feature: Login
-  Scenario: Valid login
-    Given the user is on the login page
-    When they log in with "alice" and "secret"
-    Then they see the dashboard
+Feature: Online shopping cart
+
+  Scenario: Update quantity updates subtotal
+    Given my cart contains "Wireless Headphones" with quantity "1" and unit price "60.00"
+    When I change the quantity to "2"
+    Then my cart subtotal is "120.00"
+
+  Rule: Free shipping applies to orders over €50
+
+    Scenario: Show free-shipping banner when threshold is met
+      Given my cart subtotal is "55.00"
+      When I view the cart
+      Then I see the "Free shipping" banner
 ```
 
-### Trigger (marker source)
+2. **Add a marker class** annotated with `@Feature2JUnit("specs/cart.feature")`.
 
 ```java
-// src/test/java/specs/LoginFeature.java
-import com.yourorg.spec2test.Feature2JUnit; // TODO: confirm package
+package org.mycompany.app;
 
-@Feature2JUnit("specs/login.feature")
-public abstract class LoginFeature { }
-```
+import dev.spec2test.feature2junit.Feature2JUnit;
 
-### Generated (simplified)
-
-```java
-// target/generated-sources/spec2test/specs/LoginFeatureTest.java
-// @Generated – do not edit
-class LoginFeatureTest {
-
-  @org.junit.jupiter.api.Test
-  void scenario_valid_login() {
-    step_the_user_is_on_the_login_page();
-    step_they_log_in_with("alice", "secret");
-    step_they_see_the_dashboard();
-  }
-
-  // Per-feature, spec-driven step methods:
-  void step_the_user_is_on_the_login_page() { /* TODO implement */ }
-
-  void step_they_log_in_with(String username, String password) { /* TODO implement */ }
-
-  void step_they_see_the_dashboard() { /* TODO implement */ }
+@Feature2JUnit("specs/cart.feature")
+public abstract class CartFeature {
+    // Marker class: no members required
 }
 ```
 
-> Change the step text in the `.feature` file → rerun compile → the corresponding method names in the generated class change accordingly. If your delegate can’t be found or signatures don’t match, you get a **compile-time** error—not a runtime “undefined step”.
+2. **Build** the project. The generator writes JUnit sources under your build’s generated-sources dir.
+3. **Choose a usage pattern** (per feature):
 
----
+   **Pattern A (default) — Extend the generated abstract test class (implement abstract methods)**
 
-## Installation
+   * First compile: the generator produces an **abstract** test class; each step method is **abstract** (no body).
 
-> **Requirements:** Java **17+** (TBD), Maven/Gradle with **annotation processing** enabled, IDE with APT enabled (e.g., IntelliJ).
-> **Project layout:** By default, features can live under `src/test/java` or `src/test/resources`.&#x20;
+   * You create a subclass and implement the step methods.
 
-### Maven (example)
+   * Rebuild and run; the subclass is executed by JUnit.
 
-```xml
-<dependencies>
-  <!-- spec2test annotation + SPI -->
-  <dependency>
-    <groupId>com.yourorg.spec2test</groupId>      <!-- TODO -->
-    <artifactId>feature2junit</artifactId>        <!-- TODO -->
-    <version>0.1.0</version>                      <!-- TODO -->
-    <scope>provided</scope>
-  </dependency>
-</dependencies>
+*Generated class:*
 
-<build>
-  <plugins>
-    <plugin>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-compiler-plugin</artifactId>
-      <version>3.13.0</version>
-      <configuration>
-        <annotationProcessorPaths>
-          <path>
-            <groupId>com.yourorg.spec2test</groupId>  <!-- TODO -->
-            <artifactId>feature2junit</artifactId>    <!-- TODO -->
-            <version>0.1.0</version>                  <!-- TODO -->
-          </path>
-        </annotationProcessorPaths>
-        <compilerArgs>
-          <!-- Optional processor args -->
-          <!-- <arg>-AfeatureRoot=src/test/java</arg> -->  <!-- TODO: confirm option names -->
-        </compilerArgs>
-      </configuration>
-    </plugin>
-  </plugins>
-</build>
-```
+```java
+package org.mycompany.app;
 
-### Gradle (example – Kotlin DSL)
+import dev.spec2test.feature2junit.FeatureFilePath;
+import java.lang.String;
+import javax.annotation.processing.Generated;
+import org.junit.jupiter.api.ClassOrderer;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestClassOrder;
+import org.junit.jupiter.api.TestMethodOrder;
 
-```kotlin
-dependencies {
-    compileOnly("com.yourorg.spec2test:feature2junit:0.1.0") // TODO
-    annotationProcessor("com.yourorg.spec2test:feature2junit:0.1.0")
-    testAnnotationProcessor("com.yourorg.spec2test:feature2junit:0.1.0")
+/**
+ * To implement tests in this generated class, extend it and implement all abstract methods.
+ */
+@Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestClassOrder(ClassOrderer.OrderAnnotation.class)
+@FeatureFilePath("specs/cart.feature")
+public abstract class CartFeatureScenarios extends CartFeature {
+    {
+        /**
+         * Feature: online shopping cart
+         */
+    }
+
+    public abstract void givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3(String p1, String p2, String p3);
+
+    public abstract void whenIChangeTheQuantityTo$p1(String p1);
+
+    public abstract void thenMyCartSubtotalIs$p1(String p1);
+
+    @Test
+    @Order(1)
+    @DisplayName("Scenario: update quantity updates subtotal")
+    public void scenario_1() {
+        /**
+         * Given my cart contains "Wireless Headphones" with quantity "1" and unit price "60.00"
+         */
+        givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3("Wireless Headphones", "1", "60.00");
+        /**
+         * When I change the quantity to "2"
+         */
+        whenIChangeTheQuantityTo$p1("2");
+        /**
+         * Then my cart subtotal is "120.00"
+         */
+        thenMyCartSubtotalIs$p1("120.00");
+    }
+
+    public abstract void givenMyCartSubtotalIs$p1(String p1);
+
+    public abstract void whenIViewTheCart();
+
+    public abstract void thenISeeThe$p1Banner(String p1);
+
+    @Nested
+    @Order(1)
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    @DisplayName("Rule: free shipping applies to orders over €50")
+    public class Rule_1 {
+        @Test
+        @Order(1)
+        @DisplayName("Scenario: show free-shipping banner when threshold is met")
+        public void scenario_1() {
+            /**
+             * Given my cart subtotal is "55.00"
+             */
+            givenMyCartSubtotalIs$p1("55.00");
+            /**
+             * When I view the cart
+             */
+            whenIViewTheCart();
+            /**
+             * Then I see the "Free shipping" banner
+             */
+            thenISeeThe$p1Banner("Free shipping");
+        }
+    }
 }
 ```
 
-> **IntelliJ:** Enable *Annotation Processing* in **Settings → Build, Execution, Deployment → Compiler → Annotation Processors**.
+*Your implementation:*
+
+```java
+package org.mycompany.app;
+
+public class CartFeatureTest extends CartFeatureScenarios {
+
+    @Override
+    public void givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3(String p1, String p2, String p3) {
+       /* real implementation here */
+    }
+
+    @Override
+    public void whenIChangeTheQuantityTo$p1(String p1) {
+       /* real implementation here */
+    }
+
+    @Override
+    public void thenMyCartSubtotalIs$p1(String p1) {
+       /* real implementation here */
+    }
+
+    @Override
+    public void givenMyCartSubtotalIs$p1(String p1) {
+        /* real implementation here */
+    }
+
+    @Override
+    public void whenIViewTheCart() {
+        /* real implementation here */
+    }
+
+    @Override
+    public void thenISeeThe$p1Banner(String p1) {
+        /* real implementation here */
+    }
+}
+```
+
+**Pattern B — Generated test class is concrete (copy failing step methods into the base class)**
+
+* First compile: the generator produces a **concrete** test class; each step method contains a **failing assertion** (e.g., `org.junit.jupiter.api.Assertions.fail("Step is not yet implemented")`).
+* Copy the generated step methods (signatures and names) into the **base marker class** annotated with `@Feature2JUnit`, and provide real implementations there.
+* Rebuild; the generated test now calls your implementations, and it no longer generates the failing method stubs
+* You run the generated test class directly
+
+*Generated (first pass):*
+
+```java
+package org.mycompany.app;
+
+import dev.spec2test.feature2junit.FeatureFilePath;
+import java.lang.String;
+import javax.annotation.processing.Generated;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.ClassOrderer;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestClassOrder;
+import org.junit.jupiter.api.TestMethodOrder;
+
+/**
+ * To implement tests in this generated class, move any methods with failing assumptions into the base
+ * class and implement them.
+ */
+@Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestClassOrder(ClassOrderer.OrderAnnotation.class)
+@FeatureFilePath("specs/cart.feature")
+public class CartFeatureScenarios extends CartFeature {
+    {
+        /**
+         * Feature: online shopping cart
+         */
+    }
+
+    public void givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3(String p1, String p2,
+            String p3) {
+        Assertions.fail("Step is not yet implemented");
+    }
+
+    public void whenIChangeTheQuantityTo$p1(String p1) {
+        Assertions.fail("Step is not yet implemented");
+    }
+
+    public void thenMyCartSubtotalIs$p1(String p1) {
+        Assertions.fail("Step is not yet implemented");
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("Scenario: update quantity updates subtotal")
+    public void scenario_1() {
+        /**
+         * Given my cart contains "Wireless Headphones" with quantity "1" and unit price "60.00"
+         */
+        givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3("Wireless Headphones", "1", "60.00");
+        /**
+         * When I change the quantity to "2"
+         */
+        whenIChangeTheQuantityTo$p1("2");
+        /**
+         * Then my cart subtotal is "120.00"
+         */
+        thenMyCartSubtotalIs$p1("120.00");
+    }
+
+    public void givenMyCartSubtotalIs$p1(String p1) {
+        Assertions.fail("Step is not yet implemented");
+    }
+
+    public void whenIViewTheCart() {
+        Assertions.fail("Step is not yet implemented");
+    }
+
+    public void thenISeeThe$p1Banner(String p1) {
+        Assertions.fail("Step is not yet implemented");
+    }
+
+    @Nested
+    @Order(1)
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    @DisplayName("Rule: free shipping applies to orders over €50")
+    public class Rule_1 {
+        @Test
+        @Order(1)
+        @DisplayName("Scenario: show free-shipping banner when threshold is met")
+        public void scenario_1() {
+            /**
+             * Given my cart subtotal is "55.00"
+             */
+            givenMyCartSubtotalIs$p1("55.00");
+            /**
+             * When I view the cart
+             */
+            whenIViewTheCart();
+            /**
+             * Then I see the "Free shipping" banner
+             */
+            thenISeeThe$p1Banner("Free shipping");
+        }
+    }
+}
+```
+
+*Then copy step methods into your base class and implement them:*
+
+```java
+package org.mycompany.app;
+
+import dev.spec2test.feature2junit.Feature2JUnit;
+import dev.spec2test.feature2junit.Feature2JUnitOptions;
+
+@Feature2JUnitOptions(
+    shouldBeAbstract = false
+)
+@Feature2JUnit("specs/cart.feature")
+public class CartFeature {
+
+    public void givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3(String p1, String p2, String p3) {
+        /* real implementation here */
+    }
+
+    public void whenIChangeTheQuantityTo$p1(String p1) {
+        /* real implementation here */
+    }
+
+    public void thenMyCartSubtotalIs$p1(String p1) {
+        /* real implementation here */
+    }
+
+    public void givenMyCartSubtotalIs$p1(String p1) {
+        /* real implementation here */
+    }
+
+    public void whenIViewTheCart() {
+        /* real implementation here */
+    }
+
+    public void thenISeeThe$p1Banner(String p1) {
+        /* real implementation here */
+    }
+
+}
+```
+
+*Generated class (second pass):*
+
+```java
+package org.mycompany.app;
+
+import dev.spec2test.feature2junit.FeatureFilePath;
+import javax.annotation.processing.Generated;
+import org.junit.jupiter.api.ClassOrderer;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestClassOrder;
+import org.junit.jupiter.api.TestMethodOrder;
+
+/**
+ * To implement tests in this generated class, move any methods with failing assumptions into the base
+ * class and implement them.
+ */
+@Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestClassOrder(ClassOrderer.OrderAnnotation.class)
+@FeatureFilePath("specs/cart.feature")
+public class CartFeatureScenarios extends CartFeature {
+    {
+        /**
+         * Feature: online shopping cart
+         */
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("Scenario: update quantity updates subtotal")
+    public void scenario_1() {
+        /**
+         * Given my cart contains "Wireless Headphones" with quantity "1" and unit price "60.00"
+         */
+        givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3("Wireless Headphones", "1", "60.00");
+        /**
+         * When I change the quantity to "2"
+         */
+        whenIChangeTheQuantityTo$p1("2");
+        /**
+         * Then my cart subtotal is "120.00"
+         */
+        thenMyCartSubtotalIs$p1("120.00");
+    }
+
+    @Nested
+    @Order(1)
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    @DisplayName("Rule: free shipping applies to orders over €50")
+    public class Rule_1 {
+        @Test
+        @Order(1)
+        @DisplayName("Scenario: show free-shipping banner when threshold is met")
+        public void scenario_1() {
+            /**
+             * Given my cart subtotal is "55.00"
+             */
+            givenMyCartSubtotalIs$p1("55.00");
+            /**
+             * When I view the cart
+             */
+            whenIViewTheCart();
+            /**
+             * Then I see the "Free shipping" banner
+             */
+            thenISeeThe$p1Banner("Free shipping");
+        }
+    }
+}
+```
+
+### When to use which pattern
+
+**Pattern A — Generated test class is abstract**
+
+* **Use when:** You want a strict separation between generated and hand‑written code; or when you prefer clear override points and standard OO patterns.
+* **Benefits:** Enables parallel implementations of the same Scenarios—for example, a REST-based subclass (faster, less timeout-prone) and a UI-driven subclass (slower, more timeout-prone). This can enable you to keep a fast test suite for local development and a deeper end-to-end CI suite when you need maximum confidence.
+  &#x20;
+* **Trade‑offs:** One extra subclass per feature to maintain; you’ll organize how these subclasses are discovered/run.
+
+**Pattern B — Generated test class is concrete**
+
+* **Use when:** You want the most straightforward **TDD flow** with immediate red tests; you prefer fewer classes; step implementations should live next to the marker/base class for simplicity.
+* **Benefits:** Fast start, failing stubs make the next task obvious;  step implementations are reusable via inheritance.
+* **Trade‑offs:** Initial one‑time **copy** of method stubs and whenever step text changes.
 
 ---
 
-## Usage
+## Configuration
 
-1. **Create or place** a `.feature` file under your chosen root (e.g., `src/test/java/specs/...`).
-2. **Add a marker type** annotated with `@Feature2JUnit("relative/path/to/feature.feature")`.
-3. **Build** the project. The generator writes JUnit sources under your build’s generated-sources dir.
-4. **Implement steps** (per feature):
+All configuration is provided via the `@Feature2JUnitOptions` annotation. You can place this annotation:
 
-   * **Delegate pattern (recommended):**
+* **On the marker class** (applies to that feature only).
+* **On a shared base test class** (options are **inherited** by subclasses/marker classes in your test hierarchy).
 
-     ```java
-     // hand-written class you own
-     public final class LoginFeatureSteps {
-       public void the_user_is_on_the_login_page() { /* open login page */ }
-       public void they_log_in_with(String u, String p) { /* fill & submit */ }
-       public void they_see_the_dashboard() { /* assert dashboard visible */ }
-     }
-     ```
+A typical option controls whether the generated test class should be **abstract or concrete**, which maps directly to the two usage patterns above. For the complete list of options and defaults, refer to the `@Feature2JUnitOptions` Javadoc or the annotation source.
 
-     And in the generated test, call your delegate (pattern varies; see Configuration).&#x20;
-   * **Direct fill-in (prototype):** Replace TODOs in the generated class.
-5. **Run tests** with your normal JUnit runner (IDE, Maven/Gradle, CI).
+**Example — per‑feature options on the marker class**
 
----
+```java
+import dev.spec2test.feature2junit.Feature2JUnit;
+import dev.spec2test.feature2junit.Feature2JUnitOptions;
 
-## Configuration (processor options)
+@Feature2JUnitOptions(shouldBeAbstract = true) // or false for concrete + failing bodies
+@Feature2JUnit("specs/cart.feature")
+public abstract class CartFeature { }
+```
 
-* `featureRoot` – where to resolve relative `.feature` paths (default: `src/test/java`).
-* `outputPackage` – override generated package.
-* `naming.case` – method/class name strategy (e.g., snake\_case vs camelCase).
-* `tables.mode` – how to map Data Tables (e.g., `List<Map<String,String>>` vs typed records).
-* `scenarioOutlines` – generate parameterized tests for `Scenario Outline`.
+**Example — inherited options via a base class**
+
+```java
+import dev.spec2test.feature2junit.Feature2JUnit;
+import dev.spec2test.feature2junit.Feature2JUnitOptions;
+
+@Feature2JUnitOptions(shouldBeAbstract = false)
+public abstract class BaseFeatureOptions { }
+
+@Feature2JUnit("specs/cart.feature")
+public abstract class CartFeature extends BaseFeatureOptions { }
+```
 
 ---
 
@@ -194,22 +501,6 @@ dependencies {
 * A Cucumber/JBehave runner (no runtime step discovery, no regex glue).
 * A shared step catalog. Steps are **scoped to a feature** by design.
 
-**Trade-off:** You get deterministic, per-feature wiring and compile-time feedback at the cost of **less cross-feature step reuse** and **more generated code** (which your build handles automatically).
-
----
-
-## Failure modes & ergonomics
-
-* **Changed step text?** Recompile → generator updates method names. If your delegate no longer matches, you get a **compile error** (early, fast).
-* **Wrong parameter shape?** Compile-time signature mismatch highlights the line.&#x20;
-* **No delegate found?** Compile fails instead of a runtime “undefined step”.
-
----
-
-## Roadmap
-
-*
-
 ---
 
 ## Contributing
@@ -217,31 +508,24 @@ dependencies {
 Issues and PRs welcome. Please include:
 
 * The `.feature` example
-* The generated code (from `target/generated-sources` or `build/generated`)
+* The generated code (from `target/generated-sources`)
 * Your build tool and JDK version
 
 ---
 
 ## License
 
-`TBD`
-
----
-
-### Status badge ideas (optional)
-
-* Build: CI ✅
-* Java: 17+
-* License: MIT / Apache-2.0 (TBD)
+GNU General Public License v3.0
 
 ---
 
 ## Appendix: Cucumber/JBehave vs spec2test
 
-| Topic             | Cucumber/JBehave                        | spec2test                               |
-| ----------------- | --------------------------------------- | --------------------------------------- |
-| Wiring            | Regex in annotations; runtime discovery | **Compile-time** generated JUnit        |
-| Failure surface   | Often runtime “undefined step”          | **Compiler errors** on mismatch         |
-| Step granularity  | Shared/global libraries                 | **Per-feature scoped**                  |
-| Tooling           | Custom runner & plugins                 | Plain JUnit (IDE/CI native)             |
-| Refactor strategy | Rename step text + update regex         | Change spec → generator updates methods |
+| Topic                     | Cucumber/JBehave                                              | spec2test                                            |
+| ------------------------- | ------------------------------------------------------------- | ---------------------------------------------------- |
+| Wiring                    | Regex in annotations; runtime discovery                       | **Compile-time** generated JUnit                     |
+| Failure surface           | Often runtime “undefined step”                                | **Compiler errors** on mismatch                      |
+| Step granularity          | Shared/global libraries                                       | **Per-feature scoped**                               |
+| Step refactoring strategy | Search & replace text (often via complex regular expressions) | Compiler errors, method rename & inline refactorings |
+| Test Runner               | Custom runner & plugins                                       | Plain JUnit                                          |
+|                           |                                                               |                                                      |
