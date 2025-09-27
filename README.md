@@ -509,6 +509,22 @@ public abstract class CartFeature extends BaseFeatureOptions { }
 
 ---
 
+## Details of mapping Gherkin → Jnit  
+
+All elements of Gherkin are supported, please refer to below sections for details of how elements from Gherkin feature files are mapped to JUnit structures
+**Feature**
+
+<details>
+
+<summary>click to expand</summary>
+
+Feature keyword, title and its description are placed into a block javadoc comment at the top of the class
+
+ 
+</details>
+
+---
+
 ## Installation
 
 > **Requirements:** Java **17+**, JUnit 5, Maven/Gradle with **annotation processing** enabled, IDE with APT enabled (e.g., IntelliJ).
