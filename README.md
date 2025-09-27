@@ -511,6 +511,47 @@ public abstract class CartFeature extends BaseFeatureOptions { }
 
 ---
 
+## Installation
+
+> **Requirements:** Java **17+**, JUnit 5, Maven/Gradle with **annotation processing** enabled, IDE with APT enabled (e.g., IntelliJ).
+
+### Maven (example)
+
+```xml
+<dependencies>
+  <!-- spec2test annotation + SPI -->
+  <dependency>
+    <groupId>com.yourorg.spec2test</groupId>
+    <artifactId>feature2junit</artifactId>
+    <version>0.1.0</version>
+    <scope>provided</scope>
+  </dependency>
+</dependencies>
+
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>3.13.0</version>
+      <configuration>
+        <annotationProcessorPaths>
+          <!-- specifying annotation processor paths like this is usually optional -->
+          <!-- as they are typically auto discovered from the classpath            -->
+          <path>
+            <groupId>com.yourorg.spec2test</groupId>
+            <artifactId>feature2junit</artifactId>
+            <version>0.1.0</version>
+          </path>
+        </annotationProcessorPaths>
+      </configuration>
+    </plugin>
+  </plugins>
+</build>
+```
+
+---
+
 ## What it is / What it isn’t
 
 **It is**
