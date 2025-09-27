@@ -177,7 +177,9 @@ public abstract class CartFeatureScenarios extends CartFeature {
 
 </details>
 
-*Your implementation:*
+<details>
+
+<summary>Your implementation:</summary>
 
 ```java
 package org.mycompany.app;
@@ -215,6 +217,8 @@ public class CartFeatureTest extends CartFeatureScenarios {
     }
 }
 ```
+
+</details>
 
 **Pattern B — Generated test class is concrete (copy failing step methods into the base class)**
 
