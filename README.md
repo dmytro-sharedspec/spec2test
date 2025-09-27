@@ -513,50 +513,57 @@ public abstract class CartFeature extends BaseFeatureOptions { }
 
 All elements of Gherkin are supported, please refer to below sections for details
 
+
 <details>
 
 <summary>Feature</summary>
 
 
-Feature keyword, title and its description are placed into a block javadoc comment at the top of the class
-
 <table>
-  <thead>
-    <tr>
-      <th>Gherkin</th>
-      <th>Java</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>
-<pre><code class="language-gherkin">Feature: Online shopping cart
+  <tr>
+    <th align="left">Gherkin</th>
+    <th align="left">Java</th>
+  </tr>
+  <tr>
+    <td valign="top"><pre><code class="language-gherkin" data-lang="gherkin">
 
-Scenario: Update quantity updates subtotal
-  Given my cart contains "Wireless Headphones" with quantity "1" and unit price "60.00"
-  When I change the quantity to "2"
-  Then my cart subtotal is "120.00"</code></pre>
-      </td>
-      <td>
-<pre><code class="language-java">public class CartFeatureTest extends CartFeatureScenarios {
-  @Override
-  public void givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3(String p1, String p2, String p3) {
-    // implementation
-  }
+```gherkin
+Feature: Online shopping cart
+
+  Scenario: Update quantity updates subtotal
+    Given my cart contains "Wireless Headphones" with quantity "1" and unit price "60.00"
+    When I change the quantity to "2"
+    Then my cart subtotal is "120.00"
+
+  Rule: Free shipping applies to orders over €50
+
+    Scenario: Show free-shipping banner when threshold is met
+      Given my cart subtotal is "55.00"
+      When I view the cart
+      Then I see the "Free shipping" banner
+```
+  </code></pre>
+    </td>
+    <td valign="top">
+     <pre>
+       <code class="language-java" data-lang="java">
+
+```java
+ public class CartFeatureTest extends CartFeatureScenarios {
   @Override
   public void whenIChangeTheQuantityTo$p1(String p1) {
     // implementation
   }
   @Override
   public void thenMyCartSubtotalIs$p1(String p1) {
-    // implementation
+    // assertion
   }
-}</code></pre>
-      </td>
-    </tr>
-  </tbody>
+}
+```
+ 
+</code></pre></td>
+</tr>
 </table>
-
  
 </details>
 
