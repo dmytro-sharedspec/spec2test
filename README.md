@@ -525,7 +525,7 @@ All elements of Gherkin are supported, please refer to below sections for detail
     <th align="left">JUnit</th>
   </tr>
   <tr>
-    <td valign="top" style="padding: 0px;"><pre><code class="language-gherkin" data-lang="gherkin">
+    <td valign="top" style="padding: 0px; font-size: larger;"><pre><code class="language-gherkin" data-lang="gherkin">
 
 ```gherkin
 Feature: Online shopping cart
