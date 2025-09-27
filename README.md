@@ -522,10 +522,10 @@ All elements of Gherkin are supported, please refer to below sections for detail
 <table>
   <tr>
     <th align="left">Gherkin</th>
-    <th align="left">Java</th>
+    <th align="left">JUnit</th>
   </tr>
   <tr>
-    <td valign="top"><pre><code class="language-gherkin" data-lang="gherkin">
+    <td valign="top" style="padding: 0px;"><pre><code class="language-gherkin" data-lang="gherkin">
 
 ```gherkin
 Feature: Online shopping cart
