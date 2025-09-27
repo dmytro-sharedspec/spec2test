@@ -483,7 +483,9 @@ All configuration is provided via the `@Feature2JUnitOptions` annotation. You ca
 
 A typical option controls whether the generated test class should be **abstract or concrete**, which maps directly to the two usage patterns above. For the complete list of options and defaults, refer to the `@Feature2JUnitOptions` JavaDoc or the annotation source code.
 
-**Example — per‑feature options on the marker class**
+<details>
+
+<summary>Example — per‑feature options on the marker class</summary>
 
 ```java
 import dev.spec2test.feature2junit.Feature2JUnit;
@@ -494,7 +496,11 @@ import dev.spec2test.feature2junit.Feature2JUnitOptions;
 public abstract class CartFeature { }
 ```
 
-**Example — inherited options via a base class**
+</details>
+
+<details>
+
+ <summary>Example — inherited options via a base class</summary>
 
 ```java
 import dev.spec2test.feature2junit.Feature2JUnit;
@@ -507,6 +513,8 @@ public abstract class BaseFeatureOptions { }
 public abstract class CartFeature extends BaseFeatureOptions { }
 ```
 
+</details>
+
 ---
 
 ## Details of mapping Gherkin → Jnit  
@@ -518,6 +526,7 @@ All elements of Gherkin are supported, please refer to below sections for detail
 
 <summary>Feature</summary>
 
+The feature’s keyword, title, and description lines appear in a block comment at the top of the generated class.
 
 <table>
   <tr>
@@ -528,19 +537,11 @@ All elements of Gherkin are supported, please refer to below sections for detail
     <td valign="bottom" class="diffTable" style="padding: 0px; font-size: larger;"><pre><code class="language-gherkin" data-lang="gherkin">
 
 ```gherkin
-Feature: Online shopping cart
+Feature: Shopping cart totals and shipping
 
-  Scenario: Update quantity updates subtotal
-    Given my cart contains "Wireless Headphones" with quantity "1" and unit price "60.00"
-    When I change the quantity to "2"
-    Then my cart subtotal is "120.00"
-
-  Rule: Free shipping applies to orders over €50
-
-    Scenario: Show free-shipping banner when threshold is met
-      Given my cart subtotal is "55.00"
-      When I view the cart
-      Then I see the "Free shipping" banner
+  As an online shopper
+  I want my cart to update item totals and indicate free-shipping eligibility as I change quantities
+  So that I can check out with confidence and avoid surprises at payment
 ```
   </code></pre>
     </td>
@@ -573,7 +574,9 @@ Feature: Online shopping cart
 
 > **Requirements:** Java **17+**, JUnit 5, Maven/Gradle with **annotation processing** enabled, IDE with APT enabled (e.g., IntelliJ).
 
-### Maven (example)
+<details>
+
+<summary>Maven example</summary>
 
 ```xml
 <dependencies>
@@ -607,6 +610,8 @@ Feature: Online shopping cart
   </plugins>
 </build>
 ```
+
+</details>
 
 ---
 
