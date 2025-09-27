@@ -511,12 +511,13 @@ public abstract class CartFeature extends BaseFeatureOptions { }
 
 ## Details of mapping Gherkin → Jnit  
 
-All elements of Gherkin are supported, please refer to below sections for details of how elements from Gherkin feature files are mapped to JUnit structures
+All elements of Gherkin are supported, please refer to below sections for details
+
 **Feature**
 
 <details>
 
-<summary>click to expand</summary>
+<summary>Feature</summary>
 
 Feature keyword, title and its description are placed into a block javadoc comment at the top of the class
 
