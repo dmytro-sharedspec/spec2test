@@ -526,7 +526,7 @@ All elements of Gherkin are supported, please refer to below sections for detail
 
 <summary>Feature</summary>
 
-The feature’s keyword, title, and description lines appear in a block comment at the top of the generated class.
++ The feature’s keyword, title, and description lines appear in a block comment at the top of the generated class.
 
 <table>
   <tr>
@@ -568,6 +568,154 @@ Feature: Shopping cart totals and shipping
  
 </details>
 
+<details>
+
+<summary>Rule</summary>
+
++ Rule sections are mapped to nested test classes inside the generated test class.
++ Rule's keyword & title are put into 
+the value of the @DisplayName JUnit annotation.
++ If a rule additionally has description lines then those are put into
+a JavaDoc comment above the nested class.
+
+<table>
+  <tr>
+    <th align="left">Gherkin</th>
+    <th align="left">JUnit</th>
+  </tr>
+  <tr>
+    <td valign="top" class="diffTable" style="padding: 0px; font-size: larger;"><pre><code class="language-gherkin" data-lang="gherkin">
+
+```gherkin
+Feature: Shopping cart totals and shipping
+
+  Rule: Cannot checkout with an empty cart
+
+  Rule: Free shipping applies when subtotal is at least €50
+    Orders at or above €50 show a "Free shipping" banner; lower subtotals show the shipping cost.
+```
+  </code></pre>
+    </td>
+    <td valign="top">
+     <pre>
+       <code class="language-java" data-lang="java">
+
+```java
+public class CartFeatureScenarios extends CartFeature {
+    {
+        /**
+         * Feature: Shopping cart totals and shipping
+         */
+    }
+
+    @Nested
+    @Order(1)
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    @DisplayName("Rule: Cannot checkout with an empty cart")
+    public class Rule_1 {
+        @Test
+        public void noScenariosInRule() {
+            Assertions.fail("Rule doesn't have any scenarios");
+        }
+    }
+
+    /**
+     * Orders at or above €50 show a "Free shipping" banner; lower subtotals show the shipping cost.
+     */
+    @Nested
+    @Order(2)
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    @DisplayName("Rule: Free shipping applies when subtotal is at least €50")
+    public class Rule_2 {
+        @Test
+        public void noScenariosInRule() {
+            Assertions.fail("Rule doesn't have any scenarios");
+        }
+    }
+}
+```
+ 
+</code></pre></td>
+</tr>
+</table>
+ 
+</details>
+
+</details>
+
+<details>
+
+<summary>Scenario</summary>
+
++ Scenario sections are mapped to test methods that are annotated with JUnit's @Test annotation.
++ Scenario's keyword & title are put into the value of the @DisplayName annotation.
++ If scenario additionally has description lines then those are put into a JavaDoc comment
+  above the test method.
+
+<table>
+  <tr>
+    <th align="left">Gherkin</th>
+    <th align="left">JUnit</th>
+  </tr>
+  <tr>
+    <td valign="top" class="diffTable" style="padding: 0px; font-size: larger;"><pre><code class="language-gherkin" data-lang="gherkin">
+
+```gherkin
+Feature: Shopping cart totals and shipping
+
+  Scenario: Update quantity updates subtotal
+
+  Rule: Free shipping applies when subtotal is at least €50
+
+    Scenario: Show free-shipping banner when threshold is met
+      It covers the visual banner only; actual shipping cost calculation is out of scope.
+```
+  </code></pre>
+    </td>
+    <td valign="top">
+     <pre>
+       <code class="language-java" data-lang="java">
+
+```java
+
+public class CartFeatureScenarios extends CartFeature {
+    {
+        /**
+         * Feature: Shopping cart totals and shipping
+         */
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("Scenario: Update quantity updates subtotal")
+    public void scenario_1() {
+        Assertions.fail("Scenario has no steps");
+    }
+
+    @Nested
+    @Order(1)
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    @DisplayName("Rule: Free shipping applies when subtotal is at least €50")
+    public class Rule_1 {
+        /**
+         * It covers the visual banner only; actual shipping cost calculation is out of scope.
+         */
+        @Test
+        @Order(1)
+        @DisplayName("Scenario: Show free-shipping banner when threshold is met")
+        public void scenario_1() {
+            Assertions.fail("Scenario has no steps");
+        }
+    }
+}
+
+```
+ 
+</code></pre></td>
+</tr>
+</table>
+ 
+</details>
 ---
 
 ## Installation
