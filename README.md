@@ -86,8 +86,8 @@ public abstract class CartFeature {
 
    * Rebuild and run; the subclass is executed by JUnit.
 
-*Generated class:*
-
+<details>
+<summary>Generated class:</summary>
 ```java
 package org.mycompany.app;
 
@@ -172,6 +172,7 @@ public abstract class CartFeatureScenarios extends CartFeature {
     }
 }
 ```
+</details>
 
 *Your implementation:*
 
