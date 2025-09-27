@@ -1,9 +1,16 @@
 package dev.spec2test.feature2junit;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Annotation to specify options for when generating a test for classes annotated with {@link Feature2JUnit}.
+ * Specifies configuration options for generating JUnit test classes from classes annotated with {@link Feature2JUnit}.
+ * Use this annotation to customize the structure and behavior of the generated test classes.
+ *
+ * This annotation is inherited, so it can be specified on a parent class in your test hierarchy to apply its options to all subclasses.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
@@ -17,14 +24,21 @@ public @interface Feature2JUnitOptions {
      *
      * @return true if the generated test class should be abstract, false otherwise
      */
-    boolean shouldBeAbstract() default false;
+    boolean shouldBeAbstract() default true;
 
     /**
-     * Suffix that will be used for the name of the generated test class.
+     * Suffix that will be used for the name of the generated test class in case it is abstract.
+     *
+     * @return the suffix for the generated abstract test class name
+     */
+    String classSuffixIfAbstract() default "Scenarios";
+
+    /**
+     * Suffix that will be used for the name of the generated test class in case it is concrete.
      *
      * @return the suffix for the generated test class name
      */
-    String classSuffix() default "Test";
+    String classSuffixIfConcrete() default "Test";
 
     /**
      * If set to true, the generator will add {@link dev.spec2test.common.SourceLine} annotation to test methods and
@@ -72,4 +86,12 @@ public @interface Feature2JUnitOptions {
      * @return the tag for rules with no scenarios
      */
     String tagForRulesWithNoScenarios() default "new";
+
+    /**
+     * If set to true, the generator will add Cucumber step annotations (e.g. @Given, @When, @Then) to the generated
+     * step methods. This can be useful inside IDEs with installed Cucumber/Gherkin plugins to facilitate navigation
+     * from textual steps in Gherkin feature file to step method java code.
+     * @return true if Cucumber step annotations should be added, false otherwise
+     */
+    boolean addCucumberStepAnnotations() default true;
 }

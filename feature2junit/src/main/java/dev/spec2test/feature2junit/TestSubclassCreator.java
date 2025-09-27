@@ -79,7 +79,7 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
         }
         Feature feature = gherkinParser.parseUsingPath(featureFilePathForParsing);
 
-        String suffixToApply = options.getClassSuffix();
+        String suffixToApply = options.getClassSuffixIfAbstract();
         String subclassSimpleName = typeElement.getSimpleName() + suffixToApply;
 
         TypeSpec.Builder classBuilder = TypeSpec

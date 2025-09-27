@@ -87,17 +87,21 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
 
         if (options.isShouldBeAbstract()) {
             stepMethodBuilder.addModifiers(Modifier.ABSTRACT);
-        } else {
+        }
+        else {
             // in case the generated test class is not abstract the body of the method should simply throw a
             // failing exception
             stepMethodBuilder.addStatement("$T.fail(\"Step is not yet implemented\")", Assertions.class);
         }
 
-        AnnotationSpec annotationSpec = buildGWTAnnotation(scenarioStepsMethodSpecs,
-                step.getKeyword().trim(), stepMethodName,
-                stepLine, stepMethodSignatureAttributes
-        );
-        stepMethodBuilder.addAnnotation(annotationSpec);
+        if (options.isAddCucumberStepAnnotations()) {
+            AnnotationSpec annotationSpec = buildGWTAnnotation(scenarioStepsMethodSpecs,
+                    step.getKeyword().trim(), stepMethodName,
+                    stepLine, stepMethodSignatureAttributes
+            );
+            stepMethodBuilder.addAnnotation(annotationSpec);
+        }
+
         /**
          * construct our method parameter
          */
@@ -113,7 +117,7 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
          * check if step has a data table
          */
         if (step.getDataTable().isPresent()) {
-//            String parameterName = "p" + (parameterValues.size()); // data table is the last parameter
+            //            String parameterName = "p" + (parameterValues.size()); // data table is the last parameter
             ParameterSpec dataTableParameterSpec = ParameterSpec
                     .builder(io.cucumber.datatable.DataTable.class, "dataTable")
                     .build();
@@ -152,7 +156,7 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
          * add javadoc for the step as it appears in the feature file
          */
         String stepFirstLine = step.getKeyword() + step.getText();
-//        scenarioMethodBuilder.addCode("/**\n * $L\n */\n", stepFirstLine);
+        //        scenarioMethodBuilder.addCode("/**\n * $L\n */\n", stepFirstLine);
         scenarioMethodBuilder.addCode("/**");
         scenarioMethodBuilder.addCode("\n * $L", stepFirstLine);
         if (options.isAddSourceLineAnnotations()) {
@@ -206,7 +210,8 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
                  * no quote marks in this case as we are passing a reference to a Scenario test method parameter
                  */
                 parameterValuesSB.append(scenarioParameter);
-            } else {
+            }
+            else {
                 parameterValuesSB.append("\"");
                 parameterValuesSB.append(parameterValue);
                 parameterValuesSB.append("\"");
@@ -229,7 +234,8 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
             parameterValuesSB.append("\n\"\"\"");
             parameterValuesSB.append(")");
 
-        } else if (step.getDocString().isPresent()) {
+        }
+        else if (step.getDocString().isPresent()) {
 
             if (!parameterValues.isEmpty()) {
                 parameterValuesSB.append(", ");
@@ -259,7 +265,8 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
                     parameterValuesSB.append(")");
                 }
 
-            } else {
+            }
+            else {
                 parameterValuesSB.append("\"\"\"\n");
                 parameterValuesSB.append(docString);
                 parameterValuesSB.append("\n\"\"\"");
@@ -273,8 +280,9 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
         scenarioMethodBuilder.addStatement(codeBlock);
     }
 
-    private String getScenarioParameter(String parameterValue, List<String> scenarioParameterNames,
-                                        List<String> testMethodParameterNames
+    private String getScenarioParameter(
+            String parameterValue, List<String> scenarioParameterNames,
+            List<String> testMethodParameterNames
     ) {
 
         if (scenarioParameterNames == null || scenarioParameterNames.isEmpty()) {
@@ -306,11 +314,14 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
         AnnotationSpec.Builder annotationSpecBuilder;
         if (keywordLower.equals("given")) {
             annotationSpecBuilder = AnnotationSpec.builder(Given.class);
-        } else if (keywordLower.equals("when")) {
+        }
+        else if (keywordLower.equals("when")) {
             annotationSpecBuilder = AnnotationSpec.builder(When.class);
-        } else if (keywordLower.equals("then")) {
+        }
+        else if (keywordLower.equals("then")) {
             annotationSpecBuilder = AnnotationSpec.builder(Then.class);
-        } else if (
+        }
+        else if (
                 keywordLower.equals("and") || keywordLower.equals("but")
                         || keywordLower.equals("*")
         ) {
@@ -329,13 +340,16 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
                 if (annotationName.equals(Given.class.getName())) {
                     gwtAnnotation = Given.class;
                     break;
-                } else if (annotationName.equals(When.class.getName())) {
+                }
+                else if (annotationName.equals(When.class.getName())) {
                     gwtAnnotation = When.class;
                     break;
-                } else if (annotationName.equals(Then.class.getName())) {
+                }
+                else if (annotationName.equals(Then.class.getName())) {
                     gwtAnnotation = Then.class;
                     break;
-                } else {
+                }
+                else {
                     continue; // skip
                 }
             }
@@ -347,7 +361,8 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
 
             annotationSpecBuilder = AnnotationSpec.builder(gwtAnnotation);
 
-        } else {
+        }
+        else {
             throw new ProcessingException(
                     "Step method name does not start with a valid keyword (Given, When, Then, And): "
                             + stepMethodName);
@@ -357,7 +372,7 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
 
         String[] args = new String[parameterValues.size() + 1];
         for (int j = 0; j < parameterValues.size(); j++) {
-//            args[j] = "$p" + (j + 1);
+            //            args[j] = "$p" + (j + 1);
             args[j] = "(?<p" + (j + 1) + ">.*)";
         }
         String stepPatternWithMarkers =

@@ -6,6 +6,7 @@ package dev.spec2test.common;
 public interface OptionsSupport {
 
     /**
+     * The generator options.
      * @return generator options.
      */
     GeneratorOptions getOptions();

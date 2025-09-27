@@ -4,15 +4,20 @@ import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
 import dev.spec2test.common.GeneratorOptions;
 import dev.spec2test.common.LoggingSupport;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-
-import javax.annotation.processing.*;
+import java.io.PrintWriter;
+import java.util.Set;
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Filer;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.Processor;
+import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
-import java.io.PrintWriter;
-import java.util.Set;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
  * Annotation processor that generates JUnit test subclasses for classes annotated with {@link Feature2JUnit} annotation.
@@ -57,19 +62,21 @@ public class Feature2JUnitGenerator extends AbstractProcessor implements Logging
                 if (optionsAnnotation != null) {
                     generatorOptions = new GeneratorOptions(
                             optionsAnnotation.shouldBeAbstract(),
-                            optionsAnnotation.classSuffix(),
+                            optionsAnnotation.classSuffixIfAbstract(),
+                            optionsAnnotation.classSuffixIfConcrete(),
                             optionsAnnotation.addSourceLineAnnotations(),
                             optionsAnnotation.addSourceLineBeforeStepCalls(),
                             optionsAnnotation.failScenariosWithNoSteps(),
                             optionsAnnotation.failRulesWithNoScenarios(),
                             optionsAnnotation.tagForScenariosWithNoSteps().trim(),
-                            optionsAnnotation.tagForRulesWithNoScenarios().trim()
+                            optionsAnnotation.tagForRulesWithNoScenarios().trim(),
+                            optionsAnnotation.addCucumberStepAnnotations()
                     );
                 } else {
                     generatorOptions = new GeneratorOptions();
                 }
 
-                String subclassFullyQualifiedName = annotatedClass.getQualifiedName() + generatorOptions.getClassSuffix();
+                String subclassFullyQualifiedName = annotatedClass.getQualifiedName() + generatorOptions.getClassSuffixIfAbstract();
 
                 TestSubclassCreator subclassGenerator = new TestSubclassCreator(processingEnv, generatorOptions);
 

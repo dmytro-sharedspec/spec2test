@@ -15,9 +15,14 @@ public class GeneratorOptions {
     private final boolean shouldBeAbstract;
 
     /**
-     * Suffix that will be used for the name of the generated test class.
+     * Suffix that will be used for the name of the generated test class if it is abstract.
      */
-    private final String classSuffix;
+    private final String classSuffixIfAbstract;
+
+    /**
+     * Suffix that will be used for the name of the generated test class if it is concrete.
+     */
+    private final String classSuffixIfConcrete;
 
     /**
      * If set to true, the generator will add {@link dev.spec2test.common.SourceLine} annotation to test methods and
@@ -55,47 +60,63 @@ public class GeneratorOptions {
     private final String tagForRulesWithNoScenarios;
 
     /**
+     * If set to true, the generator will add Cucumber step annotations (e.g. @Given, @When, @Then) to the generated
+     * step methods. This can be useful inside IDEs with installed Cucumber/Gherkin plugins to facilitate navigation
+     * from textual steps in Gherkin feature file to step method java code.
+     */
+    private boolean addCucumberStepAnnotations;
+
+    /**
      * Default options
      */
     public GeneratorOptions() {
-        this.shouldBeAbstract = false;
-        this.classSuffix = "Test";
+        this.shouldBeAbstract = true;
+        this.classSuffixIfAbstract = "Scenarios";
+        this.classSuffixIfConcrete = "Test";
         this.addSourceLineAnnotations = false;
         this.addSourceLineBeforeStepCalls = false;
         this.failScenariosWithNoSteps = true;
         this.failRulesWithNoScenarios = true;
         this.tagForScenariosWithNoSteps = "new";
         this.tagForRulesWithNoScenarios = "new";
+        this.addCucumberStepAnnotations = true;
     }
 
     /**
      * Custom options
      *
      * @param shouldBeAbstract             see {@link #shouldBeAbstract}
-     * @param classSuffix                  see {@link #classSuffix}
+     * @param classSuffixIfAbstract        see {@link #classSuffixIfAbstract}
+     * @param classSuffixIfConcrete        see {@link #classSuffixIfConcrete}
      * @param addSourceLineAnnotations     see {@link #addSourceLineAnnotations}
      * @param addSourceLineBeforeStepCalls see {@link #addSourceLineBeforeStepCalls}
      * @param failScenariosWithNoSteps     see {@link #failScenariosWithNoSteps}
      * @param failRulesWithNoScenarios     see {@link #failRulesWithNoScenarios}
      * @param tagForScenariosWithNoSteps   see {@link #tagForScenariosWithNoSteps}
      * @param tagForRulesWithNoScenarios   see {@link #tagForRulesWithNoScenarios}
+     * @param addCucumberStepAnnotations   see {@link #addCucumberStepAnnotations}
      */
-    public GeneratorOptions(boolean shouldBeAbstract,
-                            String classSuffix,
-                            boolean addSourceLineAnnotations,
-                            boolean addSourceLineBeforeStepCalls,
-                            boolean failScenariosWithNoSteps,
-                            boolean failRulesWithNoScenarios,
-                            String tagForScenariosWithNoSteps,
-                            String tagForRulesWithNoScenarios) {
+    public GeneratorOptions(
+            boolean shouldBeAbstract,
+            String classSuffixIfAbstract,
+            String classSuffixIfConcrete,
+            boolean addSourceLineAnnotations,
+            boolean addSourceLineBeforeStepCalls,
+            boolean failScenariosWithNoSteps,
+            boolean failRulesWithNoScenarios,
+            String tagForScenariosWithNoSteps,
+            String tagForRulesWithNoScenarios,
+            boolean addCucumberStepAnnotations) {
         this.shouldBeAbstract = shouldBeAbstract;
-        this.classSuffix = classSuffix;
+        this.classSuffixIfAbstract = classSuffixIfAbstract;
+        this.classSuffixIfConcrete = classSuffixIfConcrete;
         this.addSourceLineAnnotations = addSourceLineAnnotations;
         this.addSourceLineBeforeStepCalls = addSourceLineBeforeStepCalls;
         this.failScenariosWithNoSteps = failScenariosWithNoSteps;
         this.failRulesWithNoScenarios = failRulesWithNoScenarios;
         this.tagForScenariosWithNoSteps = tagForScenariosWithNoSteps;
         this.tagForRulesWithNoScenarios = tagForRulesWithNoScenarios;
+        this.addCucumberStepAnnotations = addCucumberStepAnnotations;
     }
 
 }
