@@ -534,14 +534,14 @@ The feature’s keyword, title, and description lines appear in a block comment 
     <th align="left">JUnit</th>
   </tr>
   <tr>
-    <td valign="bottom" class="diffTable" style="padding: 0px; font-size: larger;"><pre><code class="language-gherkin" data-lang="gherkin">
+    <td valign="top" class="diffTable" style="padding: 0px; font-size: larger;"><pre><code class="language-gherkin" data-lang="gherkin">
 
 ```gherkin
 Feature: Shopping cart totals and shipping
 
-  As an online shopper
-  I want my cart to update item totals and indicate free-shipping eligibility as I change quantities
-  So that I can check out with confidence and avoid surprises at payment
+  As a shopper
+  I want the cart to keep item totals accurate and show free shipping when eligible
+  So that I can check out with confidence and avoid extra costs
 ```
   </code></pre>
     </td>
@@ -550,15 +550,15 @@ Feature: Shopping cart totals and shipping
        <code class="language-java" data-lang="java">
 
 ```java
- public class CartFeatureTest extends CartFeatureScenarios {
-  @Override
-  public void whenIChangeTheQuantityTo$p1(String p1) {
-    // implementation
-  }
-  @Override
-  public void thenMyCartSubtotalIs$p1(String p1) {
-    // assertion
-  }
+ public class CartFeatureScenarios extends CartFeature {
+    {
+        /**
+         * Feature: Shopping cart totals and shipping
+         *   As a shopper
+         *   I want the cart to keep item totals accurate and show free shipping when eligible
+         *   So that I can check out with confidence and avoid extra costs
+         */
+    }
 }
 ```
  
