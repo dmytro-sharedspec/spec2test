@@ -333,8 +333,6 @@ public class CartFeatureTest extends CartFeature {
 
 </details>
 
-*Then copy step methods into your base class and implement them.
-
 <details>
 
 <summary>Your implementation:</summary>
