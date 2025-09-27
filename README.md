@@ -34,7 +34,7 @@ No regex “glue,” no runtime step discovery. Your `.feature` files become fir
    * A **JUnit test class** (one per feature).
    * For each Scenario, a `@Test` method that calls **per-step methods** derived from step text.
    * Parts of step's text that are wrapped in double quotes become step method arguments. [DocStrings](https://cucumber.io/docs/gherkin/reference/#doc-strings) and [Data Tables](https://cucumber.io/docs/gherkin/reference/#data-tables) are also supported. 
-   * Gherkin `Rule` elements are generated as nested test classes, and `Rule` and `Scenario` titles populate the JUnit `@DisplayName` annotations.
+   * Gherkin `Rule` elements are generated as nested test classes, and `Rule` and `Scenario` titles populate JUnit's `@DisplayName` annotations.
 3. You implement automation **per feature** (no shared global step library).
    See **Usage examples** for the two supported patterns.
 
