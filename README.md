@@ -521,7 +521,7 @@ public abstract class CartFeature extends BaseFeatureOptions { }
   <dependency>
     <groupId>com.yourorg.spec2test</groupId>
     <artifactId>feature2junit</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.4</version>
     <scope>provided</scope>
   </dependency>
 </dependencies>
@@ -539,7 +539,7 @@ public abstract class CartFeature extends BaseFeatureOptions { }
           <path>
             <groupId>com.yourorg.spec2test</groupId>
             <artifactId>feature2junit</artifactId>
-            <version>0.1.0</version>
+            <version>0.1.4</version>
           </path>
         </annotationProcessorPaths>
       </configuration>
