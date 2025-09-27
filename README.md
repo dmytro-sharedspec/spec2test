@@ -227,7 +227,9 @@ public class CartFeatureTest extends CartFeatureScenarios {
 * Rebuild; the generated test now calls your implementations, and it no longer generates the failing method stubs
 * You run the generated test class directly
 
-*Generated (first pass):*
+<details>
+ 
+<summary>Generated (first pass):</summary>
 
 ```java
 package org.mycompany.app;
@@ -329,7 +331,13 @@ public class CartFeatureTest extends CartFeature {
 }
 ```
 
-*Then copy step methods into your base class and implement them:*
+</details>
+
+*Then copy step methods into your base class and implement them.
+
+<details>
+
+<summary>Your implementation:</summary>
 
 ```java
 package org.mycompany.app;
@@ -370,7 +378,11 @@ public class CartFeature {
 }
 ```
 
-*Generated class (second pass):*
+</details>
+
+<details>
+
+ <summary>Generated class (second pass):</summary>
 
 ```java
 package org.mycompany.app;
@@ -444,6 +456,8 @@ public class CartFeatureTest extends CartFeature {
     }
 }
 ```
+
+</details>
 
 ### When to use which pattern
 
