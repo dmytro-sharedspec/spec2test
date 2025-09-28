@@ -474,49 +474,6 @@ public class CartFeatureTest extends CartFeature {
 
 ---
 
-## Configuration
-
-All configuration is provided via the `@Feature2JUnitOptions` annotation. You can place this annotation:
-
-* **On the marker class** (applies to that feature only).
-* **On a shared base test class** (options are **inherited** by subclasses/marker classes in your test hierarchy).
-
-A typical option controls whether the generated test class should be **abstract or concrete**, which maps directly to the two usage patterns above. For the complete list of options and defaults, refer to the `@Feature2JUnitOptions` JavaDoc or the annotation source code.
-
-<details>
-
-<summary>Example — per‑feature options on the marker class</summary>
-
-```java
-import dev.spec2test.feature2junit.Feature2JUnit;
-import dev.spec2test.feature2junit.Feature2JUnitOptions;
-
-@Feature2JUnitOptions(shouldBeAbstract = true) // or false for concrete + failing bodies
-@Feature2JUnit("specs/cart.feature")
-public abstract class CartFeature { }
-```
-
-</details>
-
-<details>
-
- <summary>Example — inherited options via a base class</summary>
-
-```java
-import dev.spec2test.feature2junit.Feature2JUnit;
-import dev.spec2test.feature2junit.Feature2JUnitOptions;
-
-@Feature2JUnitOptions(shouldBeAbstract = false)
-public abstract class BaseFeatureOptions { }
-
-@Feature2JUnit("specs/cart.feature")
-public abstract class CartFeature extends BaseFeatureOptions { }
-```
-
-</details>
-
----
-
 ## Details of mapping Gherkin → Jnit  
 
 All elements of Gherkin are supported, please refer to below sections for details
@@ -816,6 +773,49 @@ public class CartFeatureScenarios extends CartFeature {
 </tr>
 </table>
  
+</details>
+
+---
+
+## Configuration
+
+All configuration is provided via the `@Feature2JUnitOptions` annotation. You can place this annotation:
+
+* **On the marker class** (applies to that feature only).
+* **On a shared base test class** (options are **inherited** by subclasses/marker classes in your test hierarchy).
+
+A typical option controls whether the generated test class should be **abstract or concrete**, which maps directly to the two usage patterns above. For the complete list of options and defaults, refer to the `@Feature2JUnitOptions` JavaDoc or the annotation source code.
+
+<details>
+
+<summary>Example — per‑feature options on the marker class</summary>
+
+```java
+import dev.spec2test.feature2junit.Feature2JUnit;
+import dev.spec2test.feature2junit.Feature2JUnitOptions;
+
+@Feature2JUnitOptions(shouldBeAbstract = true) // or false for concrete + failing bodies
+@Feature2JUnit("specs/cart.feature")
+public abstract class CartFeature { }
+```
+
+</details>
+
+<details>
+
+ <summary>Example — inherited options via a base class</summary>
+
+```java
+import dev.spec2test.feature2junit.Feature2JUnit;
+import dev.spec2test.feature2junit.Feature2JUnitOptions;
+
+@Feature2JUnitOptions(shouldBeAbstract = false)
+public abstract class BaseFeatureOptions { }
+
+@Feature2JUnit("specs/cart.feature")
+public abstract class CartFeature extends BaseFeatureOptions { }
+```
+
 </details>
 
 ---
