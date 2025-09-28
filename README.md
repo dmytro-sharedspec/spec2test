@@ -1745,6 +1745,121 @@ public class CartFeatureTest extends CartFeatureScenarios {
  
 </details>
 
+<details>
+
+<summary>Tags (@)</summary>
+
+#### Rules
+
+* **One-to-one mapping:** Each Gherkin tag becomes a JUnit 5 `@Tag("<value>")`.
+* **Feature-level tags** → `@Tag` annotations on the **generated outer test class**.
+* **Rule-level tags** → `@Tag` annotations on the **nested rule class**.
+* **Scenario-level tags** → `@Tag` annotations on the **scenario test method** (`@Test` or `@ParameterizedTest`).
+* **Examples-level tags** → *not supported* and are currently **ignored**.
+* Multiple tags are emitted as a single `@Tags` container annotation wrapping repeated `@Tag` annotations.
+
+**Example**
+
+<table>
+  <tr>
+    <th align="left">Gherkin</th>
+    <th align="left">JUnit</th>
+  </tr>
+  <tr>
+    <td valign="top" class="diffTable" style="padding: 0px; font-size: larger;"><pre><code class="language-gherkin" data-lang="gherkin">
+
+```gherkin
+@fast @cart
+Feature: Shopping cart totals and shipping
+
+@ui
+Rule: Free shipping applies when subtotal is at least €50
+
+  @smoke @banner
+  Scenario: Show free-shipping banner when threshold is met
+    Given my cart subtotal is "55.00"
+    When I view the cart
+    Then I see the "Free shipping" banner
+```
+  </code></pre>
+    </td>
+    <td valign="top">
+     <pre>
+       <code class="language-java" data-lang="java">
+
+```java
+
+package org.mycompany.app;
+
+import dev.spec2test.feature2junit.FeatureFilePath;
+
+import java.lang.String;
+import javax.annotation.processing.Generated;
+
+import org.junit.jupiter.api.ClassOrderer;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Tags;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestClassOrder;
+import org.junit.jupiter.api.TestMethodOrder;
+
+@Tags({
+        @Tag("fast"),
+        @Tag("cart")
+})
+@Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestClassOrder(ClassOrderer.OrderAnnotation.class)
+@FeatureFilePath("specs/cart.feature")
+public class CartFeatureScenarios extends CartFeature {
+    {
+        /**
+         * Feature: Shopping cart totals and shipping
+         */
+    }
+
+    @Nested
+    @Order(1)
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    @Tag("ui")
+    @DisplayName("Rule: Free shipping applies when subtotal is at least €50")
+    public class Rule_1 {
+        @Tags({
+                @Tag("smoke"),
+                @Tag("banner")
+        })
+        @Test
+        @Order(1)
+        @DisplayName("Scenario: Show free-shipping banner when threshold is met")
+        public void scenario_1() {
+            /**
+             * Given my cart subtotal is "55.00"
+             */
+            givenMyCartSubtotalIs$p1("55.00");
+            /**
+             * When I view the cart
+             */
+            whenIViewTheCart();
+            /**
+             * Then I see the "Free shipping" banner
+             */
+            thenISeeThe$p1Banner("Free shipping");
+        }
+    }
+}
+
+```
+ 
+</code></pre></td>
+</tr>
+</table>
+ 
+</details>
+
 ---
 
 ## Configuration
