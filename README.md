@@ -77,13 +77,13 @@ public abstract class CartFeature {
 2. **Build** the project. The generator writes JUnit sources under your build’s generated-sources dir.
 3. **Choose a usage pattern** (per feature):
 
-   **Pattern A (default) — Extend the generated abstract test class (implement abstract methods)**
+**Pattern A (default) — Extend the generated abstract test class (implement abstract methods)**
 
-   * First compile: the generator produces an **abstract** test class; each step method is **abstract** (no body).
+* First compile: the generator produces an **abstract** test class; each step method is **abstract** (no body).
 
-   * You create a subclass and implement the step methods.
+* You create a subclass and implement the step methods.
 
-   * Rebuild and run; the subclass is executed by JUnit.
+* Rebuild and run; the subclass is executed by JUnit.
 
 <details>
  
