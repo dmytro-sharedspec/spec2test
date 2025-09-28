@@ -13,7 +13,7 @@ No regex “glue,” no runtime step discovery. Your `.feature` files become fir
 
 * **No regex glue:** Avoids brittle annotation regexes and accidental ambiguous matches.
 
-* **Plain JUnit 5 (no Cucumber runner):** Generated tests are ordinary JUnit 5 test classes, making execution straightforward in IDEs and CI. Run or debug individual Scenarios/Rules, set breakpoints, and use Find Usages like with any other Java code.
+* **Plain JUnit 5 (no Cucumber runner):** Generated tests are ordinary JUnit 5 test classes, making execution straightforward in IDEs and CI. Run or debug individual Scenarios/Rules, set breakpoints, and use Find Usages like with any other test.
 
 * **Spec-driven automation:** The **text of your Feature** drives generated method names and call sequence. Steps are **per-feature**, not pulled from a global library.
   * **Unblocked discovery:** You don’t have to hunt for existing steps or bend wording to fit a catalog. Write the most natural Given/When/Then for each Feature; the generator creates feature-scoped step methods, avoiding the tendency to shoehorn newly discovered behaviour into ill-fitting steps.
