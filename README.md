@@ -1860,6 +1860,15 @@ public class CartFeatureScenarios extends CartFeature {
  
 </details>
 
+<details>
+
+<summary>Comments (#)</summary>
+
+* **Ignored by the processor:** Lines that are comments in Gherkin (i.e., lines starting with `#`) are **not mapped** to JUnit in any way. They are skipped during generation.
+* **Where to put narrative instead:** If you need human‑readable context preserved in Java, use `Feature`/`Rule`/`Scenario` **descriptions** (indented lines under the header) or `Background` descriptions—those are emitted into JavaDoc/`@DisplayName` as documented in sections above.
+ 
+</details>
+
 ---
 
 ## Configuration
