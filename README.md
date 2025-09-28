@@ -477,6 +477,7 @@ public class CartFeatureTest extends CartFeature {
 
 All elements of [Gherkin](https://cucumber.io/docs/gherkin/reference/) are supported, please refer to below sections for details
 
+### Primary keywords:
 
 <details>
 
@@ -1482,6 +1483,8 @@ public abstract class CartFeatureScenarios extends CartFeature {
 * **Types:** Current generator emits `String` parameters only; you can parse/convert inside your step methods.
  
 </details>
+
+### Secondary keywords:
 
 <details>
 
