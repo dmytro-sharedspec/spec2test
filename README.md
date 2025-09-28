@@ -876,15 +876,15 @@ other cases it may fail - so this type of usage is discoraged.
 
 * **Lifecycle hook:** Every `Background` becomes a `@BeforeEach` method that runs **before each Scenario** (and Example row).
 
-* **Feature-level Background:** A `Background` declared **before any** `Rule` **or** `Scenario` is generated as a **member method of the outer test class**.
+* **Feature-level Background:** A `Background` declared **before any** `Rule` **or** `Scenario` is generated as a member method of the outer test class.
 
-* **Rule-level Background:** A `Background` declared as the **first element inside a** `Rule` is generated as a **member method of that** `@Nested` **rule class**.
+* **Rule-level Background:** A `Background` declared as the **first element inside a** `Rule` is generated as a member method of that `@Nested` rule class.
 
 * **Display name:** If the `Background` has a **title** (text on the same line as `Background:`), that title is used in a `@DisplayName` on the generated `@BeforeEach` method.
 
-* **Description lines:** If the `Background` has **description lines** under it, they are emitted as a **JavaDoc comment** above the generated `@BeforeEach` method.
+* **Description lines:** If the `Background` has description lines under it, they are emitted as a **JavaDoc comment** above the generated `@BeforeEach` method.
 
-* **Steps inside Background:** The body of the `@BeforeEach` method **calls the generated step methods** in the same order, using the same **string-argument extraction** rules as normal steps (text in quotes → `String` parameters).
+* **Steps inside Background:** The body of the `@BeforeEach` method **calls the generated step methods** in the same order, using the same string-argument extraction rules as normal steps (text in quotes → `String` parameters).
 
 #### Order of execution (Feature + Rule)
 
