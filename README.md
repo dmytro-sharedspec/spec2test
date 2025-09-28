@@ -1544,7 +1544,7 @@ whenISubmitAShippingAddress("""
 </tr>
 </table>
 
-#### Example B — Quoted args + DocString (shopping cart)
+#### Example B — Quoted args + DocString
 
 <table>
   <tr>
@@ -1572,22 +1572,15 @@ Given I add item "Wireless Headphones" with options
 
 ```java
 
-public abstract void givenIAddItem$p1WithOptions(String p1, String docString);
+abstract void givenIAddItem$p1WithOptions(String p1, String docString);
 
-@BeforeEach
-@DisplayName("Background: ")
-public void featureBackground(TestInfo testInfo) {
-    /**
-     * Given I add item "Wireless Headphones" with options
-     */
-    givenIAddItem$p1WithOptions("Wireless Headphones", """
-            {
-              "color": "Black",
-              "warranty": "2 years",
-              "unitPrice": "60.00"
-            }
-            """);
-}
+givenIAddItem$p1WithOptions("Wireless Headphones", """
+        {
+          "color": "Black",
+          "warranty": "2 years",
+          "unitPrice": "60.00"
+        }
+        """);
 
 ```
 
