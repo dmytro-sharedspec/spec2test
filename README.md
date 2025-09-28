@@ -13,11 +13,9 @@ No regex “glue,” no runtime step discovery. Your `.feature` files become fir
 
 * **No regex glue:** Avoids brittle annotation regexes and accidental ambiguous matches.
 
-* **Plain JUnit 5:** No Cucumber runner—tests run as standard JUnit 5, which makes execution more straightforward and is more friendly to developer tooling and CI. Use find usages, run individual Scenarios/Rules, set breakpoints, and debug like any JUnit test.
+* **Plain JUnit 5 (no Cucumber runner):** Generated tests are ordinary JUnit 5 test classes, making execution straightforward in IDEs and CI. Run or debug individual Scenarios/Rules, set breakpoints, and use Find Usages like any other test.
 
 * **Spec-driven automation:** The **text in your feature** drives the generated method names and call sequence—**per-feature** scope, not a global step library.
-
-* **Simpler CI:** Fewer moving parts; tests are plain JUnit. If it compiles, it’s wired.&#x20;
 
 * **TDD-friendly:** Enables straightforward, **iterative** test‑first development—even before any application or test code exists. Start with an abstract, implementation‑free spec (e.g., only Rule and/or Scenario titles). The generator creates a failing JUnit method for each empty Rule/Scenario, so you immediately have red tests to drive development.
 
