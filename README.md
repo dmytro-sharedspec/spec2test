@@ -476,7 +476,7 @@ public class CartFeatureTest extends CartFeature {
 
 ## Details of mapping Gherkin → Jnit  
 
-All elements of Gherkin are supported, please refer to below sections for details
+All elements of [Gherkin](https://cucumber.io/docs/gherkin/reference/) are supported, please refer to below sections for details
 
 
 <details>
@@ -869,7 +869,280 @@ other cases it may fail - so this type of usage is discoraged.
  
 </details>
 
+<details>
 
+<summary>Background</summary>
+
+### Rules
+
+* **Lifecycle hook:** Every `Background` becomes a `@BeforeEach` method that runs **before each Scenario** (and Example row).
+
+* **Feature-level Background:** A `Background` declared **before any** `Rule` **or** `Scenario` is generated as a **member method of the outer test class**.
+
+* **Rule-level Background:** A `Background` declared as the **first element inside a** `Rule` is generated as a **member method of that** `@Nested` **rule class**.
+
+* **Display name:** If the `Background` has a **title** (text on the same line as `Background:`), that title is used in a `@DisplayName` on the generated `@BeforeEach` method.
+
+* **Description lines:** If the `Background` has **description lines** under it, they are emitted as a **JavaDoc comment** above the generated `@BeforeEach` method.
+
+* **Steps inside Background:** The body of the `@BeforeEach` method **calls the generated step methods** in the same order, using the same **string-argument extraction** rules as normal steps (text in quotes → `String` parameters).
+
+### Order of execution (Feature + Rule)
+
+If both a **feature-level** and a **rule-level** `Background` exist, JUnit 5 runs the outer class’s `@BeforeEach` **first**, then the nested rule class’s `@BeforeEach`, then the scenario’s test method.
+Order: **Feature** `@BeforeEach` → **Rule** `@BeforeEach` → **Scenario** `@Test`.
+
+> Notes:
+>
+> * Gherkin permits at most **one** `Background` **per container** (one for the Feature, and at most one per Rule).
+> * `And` / `But` in Background steps inherit the previous keyword just like elsewhere.
+
+### Examples
+
+#### 1) Feature-level Background (title + description)
+
+<table>
+  <tr>
+    <th align="left">Gherkin</th>
+    <th align="left">JUnit</th>
+  </tr>
+  <tr>
+    <td valign="top" class="diffTable" style="padding: 0px; font-size: larger;"><pre><code class="language-gherkin" data-lang="gherkin">
+
+```gherkin
+Feature: Shopping cart totals and shipping
+
+  Background: Start with a clean cart
+    Ensures cart and session are reset before each test.
+    Given I am a signed-in shopper "alice@example.com"
+    And my cart is empty
+    And the currency is "EUR"
+```
+  </code></pre>
+    </td>
+    <td valign="top">
+     <pre>
+       <code class="language-java" data-lang="java">
+
+```java
+
+public abstract class CartFeatureScenarios extends CartFeature {
+    {
+        /**
+         * Feature: Shopping cart totals and shipping
+         */
+    }
+
+    public abstract void givenIAmASignedinShopper$p1(String p1);
+
+    public abstract void givenMyCartIsEmpty();
+
+    public abstract void givenTheCurrencyIs$p1(String p1);
+
+    /**
+     * Ensures cart and session are reset before each test.
+     */
+    @BeforeEach
+    @DisplayName("Background: Start with a clean cart")
+    public void featureBackground(TestInfo testInfo) {
+        /**
+         * Given I am a signed-in shopper "alice@example.com"
+         */
+        givenIAmASignedinShopper$p1("alice@example.com");
+        /**
+         * And my cart is empty
+         */
+        givenMyCartIsEmpty();
+        /**
+         * And the currency is "EUR"
+         */
+        givenTheCurrencyIs$p1("EUR");
+    }
+}
+
+```
+ 
+</code></pre></td>
+</tr>
+</table>
+
+#### 2) Rule-level Background
+
+<table>
+  <tr>
+    <th align="left">Gherkin</th>
+    <th align="left">JUnit</th>
+  </tr>
+  <tr>
+    <td valign="top" class="diffTable" style="padding: 0px; font-size: larger;"><pre><code class="language-gherkin" data-lang="gherkin">
+
+```gherkin
+Feature: Shopping cart totals and shipping
+
+  Rule: Free shipping applies when subtotal is at least €50
+
+   Background:
+     Sets up a cart close to the free-shipping threshold.
+     Given my cart subtotal is "45.00"
+```
+  </code></pre>
+    </td>
+    <td valign="top">
+     <pre>
+       <code class="language-java" data-lang="java">
+
+```java
+
+public abstract class CartFeatureScenarios extends CartFeature {
+    {
+        /**
+         * Feature: Shopping cart totals and shipping
+         */
+    }
+
+    public abstract void givenMyCartSubtotalIs$p1(String p1);
+
+    @Nested
+    @Order(1)
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    @DisplayName("Rule: Free shipping applies when subtotal is at least €50")
+    public class Rule_1 {
+        @BeforeEach
+        @DisplayName("Background: sets up a cart close to the free-shipping threshold.")
+        public void ruleBackground(TestInfo testInfo) {
+            /**
+             * Given my cart subtotal is "45.00"
+             */
+            givenMyCartSubtotalIs$p1("45.00");
+        }
+    }
+}
+
+```
+ 
+</code></pre></td>
+</tr>
+</table>
+
+
+#### 3) Both Backgrounds + a Scenario under the Rule (full flow)
+
+<table>
+  <tr>
+    <th align="left">Gherkin</th>
+    <th align="left">JUnit</th>
+  </tr>
+  <tr>
+    <td valign="top" class="diffTable" style="padding: 0px; font-size: larger;"><pre><code class="language-gherkin" data-lang="gherkin">
+
+```gherkin
+Feature: Shopping cart totals and shipping
+
+  Background: Start with a clean cart
+    Given I am a signed-in shopper "alice@example.com"
+    And my cart is empty
+
+  Rule: Free shipping applies when subtotal is at least €50
+
+    Background:
+      Given the currency is "EUR"
+      And my cart subtotal is "55.00"
+
+    Scenario: Show free-shipping banner when threshold is met
+      When I view the cart
+      Then I see the "Free shipping" banner
+```
+  </code></pre>
+    </td>
+    <td valign="top">
+     <pre>
+       <code class="language-java" data-lang="java">
+
+```java
+
+@Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestClassOrder(ClassOrderer.OrderAnnotation.class)
+@FeatureFilePath("specs/cart.feature")
+public abstract class CartFeatureScenarios extends CartFeature {
+    {
+        /**
+         * Feature: Shopping cart totals and shipping
+         */
+    }
+
+    public abstract void givenIAmASignedinShopper$p1(String p1);
+
+    public abstract void givenMyCartIsEmpty();
+
+    @BeforeEach
+    @DisplayName("Background: Start with a clean cart")
+    public void featureBackground(TestInfo testInfo) {
+        /**
+         * Given I am a signed-in shopper "alice@example.com"
+         */
+        givenIAmASignedinShopper$p1("alice@example.com");
+        /**
+         * And my cart is empty
+         */
+        givenMyCartIsEmpty();
+    }
+
+    public abstract void givenTheCurrencyIs$p1(String p1);
+
+    public abstract void givenMyCartSubtotalIs$p1(String p1);
+
+    public abstract void whenIViewTheCart();
+
+    public abstract void thenISeeThe$p1Banner(String p1);
+
+    @Nested
+    @Order(1)
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    @DisplayName("Rule: Free shipping applies when subtotal is at least €50")
+    public class Rule_1 {
+        @BeforeEach
+        @DisplayName("Background: ")
+        public void ruleBackground(TestInfo testInfo) {
+            /**
+             * Given the currency is "EUR"
+             */
+            givenTheCurrencyIs$p1("EUR");
+            /**
+             * And my cart subtotal is "55.00"
+             */
+            givenMyCartSubtotalIs$p1("55.00");
+        }
+
+        @Test
+        @Order(1)
+        @DisplayName("Scenario: Show free-shipping banner when threshold is met")
+        public void scenario_1() {
+            /**
+             * When I view the cart
+             */
+            whenIViewTheCart();
+            /**
+             * Then I see the "Free shipping" banner
+             */
+            thenISeeThe$p1Banner("Free shipping");
+        }
+    }
+}
+
+```
+ 
+</code></pre></td>
+</tr>
+</table>
+ 
+</details>
+
+#### **Execution order for that Scenario**
+
+1. `featureBackground()` (feature-level `@BeforeEach`)
+2. `ruleBackground()` (rule-level `@BeforeEach`)
+3. `scenario_1()` (`@Test`)
 
 
 ---
