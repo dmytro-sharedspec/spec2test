@@ -15,12 +15,15 @@ No regex “glue,” no runtime step discovery. Your `.feature` files become fir
 
 * **Plain JUnit 5 (no Cucumber runner):** Generated tests are ordinary JUnit 5 test classes, making execution straightforward in IDEs and CI. Run or debug individual Scenarios/Rules, set breakpoints, and use Find Usages like with any other test.
 
-* **Spec-driven automation:** The **text in your feature** drives the generated method names and call sequence—**per-feature** scope, not a global step library.
+* **Spec-driven automation:** The **text of your Feature** drives generated method names and call sequence. Steps are **per-feature**, not pulled from a global library.
+
+  * **Unblocked discovery:** You don’t have to hunt for existing steps or bend wording to fit a catalog. Write the most natural Given/When/Then for each Feature; the generator creates feature-scoped step methods, avoiding the tendency to shoehorn newly discovered behaviour into ill-fitting steps.
+
 
 * **TDD-friendly:** Enables straightforward, **iterative** test‑first development—even before any application or test code exists. Start with an abstract, implementation‑free spec (e.g., only Rule and/or Scenario titles). The generator creates a failing JUnit method for each empty Rule/Scenario, so you immediately have red tests to drive development.
 
-  * Iterate: list Rules → add Scenario titles under the first Rule → pick one Scenario and add concrete steps in the Gherkin feature (still red; the generator turns them into failing step methods in the test) → implement those step methods → then implement just enough application code to make it pass (green) → repeat for the next Scenario. When all Scenarios under a Rule are green, move on to the next Rule.
-  * Keep discovering: add new Scenario or Rule titles anytime; they show up as failing tests until implemented.
+  * **Iterate:** list Rules → add Scenario titles under the first Rule → pick one Scenario and add concrete steps in the Gherkin feature (still red; the generator turns them into failing step methods in the test) → implement those step methods → then implement just enough application code to make it pass (green) → repeat for the next Scenario. When all Scenarios under a Rule are green, move on to the next Rule.
+  * **Keep discovering:** add new Scenario or Rule titles anytime; they show up as failing tests until implemented.
 
 ---
 
