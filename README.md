@@ -1484,6 +1484,123 @@ public abstract class CartFeatureScenarios extends CartFeature {
  
 </details>
 
+<details>
+
+<summary>Doc Strings (""") </summary>
+
+#### Rules
+
+* A step with a **DocString** gains **one trailing** `String` **parameter** (after any quoted args).
+
+* **Method naming is unaffected** by the DocString (no extra `$p…` placeholder in the name).
+
+* The **DocString body** (the lines between the triple quotes) is passed **verbatim**: newlines and indentation are **preserved**.
+
+* At the call site, the generator uses a **Java text block** (`"""…"""`) so formatting is retained.
+
+* Gherkin allows **either** a DocString **or** a Data Table on a step, not both; the generator follows that rule.
+
+#### Example A — DocString only (no quoted args)
+
+<table>
+  <tr>
+    <th align="left">Gherkin</th>
+    <th align="left">Generated signature & call</th>
+  </tr>
+  <tr>
+    <td valign="top" class="diffTable" style="padding: 0px; font-size: larger;"><pre><code class="language-gherkin" data-lang="gherkin">
+
+```gherkin
+When I submit a shipping address:
+  """
+  {
+    "line1": "Baker St 221B",
+    "city": "London",
+    "country": "UK"
+  }
+  """
+```
+  </code></pre>
+    </td>
+    <td valign="top">
+     <pre>
+       <code class="language-java" data-lang="java">
+
+```java
+
+abstract void whenISubmitAShippingAddress(String docString);
+
+whenISubmitAShippingAddress("""
+{
+  "line1": "Baker St 221B",
+  "city": "London",
+  "country": "UK"
+}
+""");
+
+```
+
+</code></pre></td>
+</tr>
+</table>
+
+#### Example B — Quoted args + DocString (shopping cart)
+
+<table>
+  <tr>
+    <th align="left">Gherkin</th>
+    <th align="left">Generated signature & call</th>
+  </tr>
+  <tr>
+    <td valign="top" class="diffTable" style="padding: 0px; font-size: larger;"><pre><code class="language-gherkin" data-lang="gherkin">
+
+```gherkin
+Given I add item "Wireless Headphones" with options
+  """
+  {
+    "color": "Black",
+    "warranty": "2 years",
+    "unitPrice": "60.00"
+  }
+  """
+```
+  </code></pre>
+    </td>
+    <td valign="top">
+     <pre>
+       <code class="language-java" data-lang="java">
+
+```java
+
+public abstract void givenIAddItem$p1WithOptions(String p1, String docString);
+
+@BeforeEach
+@DisplayName("Background: ")
+public void featureBackground(TestInfo testInfo) {
+    /**
+     * Given I add item "Wireless Headphones" with options
+     */
+    givenIAddItem$p1WithOptions("Wireless Headphones", """
+            {
+              "color": "Black",
+              "warranty": "2 years",
+              "unitPrice": "60.00"
+            }
+            """);
+}
+
+```
+
+</code></pre></td>
+</tr>
+</table>
+
+#### Edge cases & notes
+
+* **Multiple `Examples` blocks:** Currently not supported. The generator expects exactly one `Examples` block per `Scenario Outline`; specifying more than one will cause conversion to fail with an error.
+
+ 
+</details>
 
 ---
 
