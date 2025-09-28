@@ -705,6 +705,55 @@ public class CartFeatureScenarios extends CartFeature {
 > 
 > e.g., `givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3(...)` 
 
+#### Quoted arguments → method parameters & call sites
+
++ Every "**&lt;value&gt;**" in the step becomes a String parameter (current support is String only).
+
++ The quoted values are removed from the method name and passed as arguments from the generated scenario method in left-to-right order.
+
++ Parameter names in the generated code are generic (e.g., p1, p2, …).
+
++ The original textual representation of each of the step methods is placed into a block java comment above each method call to aid readability
+
+<table>
+  <tr>
+    <th align="left">Gherkin</th>
+    <th align="left">JUnit</th>
+  </tr>
+  <tr>
+    <td valign="top" class="diffTable" style="padding: 0px; font-size: larger;"><pre><code class="language-gherkin" data-lang="gherkin">
+
+```gherkin
+Given my cart contains "Wireless Headphones" with quantity "1" and unit price "60.00"
+When I change the quantity to "2"
+Then my cart subtotal is "120.00"
+```
+  </code></pre>
+    </td>
+    <td valign="top">
+     <pre>
+       <code class="language-java" data-lang="java">
+
+```java
+
+// Generated step methods (signatures)
+void givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3(String p1, String p2, String p3);
+void whenIChangeTheQuantityTo$p1(String p1);
+void thenMyCartSubtotalIs$p1(String p1);
+
+// Generated scenario method (calls)
+givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3("Wireless Headphones", "1", "60.00");
+whenIChangeTheQuantityTo$p1("2");
+thenMyCartSubtotalIs$p1("120.00");
+
+```
+ 
+</code></pre></td>
+</tr>
+</table>
+
+##### Complete example:
+
 <table>
   <tr>
     <th align="left">Gherkin</th>
@@ -736,33 +785,65 @@ Feature: Shopping cart totals and shipping
 
 ```java
 
-public class CartFeatureScenarios extends CartFeature {
+public abstract class CartFeatureScenarios extends CartFeature {
     {
         /**
          * Feature: Shopping cart totals and shipping
          */
     }
 
+    public abstract void givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3(String p1, String p2,
+            String p3);
+
+    public abstract void whenIChangeTheQuantityTo$p1(String p1);
+
+    public abstract void thenMyCartSubtotalIs$p1(String p1);
+
     @Test
     @Order(1)
     @DisplayName("Scenario: Update quantity updates subtotal")
     public void scenario_1() {
-        Assertions.fail("Scenario has no steps");
+        /**
+         * Given my cart contains "Wireless Headphones" with quantity "1" and unit price "60.00"
+         */
+        givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3("Wireless Headphones", "1", "60.00");
+        /**
+         * When I change the quantity to "2"
+         */
+        whenIChangeTheQuantityTo$p1("2");
+        /**
+         * Then my cart subtotal is "120.00"
+         */
+        thenMyCartSubtotalIs$p1("120.00");
     }
+
+    public abstract void givenMyCartSubtotalIs$p1(String p1);
+
+    public abstract void whenIViewTheCart();
+
+    public abstract void thenISeeThe$p1Banner(String p1);
 
     @Nested
     @Order(1)
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @DisplayName("Rule: Free shipping applies when subtotal is at least €50")
     public class Rule_1 {
-        /**
-         * It covers the visual banner only; actual shipping cost calculation is out of scope.
-         */
         @Test
         @Order(1)
         @DisplayName("Scenario: Show free-shipping banner when threshold is met")
         public void scenario_1() {
-            Assertions.fail("Scenario has no steps");
+            /**
+             * Given my cart subtotal is "55.00"
+             */
+            givenMyCartSubtotalIs$p1("55.00");
+            /**
+             * When I view the cart
+             */
+            whenIViewTheCart();
+            /**
+             * Then I see the "Free shipping" banner
+             */
+            thenISeeThe$p1Banner("Free shipping");
         }
     }
 }
@@ -772,8 +853,24 @@ public class CartFeatureScenarios extends CartFeature {
 </code></pre></td>
 </tr>
 </table>
+
+#### Limited support for using '*' as step keyword
+
++ Currently if you use the '*' character in place of Given/When/Then/And/But step keywords - the generation will work in some cases and in
+other cases it may fail - so this type of usage is discoraged. 
+
+#### DocStrings & Data Tables (if present)
+
++ They don’t change the method-naming rules above.
+
++ They’re passed along to the step method (appended after quoted String params).
+
++ See below sections for examples of how these are passed down to step method calls.
  
 </details>
+
+
+
 
 ---
 
