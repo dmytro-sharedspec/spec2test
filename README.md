@@ -1590,6 +1590,162 @@ givenIAddItem$p1WithOptions("Wireless Headphones", """
  
 </details>
 
+<details>
+
+<summary>Data Tables (|)</summary>
+
+#### What the generator emits
+
+* **Step parameter type:** A step that has a Gherkin **Data Table** receives **one trailing parameter of type** `io.cucumber.datatable.DataTable`.
+
+  * If the step also has **quoted arguments**, those come **first** (as `String`s), and the `DataTable` comes **last**.
+    
+* **Call site:** The scenario (or Background) calls the step with a helper:
+  * The generator includes a `createDataTable(String tableLines)` method that parses a **pipe-delimited Java text block** into a rectangular `List<List<String>>`, then calls `DataTable.create(...)`. If you already have a method with this name in your marker/base test class then generation of this method is omitted and your method is called instead.
+  * It also declares a `protected abstract DataTable.TableConverter getTableConverter()` that your implementation must provide. This lets your step code later use `asList(...)`, etc., if you want typed conversions.
+
+**Example:**
+
+<table>
+  <tr>
+    <th align="left">Gherkin</th>
+    <th align="left">Generated signature & call</th>
+  </tr>
+  <tr>
+    <td valign="top" class="diffTable" style="padding: 0px; font-size: larger;"><pre><code class="language-gherkin" data-lang="gherkin">
+
+```gherkin
+
+Feature: Shopping cart totals and shipping
+
+  Background:
+    Given my cart contains:
+      | name                | qty | price |
+      | Wireless Headphones | 1   | 60.00 |
+      | Coffee Beans 1kg    | 2   | 15.50 |
+
+```
+
+  </code></pre>
+    </td>
+    <td valign="top">
+     <pre>
+       <code class="language-java" data-lang="java">
+
+```java
+
+public abstract class CartFeatureScenarios extends CartFeature {
+    {
+        /**
+         * Feature: Shopping cart totals and shipping
+         */
+    }
+
+    public abstract void givenMyCartContains(DataTable dataTable);
+
+    @BeforeEach
+    @DisplayName("Background: ")
+    public void featureBackground(TestInfo testInfo) {
+        /**
+         * Given my cart contains:
+         */
+        givenMyCartContains(createDataTable("""
+                |name               |qty|price|
+                |Wireless Headphones|1  |60.00|
+                |Coffee Beans 1kg   |2  |15.50|
+                """));
+    }
+
+    protected abstract DataTable.TableConverter getTableConverter();
+
+    /**
+     * Generation of this method is skipped if you already have it in your marker/base class.
+     * 
+     * @param tableLines the table lines as in the feature file
+     * @return DataTable instance
+     */
+    protected DataTable createDataTable(String tableLines) {
+
+        String[] tableRows = tableLines.split("\\n");
+        List<List<String>> rawDataTable = new ArrayList<>(tableRows.length);
+
+        for (String tableRow : tableRows) {
+            String trimmedLine = tableRow.trim();
+            if (!trimmedLine.isEmpty()) {
+                String[] columns = trimmedLine.split("\\|");
+                List<String> rowColumns = new ArrayList<>(columns.length);
+                for (int i = 1; i < columns.length; i++) {
+                    String column = columns[i].trim();
+                    rowColumns.add(column);
+                }
+                rawDataTable.add(rowColumns);
+            }
+        }
+
+        DataTable dataTable = DataTable.create(rawDataTable, getTableConverter());
+        return dataTable;
+    }
+}
+
+```
+
+</code></pre></td>
+</tr>
+</table>
+
+#### What this means in practice
+
+* **No “List<Map<…>>” in the signature.** The generator **always** passes a `DataTable`. You decide in your step how to consume it.
+* **Cells are strings**. The helper **trims** each cell; otherwise values are untouched. There’s **no automatic typing**.
+* **Header vs raw** is **up to your step**: if your first row is a header, treat it as such in your implementation.
+
+**Example implementation** of `getTableConverter()` and mapping to an object type
+
+```java
+
+package org.mycompany.app;
+
+import io.cucumber.datatable.DataTable;
+import io.cucumber.datatable.DataTableType;
+import io.cucumber.datatable.DataTableTypeRegistry;
+import io.cucumber.datatable.DataTableTypeRegistryTableConverter;
+
+import java.util.Locale;
+import java.util.Map;
+
+public class CartFeatureTest extends CartFeatureScenarios {
+
+    protected DataTableTypeRegistry dataTableRegistry;
+
+    protected DataTable.TableConverter tableConverter;
+
+    public CartFeatureTest() {
+
+        dataTableRegistry = new DataTableTypeRegistry(Locale.ENGLISH);
+
+        dataTableRegistry.defineDataTableType(new DataTableType(
+                CartItem.class,
+                (Map<String, String> row) ->
+                        new CartItem(
+                                row.get("name"),
+                                Integer.parseInt(row.get("qty")),
+                                Double.parseDouble(row.get("price"))
+                        ))
+        );
+        tableConverter = new DataTableTypeRegistryTableConverter(dataTableRegistry);
+
+    }
+
+    @Override
+    protected DataTable.TableConverter getTableConverter() {
+        return tableConverter;
+    }
+}
+
+```
+ 
+</details>
+
 ---
 
 ## Configuration
@@ -1638,6 +1794,9 @@ public abstract class CartFeature extends BaseFeatureOptions { }
 ## Installation
 
 > **Requirements:** Java **17+**, JUnit 5, Maven/Gradle with **annotation processing** enabled, IDE with APT enabled (e.g., IntelliJ).
+> 
+> `cucumber-java` library is still used by this APT processor for the initial parsing of Gherkin feature files during compile time and for converting
+> step Data Table parameters to instances of `io.cucumber.datatable.DataTable` which facilitates runtime conversion to object types. 
 
 <details>
 
