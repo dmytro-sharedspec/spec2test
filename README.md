@@ -1594,11 +1594,6 @@ public void featureBackground(TestInfo testInfo) {
 </code></pre></td>
 </tr>
 </table>
-
-#### Edge cases & notes
-
-* **Multiple `Examples` blocks:** Currently not supported. The generator expects exactly one `Examples` block per `Scenario Outline`; specifying more than one will cause conversion to fail with an error.
-
  
 </details>
 
