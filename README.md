@@ -1390,8 +1390,6 @@ whenIChangeTheQuantityTo$p1(newQty);
 thenMyCartSubtotalIs$p1(expectedSubtotal);
 ```
 
-> Note: As of now, all parameters are generated as `String`. Even numeric-looking cells (`12`, `5`) are passed as strings. Any conversion is up to your step implementations. 
-
 #### Full example
 
 <table>
