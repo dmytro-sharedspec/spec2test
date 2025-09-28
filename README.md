@@ -713,8 +713,6 @@ public class CartFeatureScenarios extends CartFeature {
 
 + Parameter names in the generated code are generic (e.g., p1, p2, …).
 
-+ The original textual representation of each of the step methods is placed into a block java comment above each method call to aid readability
-
 <table>
   <tr>
     <th align="left">Gherkin</th>
@@ -751,6 +749,8 @@ thenMyCartSubtotalIs$p1("120.00");
 </code></pre></td>
 </tr>
 </table>
+
++ The original textual representation of each of the step methods is placed into a block java comment above each method call to aid readability
 
 ##### Complete example:
 
