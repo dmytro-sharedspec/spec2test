@@ -1132,15 +1132,15 @@ public abstract class CartFeatureScenarios extends CartFeature {
 
 ```
 
+</code></pre></td>
+</tr>
+</table>
+
 #### **Execution order for that Scenario**
 
 1. `featureBackground()` (feature-level `@BeforeEach`)
 2. `ruleBackground()` (rule-level `@BeforeEach`)
 3. `scenario_1()` (`@Test`)
-
-</code></pre></td>
-</tr>
-</table>
  
 </details>
 
