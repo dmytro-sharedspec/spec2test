@@ -1923,7 +1923,7 @@ public abstract class CartFeature extends BaseFeatureOptions { }
     <groupId>com.yourorg.spec2test</groupId>
     <artifactId>feature2junit</artifactId>
     <version>0.1.4</version>
-    <scope>provided</scope>
+    <scope>test</scope>
   </dependency>
 </dependencies>
 
