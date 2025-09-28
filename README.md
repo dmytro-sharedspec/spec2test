@@ -1376,8 +1376,6 @@ public void scenario_1(String name, String startQty, String price, String newQty
 * The display name pattern `name = "Example {index}: [{arguments}]"` makes IDE/CI output like:
   `Example 1: [12, 5, 7]`, `Example 2: [20, 5, 15]`.
 
-> Note: As of now, all parameters are generated as `String`. Even numeric-looking cells (`12`, `5`) are passed as strings. Any conversion is up to your step implementations. 
-
 #### 3) Placeholders `<…>` in steps → argument variables
 
 * Each placeholder in the outline text (e.g., `<name>`, `<startQty>`, `<price>`, `<newQty>`, `<expectedSubtotal>`) becomes a **method parameter** on the parameterized test.
@@ -1391,6 +1389,8 @@ whenIChangeTheQuantityTo$p1(newQty);
 
 thenMyCartSubtotalIs$p1(expectedSubtotal);
 ```
+
+> Note: As of now, all parameters are generated as `String`. Even numeric-looking cells (`12`, `5`) are passed as strings. Any conversion is up to your step implementations. 
 
 #### Full example
 
