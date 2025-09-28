@@ -23,7 +23,7 @@ No regex “glue,” no runtime step discovery. Your `.feature` files become fir
 * **TDD-friendly:** Enables straightforward, **iterative** test‑first development—even before any application or test code exists. Start with an abstract, implementation‑free spec (e.g., only Rule and/or Scenario titles). The generator creates a failing JUnit method for each empty Rule/Scenario, so you immediately have red tests to drive development.
 
   * **Iterate:** list Rules → add Scenario titles under the first Rule → pick one Scenario and add concrete steps in the Gherkin feature (still red; the generator turns them into failing step methods in the test) → implement those step methods → then implement just enough application code to make it pass (green) → repeat for the next Scenario. When all Scenarios under a Rule are green, move on to the next Rule.
-  * **Keep discovering:** As implementation reveals new cases, jot them down as additional `Rule` and/or `Scenario` titles; they immediately appear as failing tests, ready for red→green.
+  * **Keep discovering:** As implementation reveals new cases, jot them down as additional `Rule` or `Scenario` titles; they immediately appear as failing tests, ready for red→green.
 
 ---
 
