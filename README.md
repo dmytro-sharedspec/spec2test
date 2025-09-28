@@ -1450,7 +1450,6 @@ public abstract class CartFeatureScenarios extends CartFeature {
                     """
     )
     @Order(1)
-    @DisplayName("Scenario: Subtotal updates when quantity changes")
     public void scenario_1(String name, String startqty, String price, String newqty,
             String expectedSubtotal) {
         /**
