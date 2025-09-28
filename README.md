@@ -1144,6 +1144,348 @@ public abstract class CartFeatureScenarios extends CartFeature {
  
 </details>
 
+<details>
+
+<summary>Given, When, Then, And & But steps</summary>
+
+#### Step keywords → method prefixes
+
++ Given … → method starts with given…
+
++ When … → when…
+
++ Then … → then…
+
++ And … / But … → inherit the previous step’s keyword (e.g., after a When, And becomes when…)
+
+#### Method name derivation (from step text)
+
++ Take the step’s **plain text** (minus any quoted arguments), split into words, and **CamelCase** them.
+
++ **Invalid Java identifier** characters (at the start or in the middle) are **removed**.
+
++ The keyword prefix (`given/when/then`) is prepended.
+
++ Where the step had quoted arguments, the method name includes **positional placeholders** to indicate argument slots (e.g., `$p1`, `$p2`, …).
+
+> Resulting shape: 
+`given` + `CamelCasedWordsAroundArgsWithPlaceholders`
+> 
+> e.g., `givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3(...)` 
+
+#### Quoted arguments → method parameters & call sites
+
++ Every "**&lt;value&gt;**" in the step becomes a String parameter (current support is String only).
+
++ The quoted values are removed from the method name and passed as arguments from the generated scenario method in left-to-right order.
+
++ Parameter names in the generated code are generic (e.g., p1, p2, …).
+
++ The original textual representation of each of the step methods is placed into a block java comment above each method call to aid readability
+
+<table>
+  <tr>
+    <th align="left">Gherkin</th>
+    <th align="left">JUnit</th>
+  </tr>
+  <tr>
+    <td valign="top" class="diffTable" style="padding: 0px; font-size: larger;"><pre><code class="language-gherkin" data-lang="gherkin">
+
+```gherkin
+Given my cart contains "Wireless Headphones" with quantity "1" and unit price "60.00"
+When I change the quantity to "2"
+Then my cart subtotal is "120.00"
+```
+  </code></pre>
+    </td>
+    <td valign="top">
+     <pre>
+       <code class="language-java" data-lang="java">
+
+```java
+
+// Generated step methods (signatures)
+void givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3(String p1, String p2, String p3);
+void whenIChangeTheQuantityTo$p1(String p1);
+void thenMyCartSubtotalIs$p1(String p1);
+
+// Generated scenario method (calls)
+givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3("Wireless Headphones", "1", "60.00");
+whenIChangeTheQuantityTo$p1("2");
+thenMyCartSubtotalIs$p1("120.00");
+
+```
+ 
+</code></pre></td>
+</tr>
+</table>
+
+##### Complete example:
+
+<table>
+  <tr>
+    <th align="left">Gherkin</th>
+    <th align="left">JUnit</th>
+  </tr>
+  <tr>
+    <td valign="top" class="diffTable" style="padding: 0px; font-size: larger;"><pre><code class="language-gherkin" data-lang="gherkin">
+
+```gherkin
+Feature: Shopping cart totals and shipping
+
+  Scenario: Update quantity updates subtotal
+    Given my cart contains "Wireless Headphones" with quantity "1" and unit price "60.00"
+    When I change the quantity to "2"
+    Then my cart subtotal is "120.00"
+
+  Rule: Free shipping applies when subtotal is at least €50
+
+    Scenario: Show free-shipping banner when threshold is met
+      Given my cart subtotal is "55.00"
+      When I view the cart
+      Then I see the "Free shipping" banner
+```
+  </code></pre>
+    </td>
+    <td valign="top">
+     <pre>
+       <code class="language-java" data-lang="java">
+
+```java
+
+public abstract class CartFeatureScenarios extends CartFeature {
+    {
+        /**
+         * Feature: Shopping cart totals and shipping
+         */
+    }
+
+    public abstract void givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3(String p1, String p2,
+            String p3);
+
+    public abstract void whenIChangeTheQuantityTo$p1(String p1);
+
+    public abstract void thenMyCartSubtotalIs$p1(String p1);
+
+    @Test
+    @Order(1)
+    @DisplayName("Scenario: Update quantity updates subtotal")
+    public void scenario_1() {
+        /**
+         * Given my cart contains "Wireless Headphones" with quantity "1" and unit price "60.00"
+         */
+        givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3("Wireless Headphones", "1", "60.00");
+        /**
+         * When I change the quantity to "2"
+         */
+        whenIChangeTheQuantityTo$p1("2");
+        /**
+         * Then my cart subtotal is "120.00"
+         */
+        thenMyCartSubtotalIs$p1("120.00");
+    }
+
+    public abstract void givenMyCartSubtotalIs$p1(String p1);
+
+    public abstract void whenIViewTheCart();
+
+    public abstract void thenISeeThe$p1Banner(String p1);
+
+    @Nested
+    @Order(1)
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    @DisplayName("Rule: Free shipping applies when subtotal is at least €50")
+    public class Rule_1 {
+        @Test
+        @Order(1)
+        @DisplayName("Scenario: Show free-shipping banner when threshold is met")
+        public void scenario_1() {
+            /**
+             * Given my cart subtotal is "55.00"
+             */
+            givenMyCartSubtotalIs$p1("55.00");
+            /**
+             * When I view the cart
+             */
+            whenIViewTheCart();
+            /**
+             * Then I see the "Free shipping" banner
+             */
+            thenISeeThe$p1Banner("Free shipping");
+        }
+    }
+}
+
+```
+ 
+</code></pre></td>
+</tr>
+</table>
+
+#### Limited support for using '*' as step keyword
+
++ Currently if you use the '*' character in place of Given/When/Then/And/But step keywords - the generation will work in some cases and in
+other cases it may fail - so this type of usage is discoraged. 
+
+#### DocStrings & Data Tables (if present)
+
++ They don’t change the method-naming rules above.
+
++ They’re passed along to the step method (appended after quoted String params).
+
++ See below sections for examples of how these are passed down to step method calls.
+ 
+</details>
+
+<details>
+
+<summary>Scenario Outline & Examples</summary>
+
+#### 1) One parameterized test per Scenario Outline
+
+A single `@ParameterizedTest` method is generated for each `Scenario Outline`.
+Its body is the *template* of the outline; the concrete values come from the `Examples` table.
+
+#### Generated example:
+
+```java
+@ParameterizedTest(name = "Example {index}: [{arguments}]")
+@CsvSource(
+    useHeadersInDisplayName = true,
+    delimiter = '|',
+    textBlock = """
+            name                | startQty | price | newQty | expectedSubtotal
+            Wireless Headphones | 1        | 60.00 | 2      | 120.00
+            Coffee Beans 1kg    | 2        | 15.50 | 3      | 46.50
+            """
+)
+@DisplayName("Scenario: Subtotal updates when quantity changes")
+public void scenario_1(String name, String startQty, String price, String newQty, String expectedSubtotal) { ... }
+```
+
+#### 2) `Examples` table → `@CsvSource(textBlock = …)`
+
+* The `Examples` rows are embedded as a **CSV text block** inside `@CsvSource`.
+
+* The **column order** in the table becomes the **parameter order** in the test method.
+
+* The **header row** supplies the **parameter names** (`name`, `startQty`, `price`, `newQty`, `expectedSubtotal`) after being sanitized into valid Java identifiers (spaces/punctuation removed, etc.).
+
+* The **cell delimiter** mirrors the table separator (`|`), specified via `delimiter = '|'`.
+
+* The display name pattern `name = "Example {index}: [{arguments}]"` makes IDE/CI output like:
+  `Example 1: [12, 5, 7]`, `Example 2: [20, 5, 15]`.
+
+> Note: As of now, all parameters are generated as `String`. Even numeric-looking cells (`12`, `5`) are passed as strings. Any conversion is up to your step implementations. 
+
+#### 3) Placeholders `<…>` in steps → argument variables
+
+* Each placeholder in the outline text (e.g., `<name>`, `<startQty>`, `<price>`, `<newQty>`, `<expectedSubtotal>`) becomes a **method parameter** on the parameterized test.
+
+* Inside the test body, the generated calls **pass those variables** in left-to-right order to the step methods:
+
+```java
+givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3(name, startQty, price);
+
+whenIChangeTheQuantityTo$p1(newQty);
+
+thenMyCartSubtotalIs$p1(expectedSubtotal);
+```
+
+#### Full example
+
+<table>
+  <tr>
+    <th align="left">Gherkin</th>
+    <th align="left">JUnit</th>
+  </tr>
+  <tr>
+    <td valign="top" class="diffTable" style="padding: 0px; font-size: larger;"><pre><code class="language-gherkin" data-lang="gherkin">
+
+```gherkin
+Feature: Shopping cart totals and shipping
+
+  Scenario Outline: Subtotal updates when quantity changes
+    Given my cart contains <name> with quantity <startQty> and unit price <price>
+    When I change the quantity to <newQty>
+    Then my cart subtotal is <expectedSubtotal>
+
+    Examples:
+      | name                | startQty | price | newQty | expectedSubtotal |
+      | Wireless Headphones | 1        | 60.00 | 2      | 120.00           |
+      | Coffee Beans 1kg    | 2        | 15.50 | 3      | 46.50            |
+```
+  </code></pre>
+    </td>
+    <td valign="top">
+     <pre>
+       <code class="language-java" data-lang="java">
+
+```java
+
+public abstract class CartFeatureScenarios extends CartFeature {
+    {
+        /**
+         * Feature: Shopping cart totals and shipping
+         */
+    }
+
+    public abstract void givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3(String p1, String p2,
+            String p3);
+
+    public abstract void whenIChangeTheQuantityTo$p1(String p1);
+
+    public abstract void thenMyCartSubtotalIsExpectedsubtotal();
+
+    @ParameterizedTest(
+            name = "Example {index}: [{arguments}]"
+    )
+    @CsvSource(
+            useHeadersInDisplayName = true,
+            delimiter = '|',
+            textBlock = """
+                    name                | startQty | price | newQty | expected subtotal
+                    Wireless Headphones | 1        | 60.00 | 2      | 120.00           
+                    Coffee Beans 1kg    | 2        | 15.50 | 3      | 46.50            
+                    """
+    )
+    @Order(1)
+    @DisplayName("Scenario: Subtotal updates when quantity changes")
+    public void scenario_1(String name, String startqty, String price, String newqty,
+            String expectedSubtotal) {
+        /**
+         * Given my cart contains <name> with quantity <startQty> and unit price <price>
+         */
+        givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3(name, startqty, price);
+        /**
+         * When I change the quantity to <newQty>
+         */
+        whenIChangeTheQuantityTo$p1(newqty);
+        /**
+         * Then my cart subtotal is <expectedSubtotal>
+         */
+        thenMyCartSubtotalIsExpectedsubtotal();
+    }
+}
+
+```
+
+</code></pre></td>
+</tr>
+</table>
+
+
+#### Edge cases & notes
+
+* **Multiple `Examples` blocks:** Currently not supported. The generator expects exactly one `Examples` block per `Scenario Outline`; specifying more than one will cause conversion to fail with an error.
+
+* **Header sanitization:** If a header isn’t a valid Java identifier (e.g., `start qty`), it’s sanitized to something like `startQty`.
+
+* **Empty cells / quoting:** Empty cells are passed as empty strings. Cells containing separators or spaces are handled by the CSV parser; text blocks keep formatting readable.
+
+* **Types:** Current generator emits `String` parameters only; you can parse/convert inside your step methods.
+ 
+</details>
 
 
 ---
