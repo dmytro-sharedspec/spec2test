@@ -573,8 +573,10 @@ Feature: Shopping cart totals and shipping
 <summary>Rule</summary>
 
 + Rule sections are mapped to nested test classes inside the generated test class.
+
 + Rule's keyword & title are put into 
 the value of the @DisplayName JUnit annotation.
+
 + If a rule additionally has description lines then those are put into
 a JavaDoc comment above the nested class.
 
@@ -641,14 +643,14 @@ public class CartFeatureScenarios extends CartFeature {
  
 </details>
 
-</details>
-
 <details>
 
 <summary>Scenario</summary>
 
 + Scenario sections are mapped to test methods that are annotated with JUnit's @Test annotation.
+
 + Scenario's keyword & title are put into the value of the @DisplayName annotation.
+
 + If scenario additionally has description lines then those are put into a JavaDoc comment
   above the test method.
 
@@ -716,6 +718,106 @@ public class CartFeatureScenarios extends CartFeature {
 </table>
  
 </details>
+
+<details>
+
+<summary>Given, When, Then, And & But steps</summary>
+
+#### Step keywords → method prefixes
+
++ Given … → method starts with given…
+
++ When … → when…
+
++ Then … → then…
+
++ And … / But … → inherit the previous step’s keyword (e.g., after a When, And becomes when…)
+
+#### Method name derivation (from step text)
+
++ Take the step’s **plain text** (minus any quoted arguments), split into words, and **CamelCase** them.
+
++ **Invalid Java identifier** characters (at the start or in the middle) are **removed**.
+
++ The keyword prefix (`given/when/then`) is prepended.
+
++ Where the step had quoted arguments, the method name includes **positional placeholders** to indicate argument slots (e.g., `$p1`, `$p2`, …).
+
+> Resulting shape: 
+`given` + `CamelCasedWordsAroundArgsWithPlaceholders`
+> 
+> e.g., `givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3(...)` 
+
+<table>
+  <tr>
+    <th align="left">Gherkin</th>
+    <th align="left">JUnit</th>
+  </tr>
+  <tr>
+    <td valign="top" class="diffTable" style="padding: 0px; font-size: larger;"><pre><code class="language-gherkin" data-lang="gherkin">
+
+```gherkin
+Feature: Shopping cart totals and shipping
+
+  Scenario: Update quantity updates subtotal
+    Given my cart contains "Wireless Headphones" with quantity "1" and unit price "60.00"
+    When I change the quantity to "2"
+    Then my cart subtotal is "120.00"
+
+  Rule: Free shipping applies when subtotal is at least €50
+
+    Scenario: Show free-shipping banner when threshold is met
+      Given my cart subtotal is "55.00"
+      When I view the cart
+      Then I see the "Free shipping" banner
+```
+  </code></pre>
+    </td>
+    <td valign="top">
+     <pre>
+       <code class="language-java" data-lang="java">
+
+```java
+
+public class CartFeatureScenarios extends CartFeature {
+    {
+        /**
+         * Feature: Shopping cart totals and shipping
+         */
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("Scenario: Update quantity updates subtotal")
+    public void scenario_1() {
+        Assertions.fail("Scenario has no steps");
+    }
+
+    @Nested
+    @Order(1)
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    @DisplayName("Rule: Free shipping applies when subtotal is at least €50")
+    public class Rule_1 {
+        /**
+         * It covers the visual banner only; actual shipping cost calculation is out of scope.
+         */
+        @Test
+        @Order(1)
+        @DisplayName("Scenario: Show free-shipping banner when threshold is met")
+        public void scenario_1() {
+            Assertions.fail("Scenario has no steps");
+        }
+    }
+}
+
+```
+ 
+</code></pre></td>
+</tr>
+</table>
+ 
+</details>
+
 ---
 
 ## Installation
