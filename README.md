@@ -872,7 +872,7 @@ other cases it may fail - so this type of usage is discoraged.
 
 <summary>Background</summary>
 
-### Rules
+#### Rules
 
 * **Lifecycle hook:** Every `Background` becomes a `@BeforeEach` method that runs **before each Scenario** (and Example row).
 
@@ -886,7 +886,7 @@ other cases it may fail - so this type of usage is discoraged.
 
 * **Steps inside Background:** The body of the `@BeforeEach` method **calls the generated step methods** in the same order, using the same **string-argument extraction** rules as normal steps (text in quotes → `String` parameters).
 
-### Order of execution (Feature + Rule)
+#### Order of execution (Feature + Rule)
 
 If both a **feature-level** and a **rule-level** `Background` exist, JUnit 5 runs the outer class’s `@BeforeEach` **first**, then the nested rule class’s `@BeforeEach`, then the scenario’s test method.
 Order: **Feature** `@BeforeEach` → **Rule** `@BeforeEach` → **Scenario** `@Test`.
@@ -896,7 +896,7 @@ Order: **Feature** `@BeforeEach` → **Rule** `@BeforeEach` → **Scenario** `@T
 > * Gherkin permits at most **one** `Background` **per container** (one for the Feature, and at most one per Rule).
 > * `And` / `But` in Background steps inherit the previous keyword just like elsewhere.
 
-### Examples
+#### Examples
 
 #### 1) Feature-level Background (title + description)
 
