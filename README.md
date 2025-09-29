@@ -468,7 +468,7 @@ public class CartFeatureTest extends CartFeature {
 **Pattern B — Generated test class is concrete**
 
 * **Use when:** You want the most straightforward **TDD flow** with immediate red tests; you prefer fewer classes; step implementations should live next to the marker/base class for simplicity.
-* **Benefits:** Fast start, failing stubs make the next task obvious;  step implementations are reusable via inheritance.
+* **Benefits:** Fast start, failing stubs make the next task obvious.
 * **Trade‑offs:** Initial one‑time **copy** of method stubs and whenever step text changes.
 
 ---
