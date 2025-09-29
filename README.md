@@ -1701,7 +1701,7 @@ public abstract class CartFeatureScenarios extends CartFeature {
 * **Cells are strings**. The helper **trims** each cell; otherwise values are untouched. There’s **no automatic typing**.
 * **Header vs raw** is **up to your step**: if your first row is a header, treat it as such in your implementation.
 
-**Example implementation** of `getTableConverter()` and mapping to an object type
+**Example implementation** of `getTableConverter()` and mapping to an object type using `DataTableTypeRegistry` facility from the `cucumber-java` library.
 
 ```java
 
