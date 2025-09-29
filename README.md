@@ -228,7 +228,7 @@ public class CartFeatureTest extends CartFeatureScenarios {
 
 <details>
  
-<summary>Generated (first pass):</summary>
+<summary>Generated class (first pass):</summary>
 
 ```java
 package org.mycompany.app;
