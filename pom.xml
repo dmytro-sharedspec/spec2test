@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>dev.spec2test</groupId>
   <artifactId>spec2junit</artifactId>
-  <version>0.1.4-SNAPSHOT</version>
+  <version>0.1.5-SNAPSHOT</version>
   <name>${project.groupId}:${project.artifactId}</name>
   <description>Used to generate JUnit test classes from a specification file</description>
   <url>https://github.com/dmytro-sharedspec/spec2junit/tree/main</url>
@@ -35,7 +35,7 @@
     <module>story2junit</module>
     <module>feature2junit</module>
     <module>common</module>
-    <module>example-feature2junit</module>
+    <!--<module>example-feature2junit</module>-->
   </modules>
   <dependencies>
     <dependency>
