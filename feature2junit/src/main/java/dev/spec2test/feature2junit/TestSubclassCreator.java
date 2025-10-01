@@ -1,27 +1,39 @@
 package dev.spec2test.feature2junit;
 
-import com.squareup.javapoet.*;
+import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeSpec;
 import dev.spec2test.common.GeneratorOptions;
 import dev.spec2test.common.LoggingSupport;
 import dev.spec2test.common.OptionsSupport;
 import dev.spec2test.common.ProcessingException;
 import dev.spec2test.feature2junit.gherkin.FeatureFileParser;
 import dev.spec2test.feature2junit.gherkin.FeatureProcessor;
-import dev.spec2test.feature2junit.gherkin.utils.*;
+import dev.spec2test.feature2junit.gherkin.utils.ElementMethodUtils;
+import dev.spec2test.feature2junit.gherkin.utils.FeatureStepUtils;
+import dev.spec2test.feature2junit.gherkin.utils.JavaDocUtils;
+import dev.spec2test.feature2junit.gherkin.utils.TableUtils;
+import dev.spec2test.feature2junit.gherkin.utils.TagUtils;
 import io.cucumber.messages.types.Feature;
 import io.cucumber.messages.types.Tag;
-import lombok.Getter;
-import org.junit.jupiter.api.*;
-
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 import javax.annotation.processing.Generated;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
+import lombok.Getter;
+import org.junit.jupiter.api.ClassOrderer;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.TestClassOrder;
+import org.junit.jupiter.api.TestMethodOrder;
 
 /**
  * Creates a JUnit test subclass for a given type element annotated with {@link Feature2JUnit}.
@@ -71,15 +83,23 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
 
         String featureFilePathForParsing;
         if (featureFilePath == null || featureFilePath.isBlank()) {
-//            moduleAndPkg = packageName.replaceAll("\\.", "/");
+            //            moduleAndPkg = packageName.replaceAll("\\.", "/");
             featureFilePathForParsing = packageName.replaceAll("\\.", "/")
                     + "/" + annotatedClassName + ".feature";
-        } else {
+        }
+        else {
             featureFilePathForParsing = featureFilePath;
         }
         Feature feature = gherkinParser.parseUsingPath(featureFilePathForParsing);
 
-        String suffixToApply = options.getClassSuffixIfAbstract();
+        String suffixToApply;
+        if (options.isShouldBeAbstract()) {
+            suffixToApply = options.getClassSuffixIfAbstract();
+        }
+        else {
+            suffixToApply = options.getClassSuffixIfConcrete();
+        }
+
         String subclassSimpleName = typeElement.getSimpleName() + suffixToApply;
 
         TypeSpec.Builder classBuilder = TypeSpec
@@ -96,10 +116,10 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
          */
         //                .addJavadoc(CodeBlock.of(feature.getKeyword() + ": " + feature.getName()))
         //                .addJavadoc(CodeBlock.of("\n" + feature.getDescription()))
-//        String featureTextJavaDoc = JavaDocUtils.toJavaDocContent(feature.getKeyword(), feature.getName(), feature.getDescription());
+        //        String featureTextJavaDoc = JavaDocUtils.toJavaDocContent(feature.getKeyword(), feature.getName(), feature.getDescription());
         String featureTextJavaDoc = JavaDocUtils.toJavaDoc(feature.getKeyword(), feature.getName(), feature.getDescription());
         classBuilder.addInitializerBlock(CodeBlock.of(featureTextJavaDoc));
-//        classBuilder.addJavadoc(CodeBlock.of(featureTextJavaDoc));
+        //        classBuilder.addJavadoc(CodeBlock.of(featureTextJavaDoc));
 
         FeatureProcessor featureProcessor = new FeatureProcessor(processingEnv, options, typeElement);
         featureProcessor.processFeature(feature, classBuilder);
@@ -110,9 +130,9 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
         List<MethodSpec> methodSpecs = classBuilder.methodSpecs;
         boolean featureHasStepWithDataTable = FeatureStepUtils.featureHasStepWithDataTable(feature);
         if (featureHasStepWithDataTable) {
-//        Optional<MethodSpec> methodWithDataTableParameter = methodSpecs.stream()
-//                .filter(methodSpec -> methodSpec.parameters.stream()
-//                        .anyMatch(parameterSpec -> parameterSpec.name.equals("dataTable"))).findFirst();
+            //        Optional<MethodSpec> methodWithDataTableParameter = methodSpecs.stream()
+            //                .filter(methodSpec -> methodSpec.parameters.stream()
+            //                        .anyMatch(parameterSpec -> parameterSpec.name.equals("dataTable"))).findFirst();
             Set<String> allInheritedMethodNames = ElementMethodUtils.getAllInheritedMethodNames(processingEnv, typeElement);
             boolean alreadyHasCreateDataTable = allInheritedMethodNames.contains("createDataTable");
             if (!alreadyHasCreateDataTable) {
@@ -133,7 +153,8 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
             classJavaDoc = """
                     To implement tests in this generated class, extend it and implement all abstract methods.
                     """;
-        } else {
+        }
+        else {
             classJavaDoc = """
                     To implement tests in this generated class, move any methods with failing assumptions into the base
                     class and implement them.
@@ -153,7 +174,13 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
         return javaFile;
     }
 
-    private static void addClassAnnotations(Feature feature, TypeSpec.Builder classBuilder, String featureFilePathForParsing, String featureFilePath, String packageName, String annotatedClassName) {
+    private static void addClassAnnotations(
+            Feature feature,
+            TypeSpec.Builder classBuilder,
+            String featureFilePathForParsing,
+            String featureFilePath,
+            String packageName,
+            String annotatedClassName) {
 
         List<Tag> tags = feature.getTags();
         if (tags != null && !tags.isEmpty()) {
@@ -178,10 +205,10 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
          * {@link Generated} annotation
          */
         classBuilder.addAnnotation(AnnotationSpec
-                        .builder(Generated.class)
-                        .addMember("value", "\"" + Feature2JUnitGenerator.class.getName() + "\"")
-//                .addMember("comments", "\"GWT methods have been created with failing assumptions. Copy these into the base class and implement them.\"")
-                        .build()
+                .builder(Generated.class)
+                .addMember("value", "\"" + Feature2JUnitGenerator.class.getName() + "\"")
+                //                .addMember("comments", "\"GWT methods have been created with failing assumptions. Copy these into the base class and implement them.\"")
+                .build()
         );
         /**
          * {@link TestMethodOrder} annotation
@@ -207,7 +234,8 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
         String featureFilePathForAnnotation;
         if (featureFilePath == null || featureFilePath.isBlank()) {
             featureFilePathForAnnotation = packageName.replaceAll("\\.", "/") + "/" + annotatedClassName + ".feature";
-        } else {
+        }
+        else {
             featureFilePathForAnnotation = featureFilePath;
         }
         classBuilder.addAnnotation(AnnotationSpec

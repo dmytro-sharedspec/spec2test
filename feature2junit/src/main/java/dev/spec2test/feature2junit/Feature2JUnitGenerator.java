@@ -76,7 +76,14 @@ public class Feature2JUnitGenerator extends AbstractProcessor implements Logging
                     generatorOptions = new GeneratorOptions();
                 }
 
-                String subclassFullyQualifiedName = annotatedClass.getQualifiedName() + generatorOptions.getClassSuffixIfAbstract();
+                String subclassFullyQualifiedName = annotatedClass.getQualifiedName().toString();
+                String suffix;
+                if (generatorOptions.isShouldBeAbstract()) {
+                    suffix = generatorOptions.getClassSuffixIfAbstract();
+                } else {
+                    suffix = generatorOptions.getClassSuffixIfConcrete();
+                }
+                subclassFullyQualifiedName += suffix;
 
                 TestSubclassCreator subclassGenerator = new TestSubclassCreator(processingEnv, generatorOptions);
 
