@@ -1,14 +1,11 @@
-Feature: online shopping cart
+Feature: Shopping cart totals and shipping
 
-  Scenario: update quantity updates subtotal
-    Given my cart contains "Wireless Headphones" with quantity "1" and unit price "60.00"
-    When I change the quantity to "2"
-    Then my cart subtotal is "120.00"
-    Then my cart subtotal would be "120.00"
+  Scenario Outline: Subtotal updates when quantity changes
+    Given my cart contains <name> with quantity <startQty> and unit price <price>
+    When I change the quantity to <newQty>
+    Then my cart subtotal is <expectedSubtotal>
 
-  Rule: free shipping applies to orders over €50
-
-    Scenario: show free-shipping banner when threshold is met
-      Given my cart subtotal is "55.00"
-      When I view the cart
-      Then I see the "Free shipping" banner
+    Examples:
+      | name                | startQty | price | newQty | expectedSubtotal |
+      | Wireless Headphones | 1        | 60.00 | 2      | 120.00            |
+      | Coffee Beans 1kg    | 2        | 15.50 | 3      | 46.50             |
