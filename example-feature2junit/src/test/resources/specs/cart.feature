@@ -7,5 +7,5 @@ Feature: Shopping cart totals and shipping
 
     Examples:
       | name                | startQty | price | newQty | expectedSubtotal |
-      | Wireless Headphones | 1        | 60.00 | 2      | 120.00            |
-      | Coffee Beans 1kg    | 2        | 15.50 | 3      | 46.50             |
+      | Wireless Headphones | 1        | 60.00 | 2      | 120.00           |
+      | Coffee Beans 1kg    | 2        | 15.50 | 3      | 46.50            |

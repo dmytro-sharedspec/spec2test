@@ -31,8 +31,33 @@ public class CartFeatureTest extends CartFeatureScenarios {
 
     }
 
-    @Override
-    protected DataTable.TableConverter getTableConverter() {
-        return tableConverter;
+    public void givenMyCartContains$p1WithQuantity$p2AndUnitPrice$p3(String p1, String p2, String p3) {
+        /* real implementation here */
     }
+
+    public void whenIChangeTheQuantityTo$p1(String p1) {
+        /* real implementation here */
+    }
+
+    public void thenMyCartSubtotalIs$p1(String p1) {
+        /* real implementation here */
+    }
+
+    public void thenMyCartSubtotalWouldBe$p1(String p1) {
+        /* real implementation here */
+    }
+
+    public void whenIViewTheCart() {
+        /* real implementation here */
+    }
+
+    public void thenISeeThe$p1Banner(String p1) {
+        /* real implementation here */
+    }
+
+
+//    @Override
+//    protected DataTable.TableConverter getTableConverter() {
+//        return tableConverter;
+//    }
 }
