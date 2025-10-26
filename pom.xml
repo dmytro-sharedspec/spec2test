@@ -35,7 +35,7 @@
     <module>story2junit</module>
     <module>feature2junit</module>
     <module>common</module>
-    <!--<module>example-feature2junit</module>-->
+    <module>example-feature2junit</module>
   </modules>
   <dependencies>
     <dependency>
