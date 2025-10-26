@@ -29,6 +29,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -45,6 +46,8 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
     @Getter
     private final GeneratorOptions options;
 
+    protected FeatureFileParser featureFileParser;
+
     /**
      * Constructor for TestSubclassCreator.
      *
@@ -54,43 +57,59 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
     public TestSubclassCreator(ProcessingEnvironment processingEnv, GeneratorOptions generatorOptions) {
         this.processingEnv = processingEnv;
         this.options = generatorOptions;
+
+        featureFileParser = new FeatureFileParser(processingEnv);
     }
 
     /**
      * Creates a JUnit test subclass for the given type element annotated with {@link Feature2JUnit}.
      *
-     * @param typeElement      the type element to create a test subclass for
-     * @param targetAnnotation the annotation containing the feature file path
+     * @param typeElement     the type element to create a test subclass for
+     * @param featureFilePath the feature file path
      * @return a {@link JavaFile} representing the generated test subclass
      * @throws IOException if an error occurs during file generation
      */
-    public JavaFile createTestSubclass(TypeElement typeElement, Feature2JUnit targetAnnotation) throws IOException {
+    public JavaFile createTestSubclass(TypeElement typeElement, String featureFilePath) throws IOException {
 
-        Element enclosingElement = typeElement.getEnclosingElement();
-        if (enclosingElement instanceof PackageElement == false) {
-            throw new ProcessingException(
-                    "The class annotated with @" + Feature2JUnit.class.getSimpleName() + " must be in a package, but it is not. "
-                            + "Enclosing element: " + enclosingElement);
-        }
-
-        PackageElement packageElement = (PackageElement) enclosingElement;
-        String packageName = packageElement.getQualifiedName().toString();
         String annotatedClassName = typeElement.getSimpleName().toString();
 
-        FeatureFileParser gherkinParser = new FeatureFileParser(processingEnv);
-
-        String featureFilePath = targetAnnotation.value();
-
         String featureFilePathForParsing;
-        if (featureFilePath == null || featureFilePath.isBlank()) {
-            //            moduleAndPkg = packageName.replaceAll("\\.", "/");
-            featureFilePathForParsing = packageName.replaceAll("\\.", "/")
-                    + "/" + annotatedClassName + ".feature";
+        String packageName;
+
+        if (StringUtils.isBlank(featureFilePath)) {
+            /*
+             * the assumed path is that of the className + ".feature" suffix
+             */
+
+            Element enclosingElement = typeElement.getEnclosingElement();
+            if (enclosingElement != null) {
+
+                if (enclosingElement instanceof PackageElement == false) {
+                    throw new ProcessingException(
+                            "The class annotated with @" + Feature2JUnit.class.getSimpleName() + " must be in a package, but it is not. "
+                                    + "Enclosing element: " + enclosingElement);
+                }
+
+                PackageElement packageElement = (PackageElement) enclosingElement;
+                packageName = packageElement.getQualifiedName().toString();
+
+                featureFilePathForParsing = packageName.replaceAll("\\.", "/")
+                        + "/" + annotatedClassName + ".feature";
+
+            }
+            else {
+                featureFilePathForParsing = annotatedClassName + ".feature";
+                packageName = "";
+            }
+
         }
         else {
+            // feature file path specified explicitly
             featureFilePathForParsing = featureFilePath;
+            packageName = "";
         }
-        Feature feature = gherkinParser.parseUsingPath(featureFilePathForParsing);
+
+        Feature feature = featureFileParser.parseUsingPath(featureFilePathForParsing);
 
         String suffixToApply;
         if (options.isShouldBeAbstract()) {

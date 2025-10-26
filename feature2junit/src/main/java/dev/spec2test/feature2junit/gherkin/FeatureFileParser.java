@@ -69,7 +69,7 @@ public class FeatureFileParser implements LoggingSupport {
         return feature;
     }
 
-    private String loadFileContent(String featureFilePath) throws IOException {
+    String loadFileContent(String featureFilePath) throws IOException {
 
 //        logWarning("Loading feature file, featureFilePath = '" + featureFilePath + "'");
 

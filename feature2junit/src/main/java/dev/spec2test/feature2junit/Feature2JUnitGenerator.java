@@ -4,6 +4,7 @@ import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
 import dev.spec2test.common.GeneratorOptions;
 import dev.spec2test.common.LoggingSupport;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
@@ -32,7 +33,9 @@ public class Feature2JUnitGenerator extends AbstractProcessor implements Logging
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
-        if (roundEnv.processingOver() || roundEnv.errorRaised()) return false;
+        if (roundEnv.processingOver() || roundEnv.errorRaised()) {
+            return false;
+        }
 
         int totalClassesProcessed = 0;
 
@@ -54,7 +57,6 @@ public class Feature2JUnitGenerator extends AbstractProcessor implements Logging
 
                 logInfo("Processing '" + annotatedClass.getQualifiedName() + "'");
 
-                Filer filer = processingEnv.getFiler();
                 Feature2JUnit targetAnnotation = annotatedClass.getAnnotation(Feature2JUnit.class);
 
                 Feature2JUnitOptions optionsAnnotation = annotatedClass.getAnnotation(Feature2JUnitOptions.class);
@@ -72,48 +74,70 @@ public class Feature2JUnitGenerator extends AbstractProcessor implements Logging
                             optionsAnnotation.tagForRulesWithNoScenarios().trim(),
                             optionsAnnotation.addCucumberStepAnnotations()
                     );
-                } else {
+                }
+                else {
                     generatorOptions = new GeneratorOptions();
                 }
 
-                String subclassFullyQualifiedName = annotatedClass.getQualifiedName().toString();
-                String suffix;
-                if (generatorOptions.isShouldBeAbstract()) {
-                    suffix = generatorOptions.getClassSuffixIfAbstract();
-                } else {
-                    suffix = generatorOptions.getClassSuffixIfConcrete();
-                }
-                subclassFullyQualifiedName += suffix;
+                TestSubclassCreator subclassGenerator = new TestSubclassCreator(getProcessingEnv(), generatorOptions);
 
-                TestSubclassCreator subclassGenerator = new TestSubclassCreator(processingEnv, generatorOptions);
+                JavaFile javaFile = null;
+                JavaFileObject subclassFile;
+
+                try {
+
+                    javaFile = subclassGenerator.createTestSubclass(annotatedClass, targetAnnotation.value());
+
+                    String subclassFullyQualifiedName = annotatedClass.getQualifiedName().toString();
+                    String suffix;
+                    if (generatorOptions.isShouldBeAbstract()) {
+                        suffix = generatorOptions.getClassSuffixIfAbstract();
+                    }
+                    else {
+                        suffix = generatorOptions.getClassSuffixIfConcrete();
+                    }
+                    subclassFullyQualifiedName += suffix;
+
+                    Filer filer = getProcessingEnv().getFiler();
+                    subclassFile = filer.createSourceFile(subclassFullyQualifiedName);
+                }
+                catch (IOException e) {
+                    logException(e, annotatedClass);
+                    continue;
+                }
 
                 PrintWriter out = null;
                 try {
 
-                    JavaFile javaFile = subclassGenerator.createTestSubclass(annotatedClass, targetAnnotation);
-                    JavaFileObject subclassFile = filer.createSourceFile(subclassFullyQualifiedName);
-
                     out = new PrintWriter(subclassFile.openWriter());
                     javaFile.writeTo(out);
-                } catch (Throwable t) {
-                    logError("An error occurred while processing annotated element - '" + annotatedClass.getQualifiedName() + "'");
-                    String rootCauseMessage = ExceptionUtils.getRootCauseMessage(t);
-                    logError("Root cause message: " + rootCauseMessage);
-                    String stackTrace = ExceptionUtils.getStackTrace(t);
-                    logError("Stack trace: \n", stackTrace);
-                } finally {
+
+                    logInfo("Generated test class: " + javaFile.packageName + "." + javaFile.typeSpec.name);
+                }
+                catch (Throwable t) {
+                    logException(t, annotatedClass);
+                }
+                finally {
                     if (out != null) {
                         out.close();
                     }
                 }
 
-                logInfo("Generated test subclass: " + subclassFullyQualifiedName);
             }
         }
 
         logInfo("Finished, total classes processed: " + totalClassesProcessed);
 
         return true;
+    }
+
+    private void logException(Throwable t, TypeElement annotatedClass) {
+
+        logError("An error occurred while processing annotated element - '" + annotatedClass.getQualifiedName() + "'");
+        String rootCauseMessage = ExceptionUtils.getRootCauseMessage(t);
+        logError("Root cause message: " + rootCauseMessage);
+        String stackTrace = ExceptionUtils.getStackTrace(t);
+        logError("Stack trace: \n", stackTrace);
     }
 
     @Override
