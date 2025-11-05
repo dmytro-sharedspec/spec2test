@@ -3,7 +3,7 @@ package dev.spec2test.feature2junit;
 import java.lang.annotation.*;
 
 /**
- *
+ * Annotation to specify the path to the feature file used to generate the test class.
  */
 @Target(ElementType.TYPE)
 @Inherited
