@@ -1,13 +1,17 @@
 package dev.spec2test.feature2junit.gherkin.utils;
 
-import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * Utility class for generating JavaDoc comments.
  */
-@UtilityClass
 public class JavaDocUtils {
+
+    private JavaDocUtils() {
+        /**
+         * utility class
+         */
+    }
 
     /**
      * Generates a JavaDoc comment for a given keyword, name, and description.

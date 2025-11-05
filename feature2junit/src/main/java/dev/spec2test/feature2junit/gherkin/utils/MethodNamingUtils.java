@@ -10,6 +10,12 @@ import java.util.List;
  */
 public class MethodNamingUtils {
 
+    private MethodNamingUtils() {
+        /**
+         * utility class
+         */
+    }
+
     /**
      * Generates a method name from the first line of a Gherkin step definition.
      *

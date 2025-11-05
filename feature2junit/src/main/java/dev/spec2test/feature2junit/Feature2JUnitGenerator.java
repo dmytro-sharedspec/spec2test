@@ -30,6 +30,13 @@ public class Feature2JUnitGenerator extends AbstractProcessor implements Logging
 
     static final String defaultSuffixForGeneratedClass = "Test";
 
+    /**
+     * Default constructor.
+     */
+    public Feature2JUnitGenerator() {
+        super();
+    }
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 

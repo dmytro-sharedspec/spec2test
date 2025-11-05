@@ -5,7 +5,6 @@ import com.squareup.javapoet.TypeSpec;
 import dev.spec2test.common.*;
 import io.cucumber.messages.types.*;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
@@ -14,7 +13,6 @@ import java.util.List;
 /**
  * Processes a Gherkin feature and generates corresponding JUnit test methods.
  */
-@RequiredArgsConstructor
 public class FeatureProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
 
     @Getter
@@ -25,6 +23,19 @@ public class FeatureProcessor implements LoggingSupport, OptionsSupport, BaseTyp
 
     @Getter
     private final TypeElement baseType;
+
+    /**
+     * Constructs a FeatureProcessor with the given processing environment, options, and base type.
+     *
+     * @param processingEnv the processing environment
+     * @param options the generator options
+     * @param baseType the base type element
+     */
+    public FeatureProcessor(ProcessingEnvironment processingEnv, GeneratorOptions options, TypeElement baseType) {
+        this.processingEnv = processingEnv;
+        this.options = options;
+        this.baseType = baseType;
+    }
 
     /**
      * Processes a Gherkin feature and generates JUnit test methods for its children.

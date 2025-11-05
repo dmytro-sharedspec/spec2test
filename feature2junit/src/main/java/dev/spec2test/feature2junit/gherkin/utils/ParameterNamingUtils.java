@@ -5,6 +5,12 @@ package dev.spec2test.feature2junit.gherkin.utils;
  */
 public class ParameterNamingUtils {
 
+    private ParameterNamingUtils() {
+        /**
+         * utility class
+         */
+    }
+
     /**
      * Generates a method parameter name from a Gherkin scenario parameter.
      * @param scenarioParameter the scenario parameter to convert

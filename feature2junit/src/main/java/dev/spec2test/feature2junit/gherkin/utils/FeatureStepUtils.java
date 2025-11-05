@@ -2,22 +2,26 @@ package dev.spec2test.feature2junit.gherkin.utils;
 
 import dev.spec2test.common.ProcessingException;
 import io.cucumber.messages.types.*;
-import lombok.experimental.UtilityClass;
 
 import java.util.List;
 
 /**
  * Utility class using while working steps.
  */
-@UtilityClass
 public class FeatureStepUtils {
+
+    private FeatureStepUtils() {
+        /**
+         * utility class
+         */
+    }
 
     /**
      * Checks if a feature contains any steps with data tables.
      * @param feature the feature to check
      * @return true if the feature contains at least one step with a data table, false otherwise
      */
-    public boolean featureHasStepWithDataTable(Feature feature) {
+    public static boolean featureHasStepWithDataTable(Feature feature) {
 
         List<FeatureChild> featureElements = feature.getChildren();
 
@@ -61,7 +65,7 @@ public class FeatureStepUtils {
      * @param rule the rule to check
      * @return true if the rule contains at least one step with a data table, false otherwise
      */
-    public boolean ruleHasStepWithDataTable(Rule rule) {
+    public static boolean ruleHasStepWithDataTable(Rule rule) {
 
         List<RuleChild> ruleElements = rule.getChildren();
 

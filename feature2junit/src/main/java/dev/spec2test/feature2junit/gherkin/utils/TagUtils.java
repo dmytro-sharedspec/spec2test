@@ -2,7 +2,6 @@ package dev.spec2test.feature2junit.gherkin.utils;
 
 import com.squareup.javapoet.AnnotationSpec;
 import io.cucumber.messages.types.Tag;
-import lombok.experimental.UtilityClass;
 import org.junit.jupiter.api.Tags;
 
 import java.util.Arrays;
@@ -11,10 +10,17 @@ import java.util.List;
 /**
  * Utility class for converting Gherkin tags to JUnit annotations.
  */
-@UtilityClass
 public class TagUtils {
 
+    private TagUtils() {
+        /**
+         * utility class
+         */
+    }
+
     /**
+     * Converts an array of tag names to JUnit Tags annotations.
+     *
      * @param tagNames the names of the tags to convert
      * @return an {@link AnnotationSpec} representing the JUnit Tags annotation
      */

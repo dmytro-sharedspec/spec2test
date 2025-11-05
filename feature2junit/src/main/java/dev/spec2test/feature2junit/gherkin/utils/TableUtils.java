@@ -17,6 +17,12 @@ import java.util.List;
  */
 public class TableUtils {
 
+    private TableUtils() {
+        /**
+         * utility class
+         */
+    }
+
     /**
      * Calculates the maximum length of each column in a DataTable.
      *

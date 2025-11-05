@@ -11,6 +11,8 @@ import java.lang.annotation.*;
 public @interface FeatureFilePath {
 
     /**
+     * Feature file path.
+     *
      * @return the path to the feature file based on which the test was generated.
      */
     String value();

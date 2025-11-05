@@ -1,7 +1,5 @@
 package dev.spec2test.feature2junit.gherkin.utils;
 
-import lombok.experimental.UtilityClass;
-
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -15,8 +13,13 @@ import java.util.Set;
 /**
  * Utility class useful when working with base class's methods.
  */
-@UtilityClass
 public class ElementMethodUtils {
+
+    private ElementMethodUtils() {
+        /**
+         * utility class
+         */
+    }
 
     /**
      * Gets all inherited method names from the specified base type, excluding private methods.
