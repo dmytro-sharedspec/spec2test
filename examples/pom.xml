@@ -12,6 +12,6 @@
     <description>Grouping project for examples</description>
     <packaging>pom</packaging>
     <modules>
-        <module>using-feature2junit</module>
+        <module>example-feature2junit</module>
     </modules>
 </project>
