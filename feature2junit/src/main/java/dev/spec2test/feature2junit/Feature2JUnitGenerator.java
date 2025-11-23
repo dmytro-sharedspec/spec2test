@@ -4,6 +4,7 @@ import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
 import dev.spec2test.common.GeneratorOptions;
 import dev.spec2test.common.LoggingSupport;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Set;
@@ -18,6 +19,8 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
+
+import dev.spec2test.feature2junit.gherkin.utils.TypeMirrorUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
@@ -66,7 +69,17 @@ public class Feature2JUnitGenerator extends AbstractProcessor implements Logging
 
                 Feature2JUnit targetAnnotation = annotatedClass.getAnnotation(Feature2JUnit.class);
 
-                Feature2JUnitOptions optionsAnnotation = annotatedClass.getAnnotation(Feature2JUnitOptions.class);
+                Feature2JUnitOptions optionsAnnotation = TypeMirrorUtils.findAnnotationOnHierarchy(
+                        annotatedClass, Feature2JUnitOptions.class, processingEnv
+                );
+                //Feature2JUnitOptions optionsAnnotation = annotatedClass.getAnnotation(Feature2JUnitOptions.class);
+
+                if (optionsAnnotation != null) {
+                    logWarning("Found Feature2JUnitOptions annotation");
+                } else {
+                    logWarning("No Feature2JUnitOptions annotation found, using default options");
+                }
+
                 GeneratorOptions generatorOptions;
                 if (optionsAnnotation != null) {
                     generatorOptions = new GeneratorOptions(
@@ -79,10 +92,10 @@ public class Feature2JUnitGenerator extends AbstractProcessor implements Logging
                             optionsAnnotation.failRulesWithNoScenarios(),
                             optionsAnnotation.tagForScenariosWithNoSteps().trim(),
                             optionsAnnotation.tagForRulesWithNoScenarios().trim(),
-                            optionsAnnotation.addCucumberStepAnnotations()
+                            optionsAnnotation.addCucumberStepAnnotations(),
+                            optionsAnnotation.placeGeneratedClassNextToAnnotatedClass()
                     );
-                }
-                else {
+                } else {
                     generatorOptions = new GeneratorOptions();
                 }
 
@@ -96,19 +109,16 @@ public class Feature2JUnitGenerator extends AbstractProcessor implements Logging
                     javaFile = subclassGenerator.createTestSubclass(annotatedClass, targetAnnotation.value());
 
                     String subclassFullyQualifiedName = annotatedClass.getQualifiedName().toString();
-                    String suffix;
-                    if (generatorOptions.isShouldBeAbstract()) {
-                        suffix = generatorOptions.getClassSuffixIfAbstract();
-                    }
-                    else {
-                        suffix = generatorOptions.getClassSuffixIfConcrete();
-                    }
+                    String suffix = generatorOptions.isShouldBeAbstract()
+                            ? generatorOptions.getClassSuffixIfAbstract()
+                            : generatorOptions.getClassSuffixIfConcrete();
+
                     subclassFullyQualifiedName += suffix;
 
                     Filer filer = getProcessingEnv().getFiler();
                     subclassFile = filer.createSourceFile(subclassFullyQualifiedName);
-                }
-                catch (IOException e) {
+
+                } catch (IOException e) {
                     logException(e, annotatedClass);
                     continue;
                 }
@@ -116,15 +126,19 @@ public class Feature2JUnitGenerator extends AbstractProcessor implements Logging
                 PrintWriter out = null;
                 try {
 
-                    out = new PrintWriter(subclassFile.openWriter());
-                    javaFile.writeTo(out);
+                    boolean placeInSameDir = generatorOptions.isPlaceGeneratedClassNextToAnnotatedClass();
+
+                    if (placeInSameDir) {
+                        writeGeneratedSourceFileNextToAnnotatedClass(javaFile, annotatedClass, generatorOptions);
+                    } else {
+                        out = new PrintWriter(subclassFile.openWriter());
+                        javaFile.writeTo(out);
+                    }
 
                     logInfo("Generated test class: " + javaFile.packageName + "." + javaFile.typeSpec.name);
-                }
-                catch (Throwable t) {
+                } catch (Throwable t) {
                     logException(t, annotatedClass);
-                }
-                finally {
+                } finally {
                     if (out != null) {
                         out.close();
                     }
@@ -136,6 +150,35 @@ public class Feature2JUnitGenerator extends AbstractProcessor implements Logging
         logInfo("Finished, total classes processed: " + totalClassesProcessed);
 
         return true;
+    }
+
+    private void writeGeneratedSourceFileNextToAnnotatedClass(JavaFile javaFile, TypeElement annotatedClass, GeneratorOptions generatorOptions) throws IOException {
+        // Get the source file location of the annotated class
+        javax.tools.FileObject resource = processingEnv.getFiler().getResource(
+                javax.tools.StandardLocation.SOURCE_PATH,
+                "",
+                annotatedClass.getQualifiedName().toString().replace('.', '/') + ".java"
+        );
+
+        String sourceFilePath = resource.toUri().getPath();
+        java.io.File sourceFile = new java.io.File(sourceFilePath);
+        java.io.File sourceDir = sourceFile.getParentFile();
+
+        // Determine the suffix
+        String suffix = generatorOptions.isShouldBeAbstract()
+                ? generatorOptions.getClassSuffixIfAbstract()
+                : generatorOptions.getClassSuffixIfConcrete();
+
+        String generatedClassName = annotatedClass.getSimpleName().toString() + suffix + ".java";
+        java.io.File targetFile = new java.io.File(sourceDir, generatedClassName);
+
+        // Write the file
+        try (PrintWriter out = new PrintWriter(targetFile)) {
+            javaFile.writeTo(out);
+        }
+
+        logInfo("Generated test class: " + javaFile.packageName + "." + javaFile.typeSpec.name
+                + " at " + targetFile.getAbsolutePath());
     }
 
     private void logException(Throwable t, TypeElement annotatedClass) {
@@ -155,5 +198,31 @@ public class Feature2JUnitGenerator extends AbstractProcessor implements Logging
     @Override
     public SourceVersion getSupportedSourceVersion() {
         return SourceVersion.RELEASE_17;
+    }
+
+    // Add this helper method inside the Feature2JUnitGenerator class:
+    private <A extends java.lang.annotation.Annotation> A findAnnotationOnHierarchy(TypeElement start, Class<A> annotationClass) {
+        javax.lang.model.util.Types typeUtils = processingEnv.getTypeUtils();
+        TypeElement current = start;
+
+        while (current != null && !"java.lang.Object".equals(current.getQualifiedName().toString())) {
+            A ann = current.getAnnotation(annotationClass);
+            if (ann != null) {
+                return ann;
+            }
+
+            javax.lang.model.type.TypeMirror superMirror = current.getSuperclass();
+            if (superMirror == null || superMirror.getKind() == javax.lang.model.type.TypeKind.NONE) {
+                break;
+            }
+
+            javax.lang.model.element.Element superElement = typeUtils.asElement(superMirror);
+            if (!(superElement instanceof TypeElement)) {
+                break;
+            }
+            current = (TypeElement) superElement;
+        }
+
+        return null;
     }
 }

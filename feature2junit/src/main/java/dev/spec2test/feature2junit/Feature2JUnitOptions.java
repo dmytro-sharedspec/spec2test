@@ -12,13 +12,13 @@ import java.lang.annotation.Target;
  *
  * This annotation is inherited, so it can be specified on a parent class in your test hierarchy to apply its options to all subclasses.
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.SOURCE)
 @Inherited
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Feature2JUnitOptions {
 
     /**
-     * If set to true, the generator will generated test class will be abstract and will include abstract method
+     * If set to true, the generated test class will be abstract and will include abstract method
      * signatures for all methods required for the feature file to run. Implementing subclasses will then need to
      * implement these methods.
      *
@@ -94,4 +94,12 @@ public @interface Feature2JUnitOptions {
      * @return true if Cucumber step annotations should be added, false otherwise
      */
     boolean addCucumberStepAnnotations() default true;
+
+    /**
+     * If set to true, the generated test class will be placed in the same package and directory as the annotated
+     * class. If false, it will be placed according to standard source generation conventions.
+     *
+     * @return true if the generated class should be placed next to the annotated class, false otherwise
+     */
+    boolean placeGeneratedClassNextToAnnotatedClass() default false;
 }
