@@ -12,12 +12,11 @@ import java.util.Map;
 
 @Feature2JUnitOptions(
 //    shouldBeAbstract = false
-        shouldBeAbstract = true,
         addCucumberStepAnnotations = false
+//        placeGeneratedClassNextToAnnotatedClass = true
 )
-@Feature2JUnit("specs/cart.feature")
-public class CartFeature {
-
+@Feature2JUnit
+abstract class CartFeature {
 
     public CartFeature() {
 
