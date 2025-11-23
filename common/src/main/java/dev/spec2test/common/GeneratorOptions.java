@@ -67,6 +67,12 @@ public class GeneratorOptions {
     private boolean addCucumberStepAnnotations;
 
     /**
+     * If set to true, the generated class source file will be placed next to the annotated class instead of
+     * the default location for generated sources.
+     */
+    private boolean placeGeneratedClassNextToAnnotatedClass;
+
+    /**
      * Default options
      */
     public GeneratorOptions() {
@@ -80,6 +86,7 @@ public class GeneratorOptions {
         this.tagForScenariosWithNoSteps = "new";
         this.tagForRulesWithNoScenarios = "new";
         this.addCucumberStepAnnotations = true;
+        this.placeGeneratedClassNextToAnnotatedClass = false;
     }
 
     /**
@@ -106,7 +113,9 @@ public class GeneratorOptions {
             boolean failRulesWithNoScenarios,
             String tagForScenariosWithNoSteps,
             String tagForRulesWithNoScenarios,
-            boolean addCucumberStepAnnotations) {
+            boolean addCucumberStepAnnotations,
+            boolean placeGeneratedClassNextToAnnotatedClass
+    ) {
         this.shouldBeAbstract = shouldBeAbstract;
         this.classSuffixIfAbstract = classSuffixIfAbstract;
         this.classSuffixIfConcrete = classSuffixIfConcrete;
@@ -117,6 +126,7 @@ public class GeneratorOptions {
         this.tagForScenariosWithNoSteps = tagForScenariosWithNoSteps;
         this.tagForRulesWithNoScenarios = tagForRulesWithNoScenarios;
         this.addCucumberStepAnnotations = addCucumberStepAnnotations;
+        this.placeGeneratedClassNextToAnnotatedClass = placeGeneratedClassNextToAnnotatedClass;
     }
 
 }
