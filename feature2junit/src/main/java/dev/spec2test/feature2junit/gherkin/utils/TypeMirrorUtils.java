@@ -2,6 +2,7 @@ package dev.spec2test.feature2junit.gherkin.utils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.Types;
 
 /**
  * Utility class for working with annotations in the Java annotation processing environment.
@@ -27,7 +28,7 @@ public class TypeMirrorUtils {
             TypeElement start, Class<A> annotationClass, ProcessingEnvironment processingEnv
     ) {
 
-        javax.lang.model.util.Types typeUtils = processingEnv.getTypeUtils();
+        Types typeUtils = processingEnv.getTypeUtils();
         TypeElement current = start;
 
         while (current != null && !"java.lang.Object".equals(current.getQualifiedName().toString())) {

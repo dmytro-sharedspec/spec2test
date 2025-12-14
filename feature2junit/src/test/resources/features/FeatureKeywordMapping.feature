@@ -6,7 +6,7 @@ Feature: feature keyword mapping
       Given the following base class:
       """
       @Feature2Junit
-      public class FeatureBaseClass {
+      public class Feature {
       }
       """
       And the following feature file:
@@ -14,8 +14,6 @@ Feature: feature keyword mapping
       Feature: feature title
           feature description line 1
           feature description line 2
-
-          Rule: test rule
       """
 
       When the generator is run

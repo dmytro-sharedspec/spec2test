@@ -103,19 +103,6 @@ public class Mocks {
         return processingEnvironment;
     }
 
-    @SneakyThrows(IOException.class)
-    static void returnFeatureContent(ProcessingEnvironment processingEnvironment, String featureContent) {
-
-        Filer filer = processingEnvironment.getFiler();
-
-        FileObject specFile = Mockito.mock(FileObject.class);
-        Mockito.when(filer.getResource(Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(specFile);
-
-        Mockito.when(specFile.getCharContent(Mockito.anyBoolean()))
-                .thenReturn(featureContent);
-    }
-
     static RoundEnvironment roundEnvironment(TypeElement annotatedBaseClass, TypeElement feature2junitAnnotationType) {
 
         RoundEnvironment roundEnv = Mockito.mock(RoundEnvironment.class);

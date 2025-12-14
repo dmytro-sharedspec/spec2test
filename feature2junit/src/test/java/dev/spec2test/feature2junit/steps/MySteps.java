@@ -6,15 +6,18 @@ import dev.spec2test.feature2junit.Feature2JUnitOptions;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import java.io.StringWriter;
-import java.util.Set;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.Assertions;
+import org.mockito.Mockito;
+
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import org.junit.jupiter.api.Assertions;
-import org.mockito.Mockito;
+import javax.tools.FileObject;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Set;
 
 public class MySteps {
 
@@ -78,13 +81,22 @@ public class MySteps {
     public void the_content_of_generated_class_should_be(String docString) {
         // Write code here that turns the phrase above into concrete actions
 
-        Assertions.assertEquals(docString.trim(), generatedClassWriter.toString().trim());
+        String generatedClas = generatedClassWriter.toString().trim();
+        String expectedClass = docString.trim();
+        Assertions.assertEquals(expectedClass, generatedClas);
     }
 
     @Given("the following feature file:")
-    public void the_following_feature_file(String docString) {
+    public void the_following_feature_file(String docString) throws IOException {
 
-        Mocks.returnFeatureContent(processingEnvironment, docString);
+        Filer filer = processingEnvironment.getFiler();
+
+        FileObject specFile = Mockito.mock(FileObject.class);
+        Mockito.when(filer.getResource(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(specFile);
+
+        Mockito.when(specFile.getCharContent(Mockito.anyBoolean()))
+                .thenReturn(docString);
     }
 
     @Then("the generated class should be:")
