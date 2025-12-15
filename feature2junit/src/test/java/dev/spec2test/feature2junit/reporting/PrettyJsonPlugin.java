@@ -1,5 +1,7 @@
 package dev.spec2test.feature2junit.reporting;
 
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.core.util.Separators;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.cucumber.plugin.ConcurrentEventListener;
@@ -13,18 +15,18 @@ import java.nio.file.Paths;
 /**
  * A Cucumber plugin that generates pretty-printed JSON reports by post-processing
  * the standard Cucumber JSON output.
- *
+ * <p>
  * This plugin works in tandem with the standard 'json' plugin. You must specify both:
  * - json:target/cucumber-report/report.json (creates the standard JSON)
  * - dev.spec2test.feature2junit.reporting.PrettyJsonPlugin:target/cucumber-report/report.json (pretty-prints it)
- *
+ * <p>
  * The PrettyJsonPlugin reads the standard JSON file after the test run finishes and
  * rewrites it with pretty-printing (indentation, proper spacing).
- *
+ * <p>
  * Usage example:
- * @ConfigurationParameter(
- *   key = Constants.PLUGIN_PROPERTY_NAME,
- *   value = "json:target/report.json, dev.spec2test.feature2junit.reporting.PrettyJsonPlugin:target/report.json"
+ *
+ * @ConfigurationParameter( key = Constants.PLUGIN_PROPERTY_NAME,
+ * value = "json:target/report.json, dev.spec2test.feature2junit.reporting.PrettyJsonPlugin:target/report.json"
  * )
  */
 public class PrettyJsonPlugin implements ConcurrentEventListener {
@@ -37,9 +39,34 @@ public class PrettyJsonPlugin implements ConcurrentEventListener {
 
     @Override
     public void setEventPublisher(EventPublisher publisher) {
-        // Listen for test run finish to post-process the JSON
+        // Listen for the test run finish to post-process the JSON
         publisher.registerHandlerFor(TestRunFinished.class, this::handleTestRunFinished);
+
+        //publisher.registerHandlerFor(TestRunStarted.class, this::handleTestRunStarted);
+        //publisher.registerHandlerFor(TestSourceRead.class, this::handleTestSourceRead);
+        //publisher.registerHandlerFor(TestCaseStarted.class, this::handleTestCaseStarted);
+        //publisher.registerHandlerFor(TestCaseFinished.class, this::handleTestCaseFinished);
     }
+
+    //private void handleTestCaseFinished(TestCaseFinished testCaseFinished) {
+    //
+    //    System.out.println("PrettyJsonPlugin: Finished test case: " + testCaseFinished.getTestCase().getName());
+    //}
+    //
+    //private void handleTestCaseStarted(TestCaseStarted testCaseStarted) {
+    //
+    //    System.out.println("PrettyJsonPlugin: Starting test case: " + testCaseStarted.getTestCase().getName());
+    //}
+    //
+    //private void handleTestSourceRead(TestSourceRead testSourceRead) {
+    //
+    //    System.out.println("PrettyJsonPlugin: Reading source: " + testSourceRead.getUri());
+    //}
+    //
+    //private void handleTestRunStarted(TestRunStarted testRunStarted) {
+    //
+    //    System.out.println("PrettyJsonPlugin: Starting test run, will output pretty JSON to " + outputPath);
+    //}
 
     private void handleTestRunFinished(TestRunFinished event) {
         try {
@@ -68,12 +95,10 @@ public class PrettyJsonPlugin implements ConcurrentEventListener {
             mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
             // Configure custom formatting: no space before colon, space after
-            com.fasterxml.jackson.core.util.Separators customSeparators =
-                com.fasterxml.jackson.core.util.Separators.createDefaultInstance()
-                    .withObjectFieldValueSpacing(com.fasterxml.jackson.core.util.Separators.Spacing.AFTER);
+            Separators customSeparators = Separators.createDefaultInstance()
+                    .withObjectFieldValueSpacing(Separators.Spacing.AFTER);
 
-            com.fasterxml.jackson.core.util.DefaultPrettyPrinter printer =
-                new com.fasterxml.jackson.core.util.DefaultPrettyPrinter()
+            DefaultPrettyPrinter printer = new DefaultPrettyPrinter()
                     .withArrayIndenter(com.fasterxml.jackson.core.util.DefaultIndenter.SYSTEM_LINEFEED_INSTANCE)
                     .withObjectIndenter(com.fasterxml.jackson.core.util.DefaultIndenter.SYSTEM_LINEFEED_INSTANCE)
                     .withSeparators(customSeparators);

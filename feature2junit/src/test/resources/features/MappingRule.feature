@@ -9,15 +9,24 @@ Feature: mapping Rule sections
     Scenario: with just the keyword
       Given the following feature file:
       """
-      Feature:
+      Feature: feature with rule
+
+        Rule: rule name
       """
       When the generator is run
       Then the content of generated class should be:
       """
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;
+      import org.junit.jupiter.api.Assertions;
+      import org.junit.jupiter.api.ClassOrderer;
       import org.junit.jupiter.api.DisplayName;
       import org.junit.jupiter.api.MethodOrderer;
+      import org.junit.jupiter.api.Nested;
+      import org.junit.jupiter.api.Order;
+      import org.junit.jupiter.api.Tag;
+      import org.junit.jupiter.api.Test;
+      import org.junit.jupiter.api.TestClassOrder;
       import org.junit.jupiter.api.TestMethodOrder;
 
       /**
@@ -26,12 +35,25 @@ Feature: mapping Rule sections
       @DisplayName("MockedAnnotatedTestClass")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+      @TestClassOrder(ClassOrderer.OrderAnnotation.class)
       @FeatureFilePath("/MockedAnnotatedTestClass.feature")
       public abstract class MockedAnnotatedTestClassScenarios extends  {
           {
               /**
-               * Feature:
+               * Feature: feature with rule
                */
+          }
+
+          @Nested
+          @Order(1)
+          @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+          @DisplayName("Rule: rule name")
+          public class Rule_1 {
+              @Test
+              @Tag("new")
+              public void noScenariosInRule() {
+                  Assertions.fail("Rule doesn't have any scenarios");
+              }
           }
       }
       """
@@ -39,11 +61,11 @@ Feature: mapping Rule sections
     Scenario: with the keyword and name
       Given the following feature file:
       """
-      Feature: feature name
+      Feature: feature with rule
+
+        Rule: rule name
       """
-
       When the generator is run
-
       Then the content of generated class should be:
       """
       import dev.spec2test.feature2junit.FeatureFilePath;
@@ -71,9 +93,10 @@ Feature: mapping Rule sections
     Scenario: with the keyword, name and description lines
       Given the following feature file:
       """
-      Feature: feature name
-        feature description line 1
-        feature description line 2
+      Feature: feature with rule
+        Rule: rule name
+          rule description line 1
+          rule description line 2
       """
 
       When the generator is run
