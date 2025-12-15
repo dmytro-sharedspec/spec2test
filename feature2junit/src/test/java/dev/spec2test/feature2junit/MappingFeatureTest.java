@@ -12,7 +12,8 @@ import org.junit.platform.suite.api.Suite;
         key = Constants.PLUGIN_PROPERTY_NAME,
         value = "pretty" +
                 ", html:target/cucumber-report/MappingFeature.html" +
-                ", dev.spec2test.feature2junit.reporting.PrettyJsonPlugin:target/cucumber-report/MappingFeature.json"
+                //", dev.spec2test.feature2junit.reporting.PrettyJsonPlugin:target/cucumber-report/MappingFeature.json"
+                ", json:target/cucumber-report/MappingFeature.json"
 )
 public class MappingFeatureTest {
 
