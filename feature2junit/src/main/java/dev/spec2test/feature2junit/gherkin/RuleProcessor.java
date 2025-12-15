@@ -111,7 +111,7 @@ class RuleProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
 
         List<RuleChild> children = rule.getChildren();
 
-        int ruleScenarioNumber = 0;
+        int ruleScenarioCount = 0;
 
         boolean hasScenarios = false;
         for (RuleChild child : children) {
@@ -120,9 +120,9 @@ class RuleProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
 
                 Scenario scenario = child.getScenario().get();
 
-                ruleScenarioNumber++;
+                ruleScenarioCount++;
                 ScenarioProcessor scenarioProcessor = new ScenarioProcessor(processingEnv, options, baseType);
-                MethodSpec.Builder scenarioMethodBuilder = scenarioProcessor.processScenario(ruleScenarioNumber, scenario, classBuilder);
+                MethodSpec.Builder scenarioMethodBuilder = scenarioProcessor.processScenario(ruleScenarioCount, scenario, classBuilder);
 
                 MethodSpec scenarioMethod = scenarioMethodBuilder.build();
                 nestedRuleClassBuilder.addMethod(scenarioMethod);
