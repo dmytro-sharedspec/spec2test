@@ -10,10 +10,11 @@ import org.junit.platform.suite.api.Suite;
 @ConfigurationParameter(key = Constants.FEATURES_PROPERTY_NAME, value = "src/test/resources/features/MappingFeature.feature")
 @ConfigurationParameter(
         key = Constants.PLUGIN_PROPERTY_NAME,
-        value = "pretty" +
-                ", html:target/cucumber-report/MappingFeature.html" +
-                //", dev.spec2test.feature2junit.reporting.PrettyJsonPlugin:target/cucumber-report/MappingFeature.json"
-                ", json:target/cucumber-report/MappingFeature.json"
+        value = "pretty"
+                + ", html:target/cucumber-report/MappingFeature.html"
+                + ", json:target/cucumber-report/MappingFeature.json"
+                + ", dev.spec2test.feature2junit.reporting.PrettyJsonPlugin:target/cucumber-report/MappingFeature.json"
+        //", dev.spec2test.feature2junit.reporting.PrettyJsonPlugin:target/cucumber-report/MappingFeature.json"
 )
 public class MappingFeatureTest {
 

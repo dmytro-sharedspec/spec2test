@@ -12,11 +12,11 @@ import org.junit.platform.suite.api.Suite;
 )
 @ConfigurationParameter(
         key = Constants.PLUGIN_PROPERTY_NAME,
-        value = "pretty" +
-                ", html:target/cucumber-report/MappingRule.html" +
-                //", dev.spec2test.feature2junit.reporting.PrettyJsonPlugin:target/cucumber-report/MappingRule.json" +
-                ", json:target/cucumber-report/MappingRule.json" +
-                ", dev.spec2test.feature2junit.reporting.DetailedStepReporter"
+        value = "pretty"
+                + ", html:target/cucumber-report/MappingRule.html"
+                + ", json:target/cucumber-report/MappingRule.json"
+                + ", dev.spec2test.feature2junit.reporting.PrettyJsonPlugin:target/cucumber-report/MappingRule.json"
+                + ", dev.spec2test.feature2junit.reporting.DetailedStepReporter"
 )
 public class MappingRuleTest {
 
