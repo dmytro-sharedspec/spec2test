@@ -25,10 +25,12 @@ public class JavaDocUtils {
 
         StringBuilder javaDocSB = new StringBuilder()
                 .append("/**")
-                .append("\n * ").append(keyword).append(": ");
+                .append("\n * ").append(keyword).append(":");
 
         if (StringUtils.isNotBlank(name)) {
-            javaDocSB.append(name);
+            javaDocSB
+                    .append(" ")
+                    .append(name);
         }
 
         if (StringUtils.isNotBlank(description)) {
