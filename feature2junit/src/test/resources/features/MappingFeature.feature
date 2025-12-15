@@ -96,7 +96,7 @@ Feature: mapping Feature section
       public abstract class MockedAnnotatedTestClassScenarios extends  {
           {
               /**
-               * Feature: feature name2
+               * Feature: feature name
                *   feature description line 1
                *   feature description line 2
                */
