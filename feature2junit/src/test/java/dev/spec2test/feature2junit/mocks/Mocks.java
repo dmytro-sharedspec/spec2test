@@ -15,12 +15,13 @@ import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.JavaFileObject;
-import lombok.SneakyThrows;
-import lombok.experimental.UtilityClass;
 import org.mockito.Mockito;
 
-@UtilityClass
-public class Mocks {
+public final class Mocks {
+
+    private Mocks() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 
     public static Feature2JUnitGenerator generator(ProcessingEnvironment processingEnvironment) {
 
@@ -86,7 +87,6 @@ public class Mocks {
         return annotatedClass;
     }
 
-//    @SneakyThrows(IOException.class)
     public static ProcessingEnvironment processingEnvironment() {
 
         ProcessingEnvironment processingEnvironment = Mockito.mock(ProcessingEnvironment.class);
@@ -120,15 +120,17 @@ public class Mocks {
         return filer;
     }
 
-    @SneakyThrows(IOException.class)
     public static StringWriter generatedClassWriter(Filer filer) {
+        try {
+            JavaFileObject generatedJavaFile = Mockito.mock(JavaFileObject.class);
+            Mockito.when(filer.createSourceFile(Mockito.any())).thenReturn(generatedJavaFile);
 
-        JavaFileObject generatedJavaFile = Mockito.mock(JavaFileObject.class);
-        Mockito.when(filer.createSourceFile(Mockito.any())).thenReturn(generatedJavaFile);
+            StringWriter stringWriter = new StringWriter();
+            Mockito.when(generatedJavaFile.openWriter()).thenReturn(stringWriter);
 
-        StringWriter stringWriter = new StringWriter();
-        Mockito.when(generatedJavaFile.openWriter()).thenReturn(stringWriter);
-
-        return stringWriter;
+            return stringWriter;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

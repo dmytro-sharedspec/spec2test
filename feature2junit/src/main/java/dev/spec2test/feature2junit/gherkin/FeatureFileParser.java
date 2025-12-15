@@ -7,7 +7,6 @@ import io.cucumber.gherkin.GherkinParser;
 import io.cucumber.messages.types.Envelope;
 import io.cucumber.messages.types.Feature;
 import io.cucumber.messages.types.GherkinDocument;
-import lombok.Getter;
 
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -26,9 +25,7 @@ import java.util.stream.Stream;
  */
 public class FeatureFileParser implements LoggingSupport {
 
-    @Getter
     private final ProcessingEnvironment processingEnv;
-
     private GherkinParser gherkinParser;
 
     /**
@@ -41,6 +38,10 @@ public class FeatureFileParser implements LoggingSupport {
         this.processingEnv = processingEnv;
 
         gherkinParser = GherkinParser.builder().includePickles(false).build();
+    }
+
+    public ProcessingEnvironment getProcessingEnv() {
+        return processingEnv;
     }
 
     /**

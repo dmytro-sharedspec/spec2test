@@ -10,8 +10,6 @@ import dev.spec2test.feature2junit.gherkin.utils.LocationUtils;
 import dev.spec2test.feature2junit.gherkin.utils.TagUtils;
 import io.cucumber.messages.types.Tag;
 import io.cucumber.messages.types.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 
@@ -20,17 +18,30 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import java.util.List;
 
-@RequiredArgsConstructor
+@SuppressWarnings("LombokGetterMayBeUsed")
 class RuleProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
 
-    @Getter
     private final ProcessingEnvironment processingEnv;
-
-    @Getter
     private final GeneratorOptions options;
-
-    @Getter
     private final TypeElement baseType;
+
+    public RuleProcessor(ProcessingEnvironment processingEnv, GeneratorOptions options, TypeElement baseType) {
+        this.processingEnv = processingEnv;
+        this.options = options;
+        this.baseType = baseType;
+    }
+
+    public ProcessingEnvironment getProcessingEnv() {
+        return processingEnv;
+    }
+
+    public GeneratorOptions getOptions() {
+        return options;
+    }
+
+    public TypeElement getBaseType() {
+        return baseType;
+    }
 
     void processRule(int ruleNumber, Rule rule, TypeSpec.Builder classBuilder) {
 

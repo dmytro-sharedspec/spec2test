@@ -12,7 +12,6 @@ import dev.spec2test.feature2junit.gherkin.utils.JavaDocUtils;
 import dev.spec2test.feature2junit.gherkin.utils.LocationUtils;
 import io.cucumber.messages.types.Background;
 import io.cucumber.messages.types.Step;
-import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,18 +24,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-//@RequiredArgsConstructor
 class BackgroundProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
 
-    @Getter
     private final ProcessingEnvironment processingEnv;
-
-    @Getter
     private final GeneratorOptions options;
-
-    @Getter
     private final TypeElement baseType;
-
     private final Set<String> baseClassMethodNames;
 
     BackgroundProcessor(ProcessingEnvironment processingEnv, GeneratorOptions options, TypeElement baseType) {
@@ -45,6 +37,18 @@ class BackgroundProcessor implements LoggingSupport, OptionsSupport, BaseTypeSup
         this.baseType = baseType;
 
         baseClassMethodNames = ElementMethodUtils.getAllInheritedMethodNames(processingEnv, baseType);
+    }
+
+    public ProcessingEnvironment getProcessingEnv() {
+        return processingEnv;
+    }
+
+    public GeneratorOptions getOptions() {
+        return options;
+    }
+
+    public TypeElement getBaseType() {
+        return baseType;
     }
 
 

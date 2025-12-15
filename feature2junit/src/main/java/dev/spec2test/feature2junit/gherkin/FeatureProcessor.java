@@ -4,7 +4,6 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import dev.spec2test.common.*;
 import io.cucumber.messages.types.*;
-import lombok.Getter;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
@@ -13,15 +12,11 @@ import java.util.List;
 /**
  * Processes a Gherkin feature and generates corresponding JUnit test methods.
  */
+@SuppressWarnings("LombokGetterMayBeUsed")
 public class FeatureProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
 
-    @Getter
     private final ProcessingEnvironment processingEnv;
-
-    @Getter
     private final GeneratorOptions options;
-
-    @Getter
     private final TypeElement baseType;
 
     /**
@@ -35,6 +30,18 @@ public class FeatureProcessor implements LoggingSupport, OptionsSupport, BaseTyp
         this.processingEnv = processingEnv;
         this.options = options;
         this.baseType = baseType;
+    }
+
+    public ProcessingEnvironment getProcessingEnv() {
+        return processingEnv;
+    }
+
+    public GeneratorOptions getOptions() {
+        return options;
+    }
+
+    public TypeElement getBaseType() {
+        return baseType;
     }
 
     /**

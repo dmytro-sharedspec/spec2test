@@ -10,7 +10,6 @@ import dev.spec2test.feature2junit.gherkin.FeatureProcessor;
 import dev.spec2test.feature2junit.gherkin.utils.*;
 import io.cucumber.messages.types.Feature;
 import io.cucumber.messages.types.Tag;
-import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 
@@ -30,8 +29,6 @@ import java.util.Set;
 class TestSubclassCreator implements LoggingSupport, OptionsSupport {
 
     private final ProcessingEnvironment processingEnv;
-
-    @Getter
     private final GeneratorOptions options;
 
     protected FeatureFileParser featureFileParser;
@@ -47,6 +44,10 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
         this.options = generatorOptions;
 
         featureFileParser = new FeatureFileParser(processingEnv);
+    }
+
+    public GeneratorOptions getOptions() {
+        return options;
     }
 
     /**

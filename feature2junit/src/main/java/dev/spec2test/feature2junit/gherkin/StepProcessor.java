@@ -17,8 +17,6 @@ import io.cucumber.messages.types.DataTable;
 import io.cucumber.messages.types.DocString;
 import io.cucumber.messages.types.Location;
 import io.cucumber.messages.types.Step;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 
@@ -30,16 +28,25 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@RequiredArgsConstructor
 class StepProcessor implements LoggingSupport, OptionsSupport {
 
-    @Getter
     private final ProcessingEnvironment processingEnv;
-
-    @Getter
     private final GeneratorOptions options;
 
     private static final Pattern parameterPattern = Pattern.compile("(?<parameter>(\")(?<parameterValue>[^\"]+?)(\"))");
+
+    public StepProcessor(ProcessingEnvironment processingEnv, GeneratorOptions options) {
+        this.processingEnv = processingEnv;
+        this.options = options;
+    }
+
+    public ProcessingEnvironment getProcessingEnv() {
+        return processingEnv;
+    }
+
+    public GeneratorOptions getOptions() {
+        return options;
+    }
 
     private record MethodSignatureAttributes(
             String stepPattern,

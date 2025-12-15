@@ -6,7 +6,6 @@ import com.squareup.javapoet.TypeSpec;
 import dev.spec2test.common.*;
 import dev.spec2test.feature2junit.gherkin.utils.*;
 import io.cucumber.messages.types.*;
-import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -22,18 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-//@RequiredArgsConstructor
 class ScenarioProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
 
-    @Getter
     private final ProcessingEnvironment processingEnv;
-
-    @Getter
     private final GeneratorOptions options;
-
-    @Getter
     private final TypeElement baseType;
-
     private final Set<String> baseClassMethodNames;
 
     public ScenarioProcessor(ProcessingEnvironment processingEnv, GeneratorOptions options, TypeElement baseType) {
@@ -42,6 +34,18 @@ class ScenarioProcessor implements LoggingSupport, OptionsSupport, BaseTypeSuppo
         this.baseType = baseType;
 
         baseClassMethodNames = ElementMethodUtils.getAllInheritedMethodNames(processingEnv, baseType);
+    }
+
+    public ProcessingEnvironment getProcessingEnv() {
+        return processingEnv;
+    }
+
+    public GeneratorOptions getOptions() {
+        return options;
+    }
+
+    public TypeElement getBaseType() {
+        return baseType;
     }
 
 
