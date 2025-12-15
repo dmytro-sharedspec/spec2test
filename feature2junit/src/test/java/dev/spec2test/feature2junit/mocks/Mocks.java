@@ -1,6 +1,5 @@
-package dev.spec2test.feature2junit.steps;
+package dev.spec2test.feature2junit.mocks;
 
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import dev.spec2test.common.GeneratorOptions;
 import dev.spec2test.feature2junit.Feature2JUnit;
@@ -15,7 +14,6 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
-import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -24,7 +22,7 @@ import org.mockito.Mockito;
 @UtilityClass
 public class Mocks {
 
-    static Feature2JUnitGenerator generator(ProcessingEnvironment processingEnvironment) {
+    public static Feature2JUnitGenerator generator(ProcessingEnvironment processingEnvironment) {
 
         Feature2JUnitGenerator generator = Mockito.mock(Feature2JUnitGenerator.class);
         Mockito.when(generator.process(Mockito.any(), Mockito.any())).thenCallRealMethod();
@@ -34,7 +32,7 @@ public class Mocks {
         return generator;
     }
 
-    static TypeElement feature2junitAnnotationTypeMirror() {
+    public static TypeElement feature2junitAnnotationTypeMirror() {
 
         TypeElement annotationType = Mockito.mock(TypeElement.class);
         Name annotationName = Mockito.mock(Name.class);
@@ -43,14 +41,14 @@ public class Mocks {
         return annotationType;
     }
 
-    static Feature2JUnit feature2junit() {
+    public static Feature2JUnit feature2junit() {
 
         Feature2JUnit f2j = Mockito.mock(Feature2JUnit.class);
         //        Mockito.when(f2j.value()).thenReturn("features/MockedFeaturePath.feature");
         return f2j;
     }
 
-    static Feature2JUnitOptions feature2junitOptions() {
+    public static Feature2JUnitOptions feature2junitOptions() {
 
         Feature2JUnitOptions options = Mockito.mock(Feature2JUnitOptions.class);
 
@@ -62,7 +60,7 @@ public class Mocks {
         return options;
     }
 
-    static TypeElement annotatedBaseClass(Feature2JUnit feature2junitAnnotation, Feature2JUnitOptions options) {
+    public static TypeElement annotatedBaseClass(Feature2JUnit feature2junitAnnotation, Feature2JUnitOptions options) {
 
         TypeElement annotatedClass = Mockito.mock(TypeElement.class);
 
@@ -89,7 +87,7 @@ public class Mocks {
     }
 
 //    @SneakyThrows(IOException.class)
-    static ProcessingEnvironment processingEnvironment() {
+    public static ProcessingEnvironment processingEnvironment() {
 
         ProcessingEnvironment processingEnvironment = Mockito.mock(ProcessingEnvironment.class);
 
@@ -103,7 +101,7 @@ public class Mocks {
         return processingEnvironment;
     }
 
-    static RoundEnvironment roundEnvironment(TypeElement annotatedBaseClass, TypeElement feature2junitAnnotationType) {
+    public static RoundEnvironment roundEnvironment(TypeElement annotatedBaseClass, TypeElement feature2junitAnnotationType) {
 
         RoundEnvironment roundEnv = Mockito.mock(RoundEnvironment.class);
 

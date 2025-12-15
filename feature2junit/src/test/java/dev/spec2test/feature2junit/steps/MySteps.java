@@ -3,10 +3,10 @@ package dev.spec2test.feature2junit.steps;
 import dev.spec2test.feature2junit.Feature2JUnit;
 import dev.spec2test.feature2junit.Feature2JUnitGenerator;
 import dev.spec2test.feature2junit.Feature2JUnitOptions;
+import dev.spec2test.feature2junit.mocks.Mocks;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.mockito.Mockito;
 
