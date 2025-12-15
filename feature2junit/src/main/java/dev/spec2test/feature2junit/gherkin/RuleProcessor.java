@@ -18,7 +18,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import java.util.List;
 
-@SuppressWarnings("LombokGetterMayBeUsed")
+@SuppressWarnings({"LombokGetterMayBeUsed", "ClassCanBeRecord"})
 class RuleProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
 
     private final ProcessingEnvironment processingEnv;
@@ -55,23 +55,23 @@ class RuleProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
             nestedRuleClassBuilder.addJavadoc(description);
         }
 
-        /**
-         * add {@link org.junit.jupiter.api.Nested} annotation
+        /*
+          add {@link org.junit.jupiter.api.Nested} annotation
          */
         nestedRuleClassBuilder.addAnnotation(
                 AnnotationSpec.builder(Nested.class).build()
         );
 
-        /**
-         * add {@link Order} annotation
+        /*
+          add {@link Order} annotation
          */
         AnnotationSpec orderAnnotation = AnnotationSpec
                 .builder(Order.class)
                 .addMember("value", "" + ruleNumber)
                 .build();
         nestedRuleClassBuilder.addAnnotation(orderAnnotation);
-        /**
-         * add {@link TestMethodOrder} annotation
+        /*
+          add {@link TestMethodOrder} annotation
          */
         nestedRuleClassBuilder.addAnnotation(AnnotationSpec
                 .builder(TestMethodOrder.class)
@@ -79,8 +79,8 @@ class RuleProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
                 .build()
         );
 
-        /**
-         * add {@link Tag} annotations
+        /*
+          add {@link Tag} annotations
          */
         List<Tag> tags = rule.getTags();
         if (tags != null && !tags.isEmpty()) {
@@ -88,16 +88,16 @@ class RuleProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
             nestedRuleClassBuilder.addAnnotation(jUnitTagsAnnotation);
         }
 
-        /**
-         * add {@link SourceLine} annotation
+        /*
+          add {@link SourceLine} annotation
          */
         if (options.isAddSourceLineAnnotations()) {
             AnnotationSpec locationAnnotation = LocationUtils.toJUnitTagsAnnotation(rule.getLocation());
             nestedRuleClassBuilder.addAnnotation(locationAnnotation);
         }
 
-        /**
-         * add {@link DisplayName} annotation
+        /*
+          add {@link DisplayName} annotation
          */
         String ruleName = rule.getName();
         if (ruleName != null) {
@@ -144,8 +144,8 @@ class RuleProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
         }
 
         if (!hasScenarios && options.isFailRulesWithNoScenarios()) {
-            /**
-             * If there are no scenarios in the rule, we add an empty method that throws exception.
+            /*
+              If there are no scenarios in the rule, we add an empty method that throws an exception.
              */
             MethodSpec.Builder noScenariosInRuleMSB = MethodSpec
                     .methodBuilder("noScenariosInRule")
@@ -159,8 +159,8 @@ class RuleProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
 
             String tagForEmptyRules = options.getTagForRulesWithNoScenarios();
             if (StringUtils.isNotBlank(tagForEmptyRules)) {
-                /**
-                 * add JUnit Tag annotation
+                /*
+                  add JUnit Tag annotation
                  */
                 AnnotationSpec jUnitTagsAnnotation = TagUtils.toJUnitTagsAnnotation(tagForEmptyRules);
                 noScenariosInRuleMSB.addAnnotation(jUnitTagsAnnotation);
