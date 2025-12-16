@@ -77,6 +77,15 @@ public class MySteps {
         boolean finished = generator.process(annotationSetToProcess, roundEnv);
     }
 
+    @Then("the content of the {string} class should be:")
+    public void the_content_of_the_generated_class_should_be(String stringParam, String docString) {
+        // Write code here that turns the phrase above into concrete actions
+
+        String generatedClas = generatedClassWriter.toString().trim();
+        String expectedClass = docString.trim();
+        Assertions.assertEquals(expectedClass, generatedClas);
+    }
+
     @Then("the content of generated class should be:")
     public void the_content_of_generated_class_should_be(String docString) {
         // Write code here that turns the phrase above into concrete actions

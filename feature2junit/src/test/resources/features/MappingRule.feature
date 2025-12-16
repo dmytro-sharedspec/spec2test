@@ -66,12 +66,19 @@ Feature: mapping Rule sections
         Rule: rule name
       """
       When the generator is run
-      Then the content of generated class should be:
+      Then the content of the "generated" class should be:
       """
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;
+      import org.junit.jupiter.api.Assertions;
+      import org.junit.jupiter.api.ClassOrderer;
       import org.junit.jupiter.api.DisplayName;
       import org.junit.jupiter.api.MethodOrderer;
+      import org.junit.jupiter.api.Nested;
+      import org.junit.jupiter.api.Order;
+      import org.junit.jupiter.api.Tag;
+      import org.junit.jupiter.api.Test;
+      import org.junit.jupiter.api.TestClassOrder;
       import org.junit.jupiter.api.TestMethodOrder;
 
       /**
@@ -80,12 +87,25 @@ Feature: mapping Rule sections
       @DisplayName("MockedAnnotatedTestClass")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+      @TestClassOrder(ClassOrderer.OrderAnnotation.class)
       @FeatureFilePath("/MockedAnnotatedTestClass.feature")
       public abstract class MockedAnnotatedTestClassScenarios extends  {
           {
               /**
-               * Feature: feature name
+               * Feature: feature with rule
                */
+          }
+
+          @Nested
+          @Order(1)
+          @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+          @DisplayName("Rule: rule name")
+          public class Rule_1 {
+              @Test
+              @Tag("new")
+              public void noScenariosInRule() {
+                  Assertions.fail("Rule doesn't have any scenarios");
+              }
           }
       }
       """
@@ -105,8 +125,15 @@ Feature: mapping Rule sections
       """
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;
+      import org.junit.jupiter.api.Assertions;
+      import org.junit.jupiter.api.ClassOrderer;
       import org.junit.jupiter.api.DisplayName;
       import org.junit.jupiter.api.MethodOrderer;
+      import org.junit.jupiter.api.Nested;
+      import org.junit.jupiter.api.Order;
+      import org.junit.jupiter.api.Tag;
+      import org.junit.jupiter.api.Test;
+      import org.junit.jupiter.api.TestClassOrder;
       import org.junit.jupiter.api.TestMethodOrder;
 
       /**
@@ -115,14 +142,29 @@ Feature: mapping Rule sections
       @DisplayName("MockedAnnotatedTestClass")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+      @TestClassOrder(ClassOrderer.OrderAnnotation.class)
       @FeatureFilePath("/MockedAnnotatedTestClass.feature")
       public abstract class MockedAnnotatedTestClassScenarios extends  {
           {
               /**
-               * Feature: feature name2
-               *   feature description line 1
-               *   feature description line 2
+               * Feature: feature with rule
                */
+          }
+
+          /**
+           * rule description line 1 - TEST
+           * rule description line 2
+           */
+          @Nested
+          @Order(1)
+          @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+          @DisplayName("Rule: rule name")
+          public class Rule_1 {
+              @Test
+              @Tag("new")
+              public void noScenariosInRule() {
+                  Assertions.fail("Rule doesn't have any scenarios");
+              }
           }
       }
       """
