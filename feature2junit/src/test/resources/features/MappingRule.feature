@@ -1,10 +1,9 @@
 Feature: mapping Rule sections
   As a developer
   I want to verify that the content of the "Rule" section is mapped to a nested inner test class
-  So that everything under the "Rule" section is grouped together in the generated test code and can be easily run together
+  So that all scenarios under a particular "Rule" can be all easily run together
 
-  Rule: "Rule:" keyword should be mapped to a block comment in the generated class followed by the feature name
-  and description lines verbatim
+  Rule: rule section should be mapped to nested inner class and rule name should be mapped to the value in display name annotation
 
     Scenario: with just the keyword
       Given the following feature file:
@@ -14,7 +13,7 @@ Feature: mapping Rule sections
         Rule: rule name
       """
       When the generator is run
-      Then the content of generated class should be:
+      Then the content of the generated class should be:
       """
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;
@@ -66,7 +65,7 @@ Feature: mapping Rule sections
         Rule: rule name
       """
       When the generator is run
-      Then the content of the "generated" class should be:
+      Then the content of the generated class should be:
       """
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;
@@ -110,6 +109,8 @@ Feature: mapping Rule sections
       }
       """
 
+  Rule: rule description lines should be mapped to JavaDoc comment on the nested inner test class
+
     Scenario: with the keyword, name and description lines
       Given the following feature file:
       """
@@ -121,7 +122,7 @@ Feature: mapping Rule sections
 
       When the generator is run
 
-      Then the content of generated class should be:
+      Then the content of the generated class should be:
       """
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;
@@ -152,7 +153,7 @@ Feature: mapping Rule sections
           }
 
           /**
-           * rule description line 1 - TEST
+           * rule description line 1
            * rule description line 2
            */
           @Nested

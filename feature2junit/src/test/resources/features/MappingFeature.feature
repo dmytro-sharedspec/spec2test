@@ -12,7 +12,7 @@ Feature: mapping Feature section
       Feature:
       """
       When the generator is run
-      Then the content of generated class should be:
+      Then the content of the generated class should be:
       """
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;
@@ -44,7 +44,7 @@ Feature: mapping Feature section
 
       When the generator is run
 
-      Then the content of generated class should be:
+      Then the content of the generated class should be:
       """
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;
@@ -78,7 +78,7 @@ Feature: mapping Feature section
 
       When the generator is run
 
-      Then the content of generated class should be:
+      Then the content of the generated class should be:
       """
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;

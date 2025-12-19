@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Set;
 
-public class MySteps {
+public class Steps {
 
     protected RoundEnvironment roundEnv;
 
@@ -40,7 +40,7 @@ public class MySteps {
     protected StringWriter generatedClassWriter;
 
 
-    public MySteps() {
+    public Steps() {
 
         processingEnvironment = Mocks.processingEnvironment();
 
@@ -77,17 +77,8 @@ public class MySteps {
         boolean finished = generator.process(annotationSetToProcess, roundEnv);
     }
 
-    @Then("the content of the {string} class should be:")
-    public void the_content_of_the_generated_class_should_be(String stringParam, String docString) {
-        // Write code here that turns the phrase above into concrete actions
-
-        String generatedClas = generatedClassWriter.toString().trim();
-        String expectedClass = docString.trim();
-        Assertions.assertEquals(expectedClass, generatedClas);
-    }
-
-    @Then("the content of generated class should be:")
-    public void the_content_of_generated_class_should_be(String docString) {
+    @Then("the content of the generated class should be:")
+    public void the_content_of_the_generated_class_should_be(String docString) {
         // Write code here that turns the phrase above into concrete actions
 
         String generatedClas = generatedClassWriter.toString().trim();
