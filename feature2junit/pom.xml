@@ -5,7 +5,7 @@
   <parent>
     <groupId>dev.spec2test</groupId>
     <artifactId>spec2junit</artifactId>
-    <version>0.1.5-SNAPSHOT</version>
+    <version>0.1.6</version>
   </parent>
   <artifactId>feature2junit</artifactId>
   <name>${project.groupId}:${project.artifactId}</name>
@@ -31,12 +31,6 @@
       <version>7.23.0</version>
       <!--      <scope>provided</scope>-->
     </dependency>
-    <!--<dependency>-->
-    <!--  <groupId>io.cucumber</groupId>-->
-    <!--  <artifactId>cucumber-core</artifactId>-->
-    <!--  <version>7.14.0</version>-->
-    <!--  <scope>test</scope>-->
-    <!--</dependency>-->
     <dependency>
       <groupId>com.google.auto.service</groupId>
       <artifactId>auto-service</artifactId>
