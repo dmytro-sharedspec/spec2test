@@ -102,10 +102,13 @@ class RuleProcessor implements LoggingSupport, OptionsSupport, BaseTypeSupport {
         String ruleName = rule.getName();
         if (ruleName != null) {
             ruleName = ruleName.replaceAll("\"", "\\\\\"");
+            if (!ruleName.isEmpty()) {
+                ruleName = " " + ruleName;
+            }
         }
         nestedRuleClassBuilder.addAnnotation(
                 AnnotationSpec.builder(DisplayName.class)
-                        .addMember("value", "\"Rule: " + ruleName + "\"")
+                        .addMember("value", "\"Rule:" + ruleName + "\"")
                         .build()
         );
 

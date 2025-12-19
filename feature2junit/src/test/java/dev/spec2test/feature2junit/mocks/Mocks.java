@@ -7,6 +7,8 @@ import dev.spec2test.feature2junit.Feature2JUnitGenerator;
 import dev.spec2test.feature2junit.Feature2JUnitOptions;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Set;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -14,7 +16,10 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
 import javax.tools.JavaFileObject;
+
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 public final class Mocks {
@@ -116,6 +121,10 @@ public final class Mocks {
 
         Filer filer = Mockito.mock(Filer.class);
         Mockito.when(processingEnvironment.getFiler()).thenReturn(filer);
+
+        Elements elements = Mockito.mock(Elements.class);
+        Mockito.when(processingEnvironment.getElementUtils()).thenReturn(elements);
+        Mockito.when(elements.getAllMembers(Mockito.any())).thenReturn(Collections.emptyList());
 
         return filer;
     }

@@ -158,10 +158,13 @@ class ScenarioProcessor implements LoggingSupport, OptionsSupport, BaseTypeSuppo
         String scenarioName = scenario.getName();
         if (scenarioName != null) {
             scenarioName = scenarioName.replaceAll("\"", "\\\\\"");
+            if (!scenarioName.isEmpty()) {
+                scenarioName = " " + scenarioName;
+            }
         }
         AnnotationSpec displayNameAnnotation = AnnotationSpec
                 .builder(DisplayName.class)
-                .addMember("value", "\"Scenario: " + scenarioName + "\"")
+                .addMember("value", "\"Scenario:" + scenarioName + "\"")
                 .build();
         scenarioMethodBuilder.addAnnotation(displayNameAnnotation);
     }
