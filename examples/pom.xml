@@ -5,7 +5,7 @@
     <parent>
         <groupId>dev.spec2test</groupId>
         <artifactId>spec2junit</artifactId>
-        <version>0.1.5-SNAPSHOT</version>
+        <version>0.1.6</version>
     </parent>
     <artifactId>examples</artifactId>
     <name>${project.groupId}:${project.artifactId}</name>
@@ -14,4 +14,35 @@
     <modules>
         <module>example-feature2junit</module>
     </modules>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>3.2.6</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.8.0</version>
+                <executions>
+                    <execution>
+                        <id>injected-central-publishing</id>
+                        <goals>
+                            <goal>publish</goal>
+                        </goals>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

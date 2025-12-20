@@ -102,6 +102,7 @@ public class GeneratorOptions {
      * @param tagForScenariosWithNoSteps   see {@link #tagForScenariosWithNoSteps}
      * @param tagForRulesWithNoScenarios   see {@link #tagForRulesWithNoScenarios}
      * @param addCucumberStepAnnotations   see {@link #addCucumberStepAnnotations}
+     * @param placeGeneratedClassNextToAnnotatedClass see {@link #placeGeneratedClassNextToAnnotatedClass}
      */
     public GeneratorOptions(
             boolean shouldBeAbstract,

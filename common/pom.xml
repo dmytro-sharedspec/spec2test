@@ -5,7 +5,7 @@
     <parent>
         <groupId>dev.spec2test</groupId>
         <artifactId>spec2junit</artifactId>
-        <version>0.1.5-SNAPSHOT</version>
+        <version>0.1.6</version>
     </parent>
     <artifactId>common</artifactId>
     <name>${project.groupId}:${project.artifactId}</name>
