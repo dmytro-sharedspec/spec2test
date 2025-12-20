@@ -3,16 +3,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>dev.spec2test</groupId>
-  <artifactId>spec2junit</artifactId>
+  <artifactId>spec2test</artifactId>
   <version>0.1.6</version>
   <name>${project.groupId}:${project.artifactId}</name>
   <description>Used to generate JUnit test classes from a specification file</description>
-  <url>https://github.com/dmytro-sharedspec/spec2junit/tree/main</url>
+  <url>https://github.com/dmytro-sharedspec/spec2test/tree/main</url>
   <packaging>pom</packaging>
   <scm>
-    <connection>scm:git:git://github.com/dmytro-sharedspec/spec2junit.git</connection>
-    <developerConnection>scm:git:ssh://github.com:dmytro-sharedspec/spec2junit.git</developerConnection>
-    <url>http://github.com/dmytro-sharedspec/spec2junit/tree/main</url>
+    <connection>scm:git:git://github.com/dmytro-sharedspec/spec2test.git</connection>
+    <developerConnection>scm:git:ssh://github.com:dmytro-sharedspec/spec2test.git</developerConnection>
+    <url>http://github.com/dmytro-sharedspec/spec2test/tree/main</url>
   </scm>
   <developers>
     <developer>
