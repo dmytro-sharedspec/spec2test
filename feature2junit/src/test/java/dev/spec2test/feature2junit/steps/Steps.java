@@ -72,11 +72,37 @@ public class Steps {
             // Update the mock to return the extracted path
             Mockito.when(feature2JUnitAnnotation.value()).thenReturn(featureFilePath);
         }
+
+        // Extract the class name from the base class
+        String className = extractClassName(docString);
+        if (className != null) {
+            // Update the annotatedBaseClass mock to return the extracted class name
+            javax.lang.model.element.Name simpleName = Mockito.mock(javax.lang.model.element.Name.class);
+            Mockito.when(simpleName.toString()).thenReturn(className);
+            Mockito.when(annotatedBaseClass.getSimpleName()).thenReturn(simpleName);
+
+            javax.lang.model.element.Name qualifiedName = Mockito.mock(javax.lang.model.element.Name.class);
+            Mockito.when(qualifiedName.toString()).thenReturn("com.example." + className);
+            Mockito.when(annotatedBaseClass.getQualifiedName()).thenReturn(qualifiedName);
+        }
     }
 
     private String extractFeature2JUnitPath(String baseClassCode) {
         // Extract the path from @Feature2JUnit("path/to/file.feature")
         String pattern = "@Feature2JUnit\\(\"([^\"]+)\"\\)";
+        java.util.regex.Pattern regex = java.util.regex.Pattern.compile(pattern);
+        java.util.regex.Matcher matcher = regex.matcher(baseClassCode);
+
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
+    }
+
+    private String extractClassName(String baseClassCode) {
+        // Extract the class name from patterns like:
+        // "public class FeatureTestBase" or "public abstract class FeatureTestBase"
+        String pattern = "(?:public|private|protected)?\\s*(?:abstract)?\\s*class\\s+(\\w+)";
         java.util.regex.Pattern regex = java.util.regex.Pattern.compile(pattern);
         java.util.regex.Matcher matcher = regex.matcher(baseClassCode);
 

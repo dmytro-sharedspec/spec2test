@@ -19,6 +19,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -54,15 +55,15 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
     /**
      * Creates a JUnit test subclass for the given type element annotated with {@link Feature2JUnit}.
      *
-     * @param typeElement     the type element to create a test subclass for
+     * @param annotatedClass     the type element to create a test subclass for
      * @param featureFilePath the feature file path
      * @return a {@link JavaFile} representing the generated test subclass
      * @throws IOException if an error occurs during file generation
      */
-    public JavaFile createTestSubclass(TypeElement typeElement, String featureFilePath) throws IOException {
+    public JavaFile createTestSubclass(TypeElement annotatedClass, String featureFilePath) throws IOException {
 
         String packageName;
-        Element enclosingElement = typeElement.getEnclosingElement();
+        Element enclosingElement = annotatedClass.getEnclosingElement();
 
         if (enclosingElement != null) {
 
@@ -79,7 +80,7 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
             packageName = "";
         }
 
-        String annotatedClassName = typeElement.getSimpleName().toString();
+        String annotatedClassName = annotatedClass.getSimpleName().toString();
         String featureFilePathForParsing;
 
         if (StringUtils.isBlank(featureFilePath)) {
@@ -106,11 +107,11 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
             suffixToApply = options.getClassSuffixIfConcrete();
         }
 
-        String subclassSimpleName = typeElement.getSimpleName() + suffixToApply;
-
+        String subclassSimpleName = annotatedClass.getSimpleName() + suffixToApply;
+        TypeMirror asTypeMirror = annotatedClass.asType();
         TypeSpec.Builder classBuilder = TypeSpec
                 .classBuilder(subclassSimpleName)
-                .superclass(typeElement.asType())
+                .superclass(asTypeMirror)
                 .addModifiers(Modifier.PUBLIC);
 
         if (options.isShouldBeAbstract()) {
@@ -125,7 +126,7 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
             //classBuilder.addInitializerBlock(CodeBlock.of(featureTextJavaDoc));
             classBuilder.addJavadoc(CodeBlock.of(featureTextJavaDoc));
 
-            FeatureProcessor featureProcessor = new FeatureProcessor(processingEnv, options, typeElement);
+            FeatureProcessor featureProcessor = new FeatureProcessor(processingEnv, options, annotatedClass);
             featureProcessor.processFeature(feature, classBuilder);
 
             /**
@@ -137,7 +138,7 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
                 //        Optional<MethodSpec> methodWithDataTableParameter = methodSpecs.stream()
                 //                .filter(methodSpec -> methodSpec.parameters.stream()
                 //                        .anyMatch(parameterSpec -> parameterSpec.name.equals("dataTable"))).findFirst();
-                Set<String> allInheritedMethodNames = ElementMethodUtils.getAllInheritedMethodNames(processingEnv, typeElement);
+                Set<String> allInheritedMethodNames = ElementMethodUtils.getAllInheritedMethodNames(processingEnv, annotatedClass);
                 boolean alreadyHasCreateDataTable = allInheritedMethodNames.contains("createDataTable");
                 if (!alreadyHasCreateDataTable) {
                     if (options.isShouldBeAbstract()) {

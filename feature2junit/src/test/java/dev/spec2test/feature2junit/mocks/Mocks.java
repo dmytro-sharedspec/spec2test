@@ -5,22 +5,20 @@ import dev.spec2test.common.GeneratorOptions;
 import dev.spec2test.feature2junit.Feature2JUnit;
 import dev.spec2test.feature2junit.Feature2JUnitGenerator;
 import dev.spec2test.feature2junit.Feature2JUnitOptions;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Set;
+import org.mockito.Mockito;
+
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.util.Elements;
 import javax.tools.JavaFileObject;
-
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Collections;
+import java.util.Set;
 
 public final class Mocks {
 
@@ -79,8 +77,10 @@ public final class Mocks {
         Mockito.when(qualifiedName.toString()).thenReturn("com.example." + simpleClassName);
         Mockito.when(annotatedClass.getQualifiedName()).thenReturn(qualifiedName);
 
-        TypeMirror annotatedClassMirror = Mockito.mock(TypeMirror.class);
+        DeclaredType annotatedClassMirror = Mockito.mock(DeclaredType.class);
         Mockito.when(annotatedClass.asType()).thenReturn(annotatedClassMirror);
+        Mockito.when(annotatedClassMirror.asElement()).thenReturn(annotatedClass);
+
         // annotatedClassMirror
         TypeName typeNameMock = Mockito.mock(TypeName.class);
         Mockito.when(annotatedClassMirror.accept(Mockito.any(), Mockito.any()))

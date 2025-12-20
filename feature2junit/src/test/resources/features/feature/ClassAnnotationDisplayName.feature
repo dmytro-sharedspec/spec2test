@@ -41,7 +41,7 @@ Feature: Mapping Feature to @DisplayName annotation
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("ShoppingCart.feature")
-      public abstract class MockedAnnotatedTestClassScenarios extends FeatureTestBase {
+      public abstract class FeatureTestBaseScenarios extends FeatureTestBase {
       }
       """
 
