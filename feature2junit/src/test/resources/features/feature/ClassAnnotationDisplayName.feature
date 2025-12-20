@@ -32,21 +32,16 @@ Feature: Mapping Feature to @DisplayName annotation
       import org.junit.jupiter.api.TestMethodOrder;
 
       /**
-       * To implement tests in this generated class, extend it and implement all abstract methods.
+       * Feature: managing shopping cart
+       *   As a customer
+       *   I want to manage my shopping cart
+       *   So that I can purchase items
        */
       @DisplayName("ShoppingCart")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("ShoppingCart.feature")
-      public abstract class MockedAnnotatedTestClassScenarios extends  {
-          {
-              /**
-               * Feature: managing shopping cart
-               *   As a customer
-               *   I want to manage my shopping cart
-               *   So that I can purchase items
-               */
-          }
+      public abstract class MockedAnnotatedTestClassScenarios extends FeatureTestBase {
       }
       """
 
@@ -77,21 +72,16 @@ Feature: Mapping Feature to @DisplayName annotation
       import org.junit.jupiter.api.TestMethodOrder;
 
       /**
-       * To implement tests in this generated class, extend it and implement all abstract methods.
+       * Feature: Online Shopping Cart
+       *   As a customer
+       *   I want to manage my shopping cart
+       *   So that I can purchase items
        */
       @DisplayName("ShoppingCart")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("features/ShoppingCart.feature")
-      public abstract class MockedAnnotatedTestClassScenarios extends  {
-          {
-              /**
-               * Feature: Online Shopping Cart
-               *   As a customer
-               *   I want to manage my shopping cart
-               *   So that I can purchase items
-               */
-          }
+      public abstract class MockedAnnotatedTestClassScenarios extends FeatureTestBase {
       }
       """
 
@@ -119,14 +109,11 @@ Feature: Mapping Feature to @DisplayName annotation
       import org.junit.jupiter.api.MethodOrderer;
       import org.junit.jupiter.api.TestMethodOrder;
 
-      /**
-       * To implement tests in this generated class, extend it and implement all abstract methods.
-       */
       @DisplayName("EmptySpec")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("specs/EmptySpec.feature")
-      public abstract class MockedAnnotatedTestClassScenarios extends  {
+      public abstract class MockedAnnotatedTestClassScenarios extends FeatureTestBase {
       }
       """
 
@@ -154,14 +141,11 @@ Feature: Mapping Feature to @DisplayName annotation
       import org.junit.jupiter.api.MethodOrderer;
       import org.junit.jupiter.api.TestMethodOrder;
 
-      /**
-       * To implement tests in this generated class, extend it and implement all abstract methods.
-       */
       @DisplayName("RuleOnly")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("specs/RuleOnly.feature")
-      public abstract class MockedAnnotatedTestClassScenarios extends  {
+      public abstract class MockedAnnotatedTestClassScenarios extends FeatureTestBase {
       }
       """
 
@@ -189,14 +173,11 @@ Feature: Mapping Feature to @DisplayName annotation
         import org.junit.jupiter.api.MethodOrderer;
         import org.junit.jupiter.api.TestMethodOrder;
 
-        /**
-         * To implement tests in this generated class, extend it and implement all abstract methods.
-         */
         @DisplayName("SingleScenario")
         @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
         @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
         @FeatureFilePath("specs/SingleScenario.feature")
-        public abstract class MockedAnnotatedTestClassScenarios extends  {
+        public abstract class MockedAnnotatedTestClassScenarios extends FeatureTestBase {
         }
         """
 
@@ -229,21 +210,16 @@ Feature: Mapping Feature to @DisplayName annotation
       import org.junit.jupiter.api.TestMethodOrder;
 
       /**
-       * To implement tests in this generated class, extend it and implement all abstract methods.
+       * Feature: Processing Credit Card Payments and Refunds
+       *   As a payment processor
+       *   I want to handle various payment scenarios
+       *   So that customers can complete transactions successfully
        */
       @DisplayName("payment")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("specs/payment.feature")
-      public abstract class MockedAnnotatedTestClassScenarios extends  {
-          {
-              /**
-               * Feature: Processing Credit Card Payments and Refunds
-               *   As a payment processor
-               *   I want to handle various payment scenarios
-               *   So that customers can complete transactions successfully
-               */
-          }
+      public abstract class MockedAnnotatedTestClassScenarios extends FeatureTestBase {
       }
       """
 

@@ -1,9 +1,9 @@
 Feature: mapping Feature section
   As a developer
-  I want to verify that the content of the "Feature" section is inserted into a block comment at the top
+  I want to verify that the content of the "Feature" section is inserted into the javadoc comment of the generated class
   So that I can understand more easily and quickly the purpose of the feature and for whom it is intended
 
-  Rule: "Feature:" keyword should be mapped to a block comment in the generated class followed by the feature name
+  Rule: "Feature:" keyword should be mapped to a javadoc comment in the generated class followed by the feature name
   and description lines verbatim
 
     Scenario: with just the keyword
@@ -21,18 +21,13 @@ Feature: mapping Feature section
       import org.junit.jupiter.api.TestMethodOrder;
 
       /**
-       * To implement tests in this generated class, extend it and implement all abstract methods.
+       * Feature:
        */
       @DisplayName("MockedAnnotatedTestClass")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("/MockedAnnotatedTestClass.feature")
       public abstract class MockedAnnotatedTestClassScenarios extends  {
-          {
-              /**
-               * Feature:
-               */
-          }
       }
       """
 
@@ -53,18 +48,13 @@ Feature: mapping Feature section
       import org.junit.jupiter.api.TestMethodOrder;
 
       /**
-       * To implement tests in this generated class, extend it and implement all abstract methods.
+       * Feature: feature name
        */
       @DisplayName("MockedAnnotatedTestClass")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("/MockedAnnotatedTestClass.feature")
       public abstract class MockedAnnotatedTestClassScenarios extends  {
-          {
-              /**
-               * Feature: feature name
-               */
-          }
       }
       """
 
@@ -87,19 +77,14 @@ Feature: mapping Feature section
       import org.junit.jupiter.api.TestMethodOrder;
 
       /**
-       * To implement tests in this generated class, extend it and implement all abstract methods.
+       * Feature: feature name
+       *   feature description line 1
+       *   feature description line 2
        */
       @DisplayName("MockedAnnotatedTestClass")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("/MockedAnnotatedTestClass.feature")
       public abstract class MockedAnnotatedTestClassScenarios extends  {
-          {
-              /**
-               * Feature: feature name
-               *   feature description line 1
-               *   feature description line 2
-               */
-          }
       }
       """

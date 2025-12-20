@@ -56,10 +56,10 @@ public class JavaDocUtils {
     public static String toJavaDocContent(String keyword, String name, String description) {
 
         StringBuilder javaDocSB = new StringBuilder()
-                .append(keyword).append(": ");
+                .append(keyword).append(":");
 
         if (StringUtils.isNotBlank(name)) {
-            javaDocSB.append(name);
+            javaDocSB.append(" " + name);
         }
 
         if (StringUtils.isNotBlank(description)) {

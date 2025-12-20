@@ -3,15 +3,58 @@ Feature: Mapping Feature to class modifiers
   I want to verify that the correct class modifiers are applied to the generated test class
   So that the class visibility and inheritance behavior matches the configuration
 
-  Rule: Generated class is always public
-    Every generated test class has the public modifier.
-    This ensures the test class can be accessed by the test framework.
-    The public modifier is always present regardless of other options.
+  Rule: generated class extends the annotated base class
 
-  Rule: Generated class extends the annotated base class
-    The generated class uses "extends" to inherit from the class annotated with @Feature2JUnit.
-    The superclass is set to the TypeElement of the annotated class.
-    This establishes the inheritance relationship between generated and user-defined code.
+    Scenario: simple case
+      Given the following annotated base class:
+      """
+      package dev.spec2test.feature2junit;
+
+      @Feature2JUnit("test.feature")
+      public class CartFeature {
+      }
+      """
+      And the following feature file:
+      """
+      Feature: shopping cart
+        Scenario: add item to cart
+          Given a test step
+      """
+      When the generator is run
+      Then the content of the generated class should be:
+      """
+      import dev.spec2test.feature2junit.FeatureFilePath;
+      import javax.annotation.processing.Generated;
+      import org.junit.jupiter.api.Assertions;
+      import org.junit.jupiter.api.DisplayName;
+      import org.junit.jupiter.api.MethodOrderer;
+      import org.junit.jupiter.api.Order;
+      import org.junit.jupiter.api.Tag;
+      import org.junit.jupiter.api.Test;
+      import org.junit.jupiter.api.TestMethodOrder;
+
+      /**
+       * To implement tests in this generated class, extend it and implement all abstract methods.
+       */
+      @DisplayName("shopping cart")
+      @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+      @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+      @FeatureFilePath("/CartFeature.feature")
+      public abstract class CartFeatureScenarios extends CartFeature {
+          {
+              /**
+               * Feature: shopping cart
+               */
+          }
+
+          @Test
+          @Order(1)
+          @DisplayName("Scenario: add item to cart")
+          @Tag("new")
+          public abstract void scenario_1();
+      }
+      """
+
 
   Rule: Abstract modifier is controlled by shouldBeAbstract option
     When shouldBeAbstract option is true, the class has both public and abstract modifiers.

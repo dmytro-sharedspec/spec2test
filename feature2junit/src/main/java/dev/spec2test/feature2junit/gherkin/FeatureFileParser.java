@@ -1,7 +1,6 @@
 package dev.spec2test.feature2junit.gherkin;
 
 import dev.spec2test.common.LoggingSupport;
-import dev.spec2test.common.ProcessingException;
 import io.cucumber.gherkin.GherkinDialectProvider;
 import io.cucumber.gherkin.GherkinParser;
 import io.cucumber.messages.types.Envelope;
@@ -17,6 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -60,14 +60,16 @@ public class FeatureFileParser implements LoggingSupport {
 
         Stream<Envelope> envelopeStream = gherkinParser.parse(featureFilePath, inputStream);
 
-        Envelope gherkinDocEnvelope = envelopeStream.filter(
-                        envelope -> envelope.getGherkinDocument().isPresent()
-                )
-                .findFirst().orElseThrow(() -> new ProcessingException("Could not find 'Feature' keyword or one of its synonyms"));
-        GherkinDocument gherkinDocument = gherkinDocEnvelope.getGherkinDocument().orElseThrow();
-
-        Feature feature = gherkinDocument.getFeature().orElseThrow();
-        return feature;
+        Optional<Envelope> gherkinDocEnvelope = envelopeStream.filter(
+                envelope -> envelope.getGherkinDocument().isPresent()
+        ).findFirst();
+        if (gherkinDocEnvelope.isPresent()) {
+            GherkinDocument gherkinDocument = gherkinDocEnvelope.get().getGherkinDocument().get();
+            Feature feature = gherkinDocument.getFeature().orElse(null);
+            return feature;
+        } else {
+            return null;
+        }
     }
 
     String loadFileContent(String featureFilePath) throws IOException {

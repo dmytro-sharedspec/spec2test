@@ -20,6 +20,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -119,54 +120,39 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
         /**
          * put feature text into an initializer block
          */
-        //                .addJavadoc(CodeBlock.of(feature.getKeyword() + ": " + feature.getName()))
-        //                .addJavadoc(CodeBlock.of("\n" + feature.getDescription()))
-        //        String featureTextJavaDoc = JavaDocUtils.toJavaDocContent(feature.getKeyword(), feature.getName(), feature.getDescription());
-        String featureTextJavaDoc = JavaDocUtils.toJavaDoc(feature.getKeyword(), feature.getName(), feature.getDescription());
-        classBuilder.addInitializerBlock(CodeBlock.of(featureTextJavaDoc));
-        //        classBuilder.addJavadoc(CodeBlock.of(featureTextJavaDoc));
+        if (feature != null) {
+            String featureTextJavaDoc = JavaDocUtils.toJavaDocContent(feature.getKeyword(), feature.getName(), feature.getDescription());
+            //classBuilder.addInitializerBlock(CodeBlock.of(featureTextJavaDoc));
+            classBuilder.addJavadoc(CodeBlock.of(featureTextJavaDoc));
 
-        FeatureProcessor featureProcessor = new FeatureProcessor(processingEnv, options, typeElement);
-        featureProcessor.processFeature(feature, classBuilder);
+            FeatureProcessor featureProcessor = new FeatureProcessor(processingEnv, options, typeElement);
+            featureProcessor.processFeature(feature, classBuilder);
 
-        /**
-         * add createDataTable method
-         */
-        List<MethodSpec> methodSpecs = classBuilder.methodSpecs;
-        boolean featureHasStepWithDataTable = FeatureStepUtils.featureHasStepWithDataTable(feature);
-        if (featureHasStepWithDataTable) {
-            //        Optional<MethodSpec> methodWithDataTableParameter = methodSpecs.stream()
-            //                .filter(methodSpec -> methodSpec.parameters.stream()
-            //                        .anyMatch(parameterSpec -> parameterSpec.name.equals("dataTable"))).findFirst();
-            Set<String> allInheritedMethodNames = ElementMethodUtils.getAllInheritedMethodNames(processingEnv, typeElement);
-            boolean alreadyHasCreateDataTable = allInheritedMethodNames.contains("createDataTable");
-            if (!alreadyHasCreateDataTable) {
-                if (options.isShouldBeAbstract()) {
-                    MethodSpec getTableConverterMethod = TableUtils.createGetTableConverterMethod(processingEnv);
-                    classBuilder.addMethod(getTableConverterMethod);
+            /**
+             * add createDataTable method
+             */
+            List<MethodSpec> methodSpecs = classBuilder.methodSpecs;
+            boolean featureHasStepWithDataTable = FeatureStepUtils.featureHasStepWithDataTable(feature);
+            if (featureHasStepWithDataTable) {
+                //        Optional<MethodSpec> methodWithDataTableParameter = methodSpecs.stream()
+                //                .filter(methodSpec -> methodSpec.parameters.stream()
+                //                        .anyMatch(parameterSpec -> parameterSpec.name.equals("dataTable"))).findFirst();
+                Set<String> allInheritedMethodNames = ElementMethodUtils.getAllInheritedMethodNames(processingEnv, typeElement);
+                boolean alreadyHasCreateDataTable = allInheritedMethodNames.contains("createDataTable");
+                if (!alreadyHasCreateDataTable) {
+                    if (options.isShouldBeAbstract()) {
+                        MethodSpec getTableConverterMethod = TableUtils.createGetTableConverterMethod(processingEnv);
+                        classBuilder.addMethod(getTableConverterMethod);
+                    }
+                    MethodSpec createDataTableMethod = TableUtils.createDataTableMethod(processingEnv);
+                    classBuilder.addMethod(createDataTableMethod);
                 }
-                MethodSpec createDataTableMethod = TableUtils.createDataTableMethod(processingEnv);
-                classBuilder.addMethod(createDataTableMethod);
             }
         }
 
-        /**
-         * add JavaDoc instructions on how to use this class
-         */
-        String classJavaDoc;
-        if (classBuilder.modifiers.contains(Modifier.ABSTRACT)) {
-            classJavaDoc = """
-                    To implement tests in this generated class, extend it and implement all abstract methods.
-                    """;
-        } else {
-            classJavaDoc = """
-                    To implement tests in this generated class, move any methods with failing assumptions into the base
-                    class and implement them.
-                    """;
-        }
-        classBuilder.addJavadoc(CodeBlock.of(classJavaDoc));
-
-        addClassAnnotations(feature, classBuilder, featureFilePathForParsing, featureFilePath, packageName, annotatedClassName);
+        List<Tag> featureTags = feature != null ? feature.getTags() : Collections.emptyList();
+        boolean hasRules = feature != null && feature.getChildren().stream().anyMatch(child -> child.getRule().isPresent());
+        addClassAnnotations(featureTags, hasRules, classBuilder, featureFilePathForParsing, featureFilePath, packageName, annotatedClassName);
 
         TypeSpec typeSpec = classBuilder.build();
 
@@ -179,16 +165,16 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
     }
 
     private static void addClassAnnotations(
-            Feature feature,
+            List<Tag> featureTags,
+            boolean hasRules,
             TypeSpec.Builder classBuilder,
             String featureFilePathForParsing,
             String featureFilePath,
             String packageName,
             String annotatedClassName) {
 
-        List<Tag> tags = feature.getTags();
-        if (tags != null && !tags.isEmpty()) {
-            AnnotationSpec jUnitTagsAnnotation = TagUtils.toJUnitTagsAnnotation(tags);
+        if (!featureTags.isEmpty()) {
+            AnnotationSpec jUnitTagsAnnotation = TagUtils.toJUnitTagsAnnotation(featureTags);
             classBuilder.addAnnotation(jUnitTagsAnnotation);
         }
 
@@ -222,7 +208,7 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
                 .addMember("value", "$T.class", ClassName.get(MethodOrderer.OrderAnnotation.class))
                 .build()
         );
-        if (feature.getChildren().stream().anyMatch(child -> child.getRule().isPresent())) {
+        if (hasRules) {
             /**
              * {@link TestClassOrder} annotation
              */
