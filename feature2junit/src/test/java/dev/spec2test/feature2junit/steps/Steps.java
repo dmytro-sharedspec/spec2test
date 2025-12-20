@@ -65,8 +65,25 @@ public class Steps {
 
     @Given("the following base class:")
     public void the_following_base_class(String docString) {
-        // Write code here that turns the phrase above into concrete actions
-        //        throw new io.cucumber.java.PendingException();
+        // Parse the @Feature2JUnit annotation value from the base class
+        String featureFilePath = extractFeature2JUnitPath(docString);
+
+        if (featureFilePath != null) {
+            // Update the mock to return the extracted path
+            Mockito.when(feature2JUnitAnnotation.value()).thenReturn(featureFilePath);
+        }
+    }
+
+    private String extractFeature2JUnitPath(String baseClassCode) {
+        // Extract the path from @Feature2JUnit("path/to/file.feature")
+        String pattern = "@Feature2JUnit\\(\"([^\"]+)\"\\)";
+        java.util.regex.Pattern regex = java.util.regex.Pattern.compile(pattern);
+        java.util.regex.Matcher matcher = regex.matcher(baseClassCode);
+
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
     }
 
     @When("the generator is run")
