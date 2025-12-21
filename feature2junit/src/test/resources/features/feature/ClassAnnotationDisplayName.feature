@@ -1,7 +1,7 @@
 Feature: Mapping Feature to @DisplayName annotation
-  As a developer
-  I want to verify that the @DisplayName annotation is correctly added to the generated test class
-  So that test reports show the feature file name as the display name
+  As a developer running and reviewing test results
+  I want test reports to display meaningful names based on the feature file name
+  So that I can quickly identify which feature is being tested without inspecting technical class names
 
   Rule: @DisplayName annotation uses the name of the feature file (not the feature title inside the file)
 

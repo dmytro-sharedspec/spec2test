@@ -1,7 +1,7 @@
 Feature: mapping Feature section
-  As a developer
-  I want to verify that the content of the "Feature" section is inserted into the javadoc comment of the generated class
-  So that I can understand more easily and quickly the purpose of the feature and for whom it is intended
+  As a developer reviewing or maintaining generated test code
+  I want the feature description and user story to appear as JavaDoc comments in the generated class
+  So that I can quickly understand the purpose and intended users without switching to the original feature file
 
   Rule: "Feature:" keyword should be mapped to a javadoc comment in the generated class followed by the feature name
   and description lines verbatim
