@@ -1,4 +1,4 @@
-Feature: mapping Feature section
+Feature: ClassJavaDoc
   As a developer reviewing or maintaining generated test code
   I want the feature description and user story to appear as JavaDoc comments in the generated class
   So that I can quickly understand the purpose and intended users without switching to the original feature file
@@ -19,16 +19,13 @@ Feature: mapping Feature section
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;
       import org.junit.jupiter.api.DisplayName;
-      import org.junit.jupiter.api.MethodOrderer;
-      import org.junit.jupiter.api.TestMethodOrder;
 
       /**
        * Feature: feature name
        */
       @DisplayName("MockedAnnotatedTestClass")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
-      @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-      @FeatureFilePath("/MockedAnnotatedTestClass.feature")
+      @FeatureFilePath("MockedAnnotatedTestClass.feature")
       public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
       }
       """
@@ -48,8 +45,6 @@ Feature: mapping Feature section
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;
       import org.junit.jupiter.api.DisplayName;
-      import org.junit.jupiter.api.MethodOrderer;
-      import org.junit.jupiter.api.TestMethodOrder;
 
       /**
        * Feature: feature name
@@ -58,8 +53,7 @@ Feature: mapping Feature section
        */
       @DisplayName("MockedAnnotatedTestClass")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
-      @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-      @FeatureFilePath("/MockedAnnotatedTestClass.feature")
+      @FeatureFilePath("MockedAnnotatedTestClass.feature")
       public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
       }
       """

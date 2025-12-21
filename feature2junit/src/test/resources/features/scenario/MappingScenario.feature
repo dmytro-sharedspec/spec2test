@@ -26,19 +26,13 @@ Feature: MappingScenario
       import org.junit.jupiter.api.TestMethodOrder;
 
       /**
-       * To implement tests in this generated class, extend it and implement all abstract methods.
+       * Feature: feature with scenario
        */
       @DisplayName("MockedAnnotatedTestClass")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-      @FeatureFilePath("/MockedAnnotatedTestClass.feature")
-      public abstract class MockedAnnotatedTestClassScenarios extends  {
-          {
-              /**
-               * Feature: feature with scenario
-               */
-          }
-
+      @FeatureFilePath("MockedAnnotatedTestClass.feature")
+      public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
           @Test
           @Order(1)
           @DisplayName("Scenario:")
@@ -70,19 +64,13 @@ Feature: MappingScenario
       import org.junit.jupiter.api.TestMethodOrder;
 
       /**
-       * To implement tests in this generated class, extend it and implement all abstract methods.
+       * Feature: feature with scenario
        */
       @DisplayName("MockedAnnotatedTestClass")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-      @FeatureFilePath("/MockedAnnotatedTestClass.feature")
-      public abstract class MockedAnnotatedTestClassScenarios extends  {
-          {
-              /**
-               * Feature: feature with scenario
-               */
-          }
-
+      @FeatureFilePath("MockedAnnotatedTestClass.feature")
+      public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
           @Test
           @Order(1)
           @DisplayName("Scenario: scenario name")
@@ -119,19 +107,13 @@ Feature: MappingScenario
       import org.junit.jupiter.api.TestMethodOrder;
 
       /**
-       * To implement tests in this generated class, extend it and implement all abstract methods.
+       * Feature: feature with scenario
        */
       @DisplayName("MockedAnnotatedTestClass")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-      @FeatureFilePath("/MockedAnnotatedTestClass.feature")
-      public abstract class MockedAnnotatedTestClassScenarios extends  {
-          {
-              /**
-               * Feature: feature with scenario
-               */
-          }
-
+      @FeatureFilePath("MockedAnnotatedTestClass.feature")
+      public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
           /**
            * scenario description line 1
            * scenario description line 2

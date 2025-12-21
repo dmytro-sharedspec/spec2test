@@ -29,20 +29,13 @@ Feature: MappingRule
       import org.junit.jupiter.api.TestMethodOrder;
 
       /**
-       * To implement tests in this generated class, extend it and implement all abstract methods.
+       * Feature: feature with rule
        */
       @DisplayName("MockedAnnotatedTestClass")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
-      @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @TestClassOrder(ClassOrderer.OrderAnnotation.class)
-      @FeatureFilePath("/MockedAnnotatedTestClass.feature")
-      public abstract class MockedAnnotatedTestClassScenarios extends  {
-          {
-              /**
-               * Feature: feature with rule
-               */
-          }
-
+      @FeatureFilePath("MockedAnnotatedTestClass.feature")
+      public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
           @Nested
           @Order(1)
           @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -81,20 +74,13 @@ Feature: MappingRule
       import org.junit.jupiter.api.TestMethodOrder;
 
       /**
-       * To implement tests in this generated class, extend it and implement all abstract methods.
+       * Feature: feature with rule
        */
       @DisplayName("MockedAnnotatedTestClass")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
-      @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @TestClassOrder(ClassOrderer.OrderAnnotation.class)
-      @FeatureFilePath("/MockedAnnotatedTestClass.feature")
-      public abstract class MockedAnnotatedTestClassScenarios extends  {
-          {
-              /**
-               * Feature: feature with rule
-               */
-          }
-
+      @FeatureFilePath("MockedAnnotatedTestClass.feature")
+      public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
           @Nested
           @Order(1)
           @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -138,20 +124,13 @@ Feature: MappingRule
       import org.junit.jupiter.api.TestMethodOrder;
 
       /**
-       * To implement tests in this generated class, extend it and implement all abstract methods.
+       * Feature: feature with rule
        */
       @DisplayName("MockedAnnotatedTestClass")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
-      @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @TestClassOrder(ClassOrderer.OrderAnnotation.class)
-      @FeatureFilePath("/MockedAnnotatedTestClass.feature")
-      public abstract class MockedAnnotatedTestClassScenarios extends  {
-          {
-              /**
-               * Feature: feature with rule
-               */
-          }
-
+      @FeatureFilePath("MockedAnnotatedTestClass.feature")
+      public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
           /**
            * rule description line 1
            * rule description line 2

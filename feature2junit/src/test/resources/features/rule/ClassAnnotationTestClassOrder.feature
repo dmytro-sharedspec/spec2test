@@ -1,4 +1,4 @@
-Feature: ensuring ordered execution of rules
+Feature: ClassAnnotationTestClassOrder
   As a developer maintaining features with ordered business rules
   I want @TestClassOrder annotation to be added when the feature contains Rules
   So that the generated nested test classes execute in the same sequence as defined in the feature file
@@ -90,7 +90,6 @@ Feature: ensuring ordered execution of rules
        */
       @DisplayName("business-rules")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
-      @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @TestClassOrder(ClassOrderer.OrderAnnotation.class)
       @FeatureFilePath("business-rules.feature")
       public abstract class BusinessRulesScenarios extends BusinessRules {
@@ -156,7 +155,6 @@ Feature: ensuring ordered execution of rules
        */
       @DisplayName("workflow")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
-      @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @TestClassOrder(ClassOrderer.OrderAnnotation.class)
       @FeatureFilePath("workflow.feature")
       public abstract class WorkflowTestsScenarios extends WorkflowTests {

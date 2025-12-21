@@ -1,4 +1,4 @@
-Feature: Mapping Feature tags to @Tag annotations
+Feature: ClassAnnotationTags
   As a developer managing test execution in CI/CD pipelines
   I want Gherkin feature tags to be mapped to JUnit @Tag annotations
   So that I can filter which tests to run based on context (e.g., run only @smoke tests on PR, @regression on release)
@@ -28,9 +28,7 @@ Feature: Mapping Feature tags to @Tag annotations
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;
       import org.junit.jupiter.api.DisplayName;
-      import org.junit.jupiter.api.MethodOrderer;
       import org.junit.jupiter.api.Tag;
-      import org.junit.jupiter.api.TestMethodOrder;
 
       /**
        * Feature: Smoke Tests
@@ -39,7 +37,6 @@ Feature: Mapping Feature tags to @Tag annotations
       @Tag("smoke")
       @DisplayName("smoke-tests")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
-      @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("smoke-tests.feature")
       public abstract class SmokeTestsScenarios extends SmokeTests {
       }
@@ -70,10 +67,8 @@ Feature: Mapping Feature tags to @Tag annotations
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;
       import org.junit.jupiter.api.DisplayName;
-      import org.junit.jupiter.api.MethodOrderer;
       import org.junit.jupiter.api.Tag;
       import org.junit.jupiter.api.Tags;
-      import org.junit.jupiter.api.TestMethodOrder;
 
       /**
        * Feature: User API
@@ -86,7 +81,6 @@ Feature: Mapping Feature tags to @Tag annotations
       })
       @DisplayName("user-api")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
-      @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("user-api.feature")
       public abstract class UserApiTestsScenarios extends UserApiTests {
       }
