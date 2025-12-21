@@ -1,4 +1,4 @@
-Feature: setting generated class suffix
+Feature: setting generated class name
   As a developer configuring the code generator for my project
   I want to control the suffix appended to generated test class names
   So that I can maintain consistent naming conventions that match my team's code organization patterns
@@ -42,7 +42,6 @@ Feature: setting generated class suffix
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("cart.feature")
       public abstract class CartFeatureScenarios extends CartFeature {
-
           @Test
           @Order(1)
           @DisplayName("Scenario: Add item")
@@ -93,7 +92,6 @@ Feature: setting generated class suffix
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("payment.feature")
       public abstract class PaymentFeatureTestCases extends PaymentFeature {
-
           @Test
           @Order(1)
           @DisplayName("Scenario: Process payment")
@@ -103,20 +101,4 @@ Feature: setting generated class suffix
           }
       }
       """
-
-  Rule: Abstract classes use "Scenarios" suffix by default
-    When shouldBeAbstract option is true, the generated class uses "Scenarios" as the default suffix.
-    This default can be overridden using the classSuffixIfAbstract configuration option.
-    This naming convention signals that the class contains abstract scenario methods to be implemented.
-
-  Rule: Concrete classes use "Test" suffix by default
-    When shouldBeAbstract option is false, the generated class uses "Test" as the default suffix.
-    This default can be overridden using the classSuffixIfConcrete configuration option.
-    This naming convention follows JUnit convention where executable test classes end in "Test".
-
-  Rule: Suffix is configurable via options annotation
-    Developers can customize the suffix using @Feature2JUnitOptions annotation.
-    The classSuffixIfAbstract parameter controls the suffix for abstract generated classes.
-    The classSuffixIfConcrete parameter controls the suffix for concrete generated classes.
-    Custom suffixes allow teams to align with their specific naming standards.
 
