@@ -153,7 +153,8 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
 
         List<Tag> featureTags = feature != null ? feature.getTags() : Collections.emptyList();
         boolean hasRules = feature != null && feature.getChildren().stream().anyMatch(child -> child.getRule().isPresent());
-        addClassAnnotations(featureTags, hasRules, classBuilder, featureFilePathForParsing, featureFilePath, packageName, annotatedClassName);
+        boolean hasScenarios = feature != null && feature.getChildren().stream().anyMatch(child -> child.getScenario().isPresent());
+        addClassAnnotations(featureTags, hasRules, hasScenarios, classBuilder, featureFilePathForParsing, featureFilePath, packageName, annotatedClassName);
 
         TypeSpec typeSpec = classBuilder.build();
 
@@ -168,6 +169,7 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
     private static void addClassAnnotations(
             List<Tag> featureTags,
             boolean hasRules,
+            boolean hasScenarios,
             TypeSpec.Builder classBuilder,
             String featureFilePathForParsing,
             String featureFilePath,
@@ -201,14 +203,16 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
                 //                .addMember("comments", "\"GWT methods have been created with failing assumptions. Copy these into the base class and implement them.\"")
                 .build()
         );
-        /**
-         * {@link TestMethodOrder} annotation
-         */
-        classBuilder.addAnnotation(AnnotationSpec
-                .builder(TestMethodOrder.class)
-                .addMember("value", "$T.class", ClassName.get(MethodOrderer.OrderAnnotation.class))
-                .build()
-        );
+        if (hasScenarios) {
+            /**
+             * {@link TestMethodOrder} annotation
+             */
+            classBuilder.addAnnotation(AnnotationSpec
+                    .builder(TestMethodOrder.class)
+                    .addMember("value", "$T.class", ClassName.get(MethodOrderer.OrderAnnotation.class))
+                    .build()
+            );
+        }
         if (hasRules) {
             /**
              * {@link TestClassOrder} annotation
