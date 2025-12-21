@@ -72,6 +72,7 @@ public final class Mocks {
         String simpleClassName = "MockedAnnotatedTestClass";
         Mockito.when(simpleName.toString()).thenReturn(simpleClassName);
         Mockito.when(annotatedClass.getSimpleName()).thenReturn(simpleName);
+        Mockito.when(annotatedClass.getQualifiedName()).thenReturn(simpleName);
 
         Name qualifiedName = Mockito.mock(Name.class);
         Mockito.when(qualifiedName.toString()).thenReturn("com.example." + simpleClassName);
@@ -83,8 +84,7 @@ public final class Mocks {
 
         // annotatedClassMirror
         TypeName typeNameMock = Mockito.mock(TypeName.class);
-        Mockito.when(annotatedClassMirror.accept(Mockito.any(), Mockito.any()))
-                .thenReturn(typeNameMock);
+        Mockito.when(annotatedClassMirror.accept(Mockito.any(), Mockito.any())).thenReturn(typeNameMock);
         Mockito.when(typeNameMock.isPrimitive()).thenReturn(false);
 
         Mockito.when(annotatedClass.getAnnotation(Feature2JUnit.class)).thenReturn(feature2junitAnnotation);
