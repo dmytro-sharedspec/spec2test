@@ -53,8 +53,8 @@ public class Steps {
         feature2JUnitAnnotation = Mocks.feature2junit();
         feature2JUnitOptions = Mocks.feature2junitOptions();
 
-        //        annotatedBaseClass = Mocks.annotatedBaseClass(feature2JUnitAnnotation, feature2JUnitOptions);
-        annotatedBaseClass = Mocks.annotatedBaseClass(feature2JUnitAnnotation, null);
+        // Pass feature2JUnitOptions so the annotated class returns it when asked for the annotation
+        annotatedBaseClass = Mocks.annotatedBaseClass(feature2JUnitAnnotation, feature2JUnitOptions);
 
         TypeElement feature2junitAnnotationType = Mocks.feature2junitAnnotationTypeMirror();
 
@@ -72,6 +72,9 @@ public class Steps {
             // Update the mock to return the extracted path
             Mockito.when(feature2JUnitAnnotation.value()).thenReturn(featureFilePath);
         }
+
+        // Extract and apply @Feature2JUnitOptions annotation values
+        extractAndApplyOptions(docString);
 
         // Extract the package name and class name from the base class
         String packageName = extractPackageName(docString);
@@ -137,6 +140,52 @@ public class Steps {
         String pattern = "(?:public|private|protected)?\\s*(?:abstract)?\\s*class\\s+(\\w+)";
         java.util.regex.Pattern regex = java.util.regex.Pattern.compile(pattern);
         java.util.regex.Matcher matcher = regex.matcher(baseClassCode);
+
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
+    }
+
+    private void extractAndApplyOptions(String baseClassCode) {
+        // Extract shouldBeAbstract
+        Boolean shouldBeAbstract = extractBooleanOption(baseClassCode, "shouldBeAbstract");
+        if (shouldBeAbstract != null) {
+            Mockito.when(feature2JUnitOptions.shouldBeAbstract()).thenReturn(shouldBeAbstract);
+        }
+
+        // Extract classSuffixIfAbstract
+        String classSuffixIfAbstract = extractStringOption(baseClassCode, "classSuffixIfAbstract");
+        if (classSuffixIfAbstract != null) {
+            Mockito.when(feature2JUnitOptions.classSuffixIfAbstract()).thenReturn(classSuffixIfAbstract);
+        }
+
+        // Extract classSuffixIfConcrete
+        String classSuffixIfConcrete = extractStringOption(baseClassCode, "classSuffixIfConcrete");
+        if (classSuffixIfConcrete != null) {
+            Mockito.when(feature2JUnitOptions.classSuffixIfConcrete()).thenReturn(classSuffixIfConcrete);
+        }
+    }
+
+    private Boolean extractBooleanOption(String code, String optionName) {
+        // Extract boolean option like: shouldBeAbstract = true
+        // Pattern handles multi-line formatting with DOTALL flag
+        String pattern = optionName + "\\s*=\\s*(true|false)";
+        java.util.regex.Pattern regex = java.util.regex.Pattern.compile(pattern, java.util.regex.Pattern.DOTALL);
+        java.util.regex.Matcher matcher = regex.matcher(code);
+
+        if (matcher.find()) {
+            return Boolean.parseBoolean(matcher.group(1));
+        }
+        return null;
+    }
+
+    private String extractStringOption(String code, String optionName) {
+        // Extract string option like: classSuffixIfAbstract = "TestCases"
+        // Pattern handles multi-line formatting with DOTALL flag
+        String pattern = optionName + "\\s*=\\s*\"([^\"]+)\"";
+        java.util.regex.Pattern regex = java.util.regex.Pattern.compile(pattern, java.util.regex.Pattern.DOTALL);
+        java.util.regex.Matcher matcher = regex.matcher(code);
 
         if (matcher.find()) {
             return matcher.group(1);

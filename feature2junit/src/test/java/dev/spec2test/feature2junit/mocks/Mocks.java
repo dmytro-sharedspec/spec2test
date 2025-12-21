@@ -57,8 +57,18 @@ public final class Mocks {
 
         GeneratorOptions defaultOptions = new GeneratorOptions();
 
+        // Set default values from GeneratorOptions (can be overridden by Steps.java)
         Mockito.when(options.shouldBeAbstract()).thenReturn(defaultOptions.isShouldBeAbstract());
-        // todo - rest
+        Mockito.when(options.classSuffixIfAbstract()).thenReturn(defaultOptions.getClassSuffixIfAbstract());
+        Mockito.when(options.classSuffixIfConcrete()).thenReturn(defaultOptions.getClassSuffixIfConcrete());
+        Mockito.when(options.addSourceLineAnnotations()).thenReturn(defaultOptions.isAddSourceLineAnnotations());
+        Mockito.when(options.addSourceLineBeforeStepCalls()).thenReturn(defaultOptions.isAddSourceLineBeforeStepCalls());
+        Mockito.when(options.failScenariosWithNoSteps()).thenReturn(defaultOptions.isFailScenariosWithNoSteps());
+        Mockito.when(options.failRulesWithNoScenarios()).thenReturn(defaultOptions.isFailRulesWithNoScenarios());
+        Mockito.when(options.tagForScenariosWithNoSteps()).thenReturn(defaultOptions.getTagForScenariosWithNoSteps());
+        Mockito.when(options.tagForRulesWithNoScenarios()).thenReturn(defaultOptions.getTagForRulesWithNoScenarios());
+        Mockito.when(options.addCucumberStepAnnotations()).thenReturn(defaultOptions.isAddCucumberStepAnnotations());
+        Mockito.when(options.placeGeneratedClassNextToAnnotatedClass()).thenReturn(defaultOptions.isPlaceGeneratedClassNextToAnnotatedClass());
 
         return options;
     }
