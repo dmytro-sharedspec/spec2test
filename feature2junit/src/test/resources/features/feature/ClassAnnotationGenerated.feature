@@ -1,0 +1,46 @@
+Feature: Mapping Feature to @Generated annotation
+  As a developer maintaining a codebase with generated code
+  I want generated test classes to be clearly marked with @Generated annotation
+  So that my development tools can automatically exclude them from code coverage, static analysis, and formatting rules
+
+  Rule: @Generated annotation value is always "dev.spec2test.feature2junit.Feature2JUnitGenerator".
+
+    Scenario: generated class has @Generated annotation with processor name
+      Given the following base class:
+      """
+      package com.example.inventory;
+
+      @Feature2JUnit("stock.feature")
+      public abstract class StockManagement {
+      }
+      """
+      And the following feature file:
+      """
+      Feature: Stock Management
+        As a warehouse manager
+        I want to track inventory
+      """
+      When the generator is run
+      Then the content of the generated class should be:
+      """
+      package com.example.inventory;
+
+      import dev.spec2test.feature2junit.FeatureFilePath;
+      import javax.annotation.processing.Generated;
+      import org.junit.jupiter.api.DisplayName;
+      import org.junit.jupiter.api.MethodOrderer;
+      import org.junit.jupiter.api.TestMethodOrder;
+
+      /**
+       * Feature: Stock Management
+       *   As a warehouse manager
+       *   I want to track inventory
+       */
+      @DisplayName("stock")
+      @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+      @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+      @FeatureFilePath("stock.feature")
+      public abstract class StockManagementScenarios extends StockManagement {
+      }
+      """
+
