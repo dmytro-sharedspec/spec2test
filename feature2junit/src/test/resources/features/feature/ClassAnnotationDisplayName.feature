@@ -27,6 +27,8 @@ Feature: Mapping Feature to @DisplayName annotation
 
       Then the content of the generated class should be:
       """
+      package com.example;
+
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;
       import org.junit.jupiter.api.DisplayName;
