@@ -74,11 +74,9 @@ public final class Mocks {
         String simpleClassName = "MockedAnnotatedTestClass";
         Mockito.when(simpleName.toString()).thenReturn(simpleClassName);
         Mockito.when(annotatedClass.getSimpleName()).thenReturn(simpleName);
+        // Default qualified name is same as simple name (no package)
+        // This will be overridden by Steps.java if a package is specified
         Mockito.when(annotatedClass.getQualifiedName()).thenReturn(simpleName);
-
-        Name qualifiedName = Mockito.mock(Name.class);
-        Mockito.when(qualifiedName.toString()).thenReturn("com.example." + simpleClassName);
-        Mockito.when(annotatedClass.getQualifiedName()).thenReturn(qualifiedName);
 
         DeclaredType annotatedClassMirror = Mockito.mock(DeclaredType.class);
         Mockito.when(annotatedClass.asType()).thenReturn(annotatedClassMirror);
@@ -92,12 +90,9 @@ public final class Mocks {
         Mockito.when(noType.getKind()).thenReturn(javax.lang.model.type.TypeKind.NONE);
         Mockito.when(annotatedClassMirror.getEnclosingType()).thenReturn(noType);
 
-        // Mock PackageElement for enclosing element (needed for instanceof check in TestSubclassCreator)
-        javax.lang.model.element.PackageElement packageElement = Mockito.mock(javax.lang.model.element.PackageElement.class);
-        Name packageName = Mockito.mock(Name.class);
-        Mockito.when(packageName.toString()).thenReturn("com.example");
-        Mockito.when(packageElement.getQualifiedName()).thenReturn(packageName);
-        Mockito.when(annotatedClass.getEnclosingElement()).thenReturn(packageElement);
+        // Default: no package (enclosing element is null)
+        // This will be overridden by Steps.java if a package is specified in the Given step
+        Mockito.when(annotatedClass.getEnclosingElement()).thenReturn(null);
 
         // Type parameters (empty for non-generic class)
         Mockito.when(annotatedClass.getTypeParameters()).thenReturn(java.util.Collections.emptyList());

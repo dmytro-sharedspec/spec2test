@@ -85,7 +85,7 @@ Feature: Mapping Feature to @DisplayName annotation
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("features/ShoppingCart.feature")
-      public abstract class MockedAnnotatedTestClassScenarios extends FeatureTestBase {
+      public abstract class FeatureTestBaseScenarios extends FeatureTestBase {
       }
       """
 
@@ -117,7 +117,7 @@ Feature: Mapping Feature to @DisplayName annotation
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("specs/EmptySpec.feature")
-      public abstract class MockedAnnotatedTestClassScenarios extends FeatureTestBase {
+      public abstract class FeatureTestBaseScenarios extends FeatureTestBase {
       }
       """
 
@@ -149,7 +149,7 @@ Feature: Mapping Feature to @DisplayName annotation
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("specs/RuleOnly.feature")
-      public abstract class MockedAnnotatedTestClassScenarios extends FeatureTestBase {
+      public abstract class FeatureTestBaseScenarios extends FeatureTestBase {
       }
       """
 
@@ -181,7 +181,7 @@ Feature: Mapping Feature to @DisplayName annotation
         @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
         @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
         @FeatureFilePath("specs/SingleScenario.feature")
-        public abstract class MockedAnnotatedTestClassScenarios extends FeatureTestBase {
+        public abstract class FeatureTestBaseScenarios extends FeatureTestBase {
         }
         """
 
@@ -223,7 +223,7 @@ Feature: Mapping Feature to @DisplayName annotation
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("specs/payment.feature")
-      public abstract class MockedAnnotatedTestClassScenarios extends FeatureTestBase {
+      public abstract class FeatureTestBaseScenarios extends FeatureTestBase {
       }
       """
 

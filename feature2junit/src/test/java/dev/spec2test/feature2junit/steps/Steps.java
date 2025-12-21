@@ -91,13 +91,18 @@ public class Steps {
             Mockito.when(qualifiedName.toString()).thenReturn(qualifiedNameStr);
             Mockito.when(annotatedBaseClass.getQualifiedName()).thenReturn(qualifiedName);
 
-            // Also update the PackageElement mock if package was specified
+            // Update the enclosing element based on whether package was specified
             if (packageName != null && !packageName.isEmpty()) {
+                // Package specified - create and set a PackageElement mock
                 javax.lang.model.element.PackageElement packageElement =
-                    (javax.lang.model.element.PackageElement) annotatedBaseClass.getEnclosingElement();
+                    Mockito.mock(javax.lang.model.element.PackageElement.class);
                 javax.lang.model.element.Name pkgName = Mockito.mock(javax.lang.model.element.Name.class);
                 Mockito.when(pkgName.toString()).thenReturn(packageName);
                 Mockito.when(packageElement.getQualifiedName()).thenReturn(pkgName);
+                Mockito.when(annotatedBaseClass.getEnclosingElement()).thenReturn(packageElement);
+            } else {
+                // No package specified - enclosing element should be null (default package)
+                Mockito.when(annotatedBaseClass.getEnclosingElement()).thenReturn(null);
             }
         }
     }

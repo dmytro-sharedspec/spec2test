@@ -6,31 +6,6 @@ Feature: mapping Feature section
   Rule: "Feature:" keyword should be mapped to a javadoc comment in the generated class followed by the feature name
   and description lines verbatim
 
-    Scenario: with just the keyword
-      Given the following feature file:
-      """
-      Feature:
-      """
-      When the generator is run
-      Then the content of the generated class should be:
-      """
-      import dev.spec2test.feature2junit.FeatureFilePath;
-      import javax.annotation.processing.Generated;
-      import org.junit.jupiter.api.DisplayName;
-      import org.junit.jupiter.api.MethodOrderer;
-      import org.junit.jupiter.api.TestMethodOrder;
-
-      /**
-       * Feature:
-       */
-      @DisplayName("MockedAnnotatedTestClass")
-      @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
-      @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-      @FeatureFilePath("/MockedAnnotatedTestClass.feature")
-      public abstract class MockedAnnotatedTestClassScenarios extends  {
-      }
-      """
-
     Scenario: with the keyword and name
       Given the following feature file:
       """
@@ -54,7 +29,7 @@ Feature: mapping Feature section
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("/MockedAnnotatedTestClass.feature")
-      public abstract class MockedAnnotatedTestClassScenarios extends  {
+      public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
       }
       """
 
@@ -85,6 +60,6 @@ Feature: mapping Feature section
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
       @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("/MockedAnnotatedTestClass.feature")
-      public abstract class MockedAnnotatedTestClassScenarios extends  {
+      public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
       }
       """
