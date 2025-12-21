@@ -1,4 +1,4 @@
-Feature: Mapping Feature to @Generated annotation
+Feature: ClassAnnotationGenerated
   As a developer maintaining a codebase with generated code
   I want generated test classes to be clearly marked with @Generated annotation
   So that my development tools can automatically exclude them from code coverage, static analysis, and formatting rules
@@ -28,8 +28,6 @@ Feature: Mapping Feature to @Generated annotation
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;
       import org.junit.jupiter.api.DisplayName;
-      import org.junit.jupiter.api.MethodOrderer;
-      import org.junit.jupiter.api.TestMethodOrder;
 
       /**
        * Feature: Stock Management
@@ -38,7 +36,6 @@ Feature: Mapping Feature to @Generated annotation
        */
       @DisplayName("stock")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
-      @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("stock.feature")
       public abstract class StockManagementScenarios extends StockManagement {
       }
