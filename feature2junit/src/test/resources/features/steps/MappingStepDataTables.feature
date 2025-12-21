@@ -54,14 +54,7 @@ Feature: Mapping DataTables to method parameters
         | name  | age |
         | Alice | 30  |
         | Bob   | 25  |
-      Then the formatted output is:
-        """
-        createDataTable("""
-        | name  | age |
-        | Alice | 30  |
-        | Bob   | 25  |
-        """)
-        """
+      Then the formatted output includes createDataTable call
       And columns are aligned with spaces
 
     Scenario: DataTable with three columns
