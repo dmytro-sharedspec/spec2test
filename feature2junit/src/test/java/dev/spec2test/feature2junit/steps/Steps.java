@@ -112,13 +112,22 @@ public class Steps {
 
     private String extractFeature2JUnitPath(String baseClassCode) {
         // Extract the path from @Feature2JUnit("path/to/file.feature")
-        String pattern = "@Feature2JUnit\\(\"([^\"]+)\"\\)";
-        java.util.regex.Pattern regex = java.util.regex.Pattern.compile(pattern);
-        java.util.regex.Matcher matcher = regex.matcher(baseClassCode);
+        // or detect @Feature2JUnit without parentheses (default value)
+        String patternWithValue = "@Feature2JUnit\\(\"([^\"]+)\"\\)";
+        java.util.regex.Pattern regexWithValue = java.util.regex.Pattern.compile(patternWithValue);
+        java.util.regex.Matcher matcherWithValue = regexWithValue.matcher(baseClassCode);
 
-        if (matcher.find()) {
-            return matcher.group(1);
+        if (matcherWithValue.find()) {
+            return matcherWithValue.group(1);
         }
+
+        // Check if @Feature2JUnit exists without parentheses or with empty value
+        String patternNoValue = "@Feature2JUnit(?:\\(\\)|(?![\\(]))";
+        java.util.regex.Pattern regexNoValue = java.util.regex.Pattern.compile(patternNoValue);
+        if (regexNoValue.matcher(baseClassCode).find()) {
+            return ""; // Return empty string to trigger path construction
+        }
+
         return null;
     }
 

@@ -28,8 +28,6 @@ Feature: Mapping Feature to @FeatureFilePath annotation
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;
       import org.junit.jupiter.api.DisplayName;
-      import org.junit.jupiter.api.MethodOrderer;
-      import org.junit.jupiter.api.TestMethodOrder;
 
       /**
        * Feature: Shopping Cart Management
@@ -38,7 +36,6 @@ Feature: Mapping Feature to @FeatureFilePath annotation
        */
       @DisplayName("cart")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
-      @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("features/shopping/cart.feature")
       public abstract class CartFeatureBaseScenarios extends CartFeatureBase {
       }
@@ -67,8 +64,6 @@ Feature: Mapping Feature to @FeatureFilePath annotation
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;
       import org.junit.jupiter.api.DisplayName;
-      import org.junit.jupiter.api.MethodOrderer;
-      import org.junit.jupiter.api.TestMethodOrder;
 
       /**
        * Feature: Payment Processing
@@ -77,7 +72,6 @@ Feature: Mapping Feature to @FeatureFilePath annotation
        */
       @DisplayName("PaymentProcessing")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
-      @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("com/example/payment/PaymentProcessing.feature")
       public abstract class PaymentProcessingScenarios extends PaymentProcessing {
       }
