@@ -3,8 +3,7 @@ Feature: adding @TestMethodOrder annotation
   I want @TestMethodOrder annotation to ensure scenarios execute in their defined sequence
   So that test behavior matches the logical flow documented in the feature file
 
-  Rule: @TestMethodOrder annotation controls scenario execution order
-    The @TestMethodOrder annotation is added to every generated test class.
+  Rule: @TestMethodOrder annotation is added to every generated test class.
     The annotation value is MethodOrderer.OrderAnnotation.class.
     This ensures scenarios run in the order specified by their @Order annotations.
 
