@@ -1,7 +1,7 @@
 Feature: MappingRule
-  As a developer
-  I want to verify that the content of the "Rule" section is mapped to a nested inner test class
-  So that all scenarios under a particular "Rule" can be all easily run together
+  As a test developer using Gherkin
+  I want Rules to be organized as nested test classes
+  So that I can logically group and execute related scenarios together
 
   Rule: rule section should be mapped to nested inner class and rule name should be mapped to the value in display name annotation
 
