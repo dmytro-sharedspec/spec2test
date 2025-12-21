@@ -8,6 +8,8 @@ Feature: Mapping Feature to @DisplayName annotation
     Scenario: file file is in the root directory
       Given the following base class:
       """
+      package com.example;
+
       @Feature2JUnit("ShoppingCart.feature")
       public abstract class FeatureTestBase extends  {
 
