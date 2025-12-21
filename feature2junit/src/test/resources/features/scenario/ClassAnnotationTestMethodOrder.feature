@@ -1,7 +1,7 @@
-Feature: Mapping Feature to @TestMethodOrder annotation
-  As a developer
-  I want to verify that the @TestMethodOrder annotation is correctly added to the generated test class
-  So that test scenarios execute in the order they appear in the feature file
+Feature: adding @TestMethodOrder annotation
+  As a developer maintaining executable specifications
+  I want @TestMethodOrder annotation to ensure scenarios execute in their defined sequence
+  So that test behavior matches the logical flow documented in the feature file
 
   Rule: @TestMethodOrder annotation controls scenario execution order
     The @TestMethodOrder annotation is added to every generated test class.
