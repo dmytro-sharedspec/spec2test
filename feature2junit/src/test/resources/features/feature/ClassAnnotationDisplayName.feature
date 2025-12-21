@@ -32,8 +32,6 @@ Feature: Mapping Feature to @DisplayName annotation
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;
       import org.junit.jupiter.api.DisplayName;
-      import org.junit.jupiter.api.MethodOrderer;
-      import org.junit.jupiter.api.TestMethodOrder;
 
       /**
        * Feature: managing shopping cart
@@ -43,7 +41,6 @@ Feature: Mapping Feature to @DisplayName annotation
        */
       @DisplayName("ShoppingCart")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
-      @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("ShoppingCart.feature")
       public abstract class FeatureTestBaseScenarios extends FeatureTestBase {
       }
@@ -72,8 +69,6 @@ Feature: Mapping Feature to @DisplayName annotation
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;
       import org.junit.jupiter.api.DisplayName;
-      import org.junit.jupiter.api.MethodOrderer;
-      import org.junit.jupiter.api.TestMethodOrder;
 
       /**
        * Feature: Online Shopping Cart
@@ -83,7 +78,6 @@ Feature: Mapping Feature to @DisplayName annotation
        */
       @DisplayName("ShoppingCart")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
-      @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("features/ShoppingCart.feature")
       public abstract class FeatureTestBaseScenarios extends FeatureTestBase {
       }
@@ -110,12 +104,9 @@ Feature: Mapping Feature to @DisplayName annotation
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;
       import org.junit.jupiter.api.DisplayName;
-      import org.junit.jupiter.api.MethodOrderer;
-      import org.junit.jupiter.api.TestMethodOrder;
 
       @DisplayName("EmptySpec")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
-      @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("specs/EmptySpec.feature")
       public abstract class FeatureTestBaseScenarios extends FeatureTestBase {
       }
@@ -142,12 +133,9 @@ Feature: Mapping Feature to @DisplayName annotation
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;
       import org.junit.jupiter.api.DisplayName;
-      import org.junit.jupiter.api.MethodOrderer;
-      import org.junit.jupiter.api.TestMethodOrder;
 
       @DisplayName("RuleOnly")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
-      @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("specs/RuleOnly.feature")
       public abstract class FeatureTestBaseScenarios extends FeatureTestBase {
       }
@@ -174,12 +162,9 @@ Feature: Mapping Feature to @DisplayName annotation
         import dev.spec2test.feature2junit.FeatureFilePath;
         import javax.annotation.processing.Generated;
         import org.junit.jupiter.api.DisplayName;
-        import org.junit.jupiter.api.MethodOrderer;
-        import org.junit.jupiter.api.TestMethodOrder;
 
         @DisplayName("SingleScenario")
         @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
-        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
         @FeatureFilePath("specs/SingleScenario.feature")
         public abstract class FeatureTestBaseScenarios extends FeatureTestBase {
         }
@@ -210,8 +195,6 @@ Feature: Mapping Feature to @DisplayName annotation
       import dev.spec2test.feature2junit.FeatureFilePath;
       import javax.annotation.processing.Generated;
       import org.junit.jupiter.api.DisplayName;
-      import org.junit.jupiter.api.MethodOrderer;
-      import org.junit.jupiter.api.TestMethodOrder;
 
       /**
        * Feature: Processing Credit Card Payments and Refunds
@@ -221,7 +204,6 @@ Feature: Mapping Feature to @DisplayName annotation
        */
       @DisplayName("payment")
       @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
-      @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
       @FeatureFilePath("specs/payment.feature")
       public abstract class FeatureTestBaseScenarios extends FeatureTestBase {
       }
