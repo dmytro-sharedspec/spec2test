@@ -47,7 +47,7 @@ public final class Mocks {
     public static Feature2JUnit feature2junit() {
 
         Feature2JUnit f2j = Mockito.mock(Feature2JUnit.class);
-        //        Mockito.when(f2j.value()).thenReturn("features/MockedFeaturePath.feature");
+        Mockito.when(f2j.value()).thenReturn("MockedAnnotatedTestClass.feature");
         return f2j;
     }
 
