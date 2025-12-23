@@ -228,7 +228,11 @@ class TestSubclassCreator implements LoggingSupport, OptionsSupport {
          */
         String featureFilePathForAnnotation;
         if (featureFilePath == null || featureFilePath.isBlank()) {
-            featureFilePathForAnnotation = packageName.replaceAll("\\.", "/") + "/" + annotatedClassName + ".feature";
+            if (StringUtils.isNotBlank(packageName)) {
+                featureFilePathForAnnotation = packageName.replaceAll("\\.", "/") + "/" + annotatedClassName + ".feature";
+            } else {
+                featureFilePathForAnnotation = annotatedClassName + ".feature";
+            }
         } else {
             featureFilePathForAnnotation = featureFilePath;
         }

@@ -1,7 +1,7 @@
 Feature: adding @TestMethodOrder annotation
   As a developer maintaining executable specifications
-  I want @TestMethodOrder annotation to ensure scenarios execute in their defined sequence
-  So that test behavior matches the logical flow documented in the feature file
+  I want scenarios at the Feature level to execute in their defined sequence
+  So that test behavior is predictable when scenarios are not organized under Rules
 
   Rule: @TestMethodOrder annotation is added to every generated test class if it has at least one scenario
 

@@ -174,6 +174,30 @@ public class Steps {
         if (classSuffixIfConcrete != null) {
             Mockito.when(feature2JUnitOptions.classSuffixIfConcrete()).thenReturn(classSuffixIfConcrete);
         }
+
+        // Extract failRulesWithNoScenarios
+        Boolean failRulesWithNoScenarios = extractBooleanOption(baseClassCode, "failRulesWithNoScenarios");
+        if (failRulesWithNoScenarios != null) {
+            Mockito.when(feature2JUnitOptions.failRulesWithNoScenarios()).thenReturn(failRulesWithNoScenarios);
+        }
+
+        // Extract tagForRulesWithNoScenarios
+        String tagForRulesWithNoScenarios = extractStringOption(baseClassCode, "tagForRulesWithNoScenarios");
+        if (tagForRulesWithNoScenarios != null) {
+            Mockito.when(feature2JUnitOptions.tagForRulesWithNoScenarios()).thenReturn(tagForRulesWithNoScenarios);
+        }
+
+        // Extract failScenariosWithNoSteps
+        Boolean failScenariosWithNoSteps = extractBooleanOption(baseClassCode, "failScenariosWithNoSteps");
+        if (failScenariosWithNoSteps != null) {
+            Mockito.when(feature2JUnitOptions.failScenariosWithNoSteps()).thenReturn(failScenariosWithNoSteps);
+        }
+
+        // Extract tagForScenariosWithNoSteps
+        String tagForScenariosWithNoSteps = extractStringOption(baseClassCode, "tagForScenariosWithNoSteps");
+        if (tagForScenariosWithNoSteps != null) {
+            Mockito.when(feature2JUnitOptions.tagForScenariosWithNoSteps()).thenReturn(tagForScenariosWithNoSteps);
+        }
     }
 
     private Boolean extractBooleanOption(String code, String optionName) {

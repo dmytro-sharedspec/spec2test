@@ -1,4 +1,4 @@
-Feature: ClassJavaDoc
+Feature: MappingFeatureBlock
   As a developer reviewing or maintaining generated test code
   I want the feature description and user story to appear as JavaDoc comments in the generated class
   So that I can quickly understand the purpose and intended users without switching to the original feature file

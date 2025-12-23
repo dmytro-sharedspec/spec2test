@@ -62,12 +62,6 @@ class ScenarioProcessor implements LoggingSupport, OptionsSupport, BaseTypeSuppo
                 //                .addParameter(TestInfo.class, "testInfo")
                 .addModifiers(Modifier.PUBLIC);
 
-        List<Tag> tags = scenario.getTags();
-        if (tags != null && !tags.isEmpty()) {
-            AnnotationSpec jUnitTagsAnnotation = TagUtils.toJUnitTagsAnnotation(tags);
-            scenarioMethodBuilder.addAnnotation(jUnitTagsAnnotation);
-        }
-
         String description = scenario.getDescription();
         if (StringUtils.isNotBlank(description)) {
             description = JavaDocUtils.trimLeadingAndTrailingWhitespace(description);
@@ -96,6 +90,12 @@ class ScenarioProcessor implements LoggingSupport, OptionsSupport, BaseTypeSuppo
         }
 
         addOrderAnnotation(scenarioMethodBuilder, scenarioNumber);
+
+        List<Tag> tags = scenario.getTags();
+        if (tags != null && !tags.isEmpty()) {
+            AnnotationSpec jUnitTagsAnnotation = TagUtils.toJUnitTagsAnnotation(tags);
+            scenarioMethodBuilder.addAnnotation(jUnitTagsAnnotation);
+        }
 
         if (options.isAddSourceLineAnnotations()) {
             AnnotationSpec locationAnnotation = LocationUtils.toJUnitTagsAnnotation(scenario.getLocation());

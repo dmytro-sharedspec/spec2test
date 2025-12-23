@@ -1,4 +1,4 @@
-Feature: ClassAnnotationTags
+Feature: FeatureTags
   As a developer managing test execution in CI/CD pipelines
   I want Gherkin feature tags to be mapped to JUnit @Tag annotations
   So that I can filter which tests to run based on context (e.g., run only @smoke tests on PR, @regression on release)
