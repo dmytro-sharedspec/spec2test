@@ -1,4 +1,4 @@
-Feature: Mapping Feature to @DisplayName annotation
+Feature: ClassAnnotationDisplayName
   As a developer running and reviewing test results
   I want test reports to display meaningful names based on the feature file name
   So that I can quickly identify which feature is being tested without inspecting technical class names

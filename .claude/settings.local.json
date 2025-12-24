@@ -5,7 +5,13 @@
       "Bash(mvn test-compile:*)",
       "Bash(mvn test:*)",
       "Bash(cat:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(find:*)",
+      "Bash(\"/Applications/IntelliJ IDEA.app/Contents/MacOS/idea\" --help)",
+      "mcp__jetbrains__*",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.jetbrains.com)"
     ],
     "deny": [],
     "ask": []

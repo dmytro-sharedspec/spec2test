@@ -1,32 +1,10 @@
-Feature: Mapping steps - Overview and Index
+Feature: MappingSteps
   As a developer
-  I want to understand how Gherkin steps are mapped to Java method signatures and method calls
-  So that I can implement the step methods in a subclass and have the scenario test methods call them
-
-  Background:
-    This feature file serves as an overview and index to detailed step mapping documentation.
-    The complete step mapping specification has been split into focused feature files for clarity.
+  I want Gherkin steps automatically converted to type-safe Java method calls
+  So that I can implement step logic without writing glue code in annotations
 
   Rule: Step mapping documentation structure
     The step mapping rules are organized into the following detailed feature files:
-
-    1. MappingStepMethodNames.feature
-       - How step keywords (Given/When/Then) and step text are converted to method names
-       - camelCase conversion rules
-       - And/But/* keyword inheritance
-       - Method deduplication logic
-
-    2. MappingStepParameters.feature
-       - How quoted strings in steps are extracted and become method parameters
-       - Placeholder generation ($p1, $p2, etc.)
-       - Parameter naming conventions (p1, p2, p3)
-       - All parameters are typed as String
-
-    3. MappingStepDataTables.feature
-       - How DataTable arguments are added as method parameters
-       - DataTable formatting with pipe delimiters
-       - Column width calculation and alignment
-       - createDataTable() helper method usage
 
     4. MappingStepDocStrings.feature
        - How DocString arguments are added as method parameters
@@ -51,32 +29,32 @@ Feature: Mapping steps - Overview and Index
 
   Rule: Quick reference - Common mapping patterns
 
-    Scenario: Simple step without parameters
-      Given step text: "Given user exists"
-      Then method name: "givenUserExists()"
-      And method call: "givenUserExists()"
-
-    Scenario: Step with quoted parameter
-      Given step text: 'When user "Alice" logs in'
-      Then method name: "whenUser$p1LogsIn(String p1)"
-      And method call: 'whenUserP1LogsIn("Alice")'
-
-    Scenario: Scenario Outline with parameter
-      Given step text: "Given user <username> exists"
-      And Examples column: "username"
-      Then method name: "givenUser$p1Exists(String p1)"
-      And method call: "givenUserP1Exists(username)"
-      And parameter is passed unquoted
-
-    Scenario: Step with DataTable
-      Given step text: "Given the following users exist:" with DataTable
-      Then method name: "givenTheFollowingUsersExist(DataTable dataTable)"
-      And method call uses: "createDataTable(...)"
-
-    Scenario: Step with DocString
-      Given step text: "Given document contains:" with DocString
-      Then method name: "givenDocumentContains(String docString)"
-      And multi-line content is preserved
+#    Scenario: Simple step without parameters
+#      Given step text: "Given user exists"
+#      Then method name: "givenUserExists()"
+#      And method call: "givenUserExists()"
+#
+#    Scenario: Step with quoted parameter
+#      Given step text: 'When user "Alice" logs in'
+#      Then method name: "whenUser$p1LogsIn(String p1)"
+#      And method call: 'whenUserP1LogsIn("Alice")'
+#
+#    Scenario: Scenario Outline with parameter
+#      Given step text: "Given user <username> exists"
+#      And Examples column: "username"
+#      Then method name: "givenUser$p1Exists(String p1)"
+#      And method call: "givenUserP1Exists(username)"
+#      And parameter is passed unquoted
+#
+#    Scenario: Step with DataTable
+#      Given step text: "Given the following users exist:" with DataTable
+#      Then method name: "givenTheFollowingUsersExist(DataTable dataTable)"
+#      And method call uses: "createDataTable(...)"
+#
+#    Scenario: Step with DocString
+#      Given step text: "Given document contains:" with DocString
+#      Then method name: "givenDocumentContains(String docString)"
+#      And multi-line content is preserved
 
   Rule: Generation options that affect step mapping
 

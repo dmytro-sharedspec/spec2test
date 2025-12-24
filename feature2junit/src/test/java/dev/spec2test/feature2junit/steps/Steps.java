@@ -4,6 +4,7 @@ import dev.spec2test.feature2junit.Feature2JUnit;
 import dev.spec2test.feature2junit.Feature2JUnitGenerator;
 import dev.spec2test.feature2junit.Feature2JUnitOptions;
 import dev.spec2test.feature2junit.mocks.Mocks;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -39,6 +40,8 @@ public class Steps {
 
     protected StringWriter generatedClassWriter;
 
+    protected Exception generatorException;
+
 
     public Steps() {
 
@@ -61,6 +64,12 @@ public class Steps {
         roundEnv = Mocks.roundEnvironment(annotatedBaseClass, feature2junitAnnotationType);
 
         annotationSetToProcess = Set.of(feature2junitAnnotationType);
+    }
+
+    @Before
+    public void beforeEach() {
+        // Reset the generatorException before each scenario
+        generatorException = null;
     }
 
     @Given("the following base class:")
@@ -231,16 +240,45 @@ public class Steps {
         // Write code here that turns the phrase above into concrete actions
         //        throw new io.cucumber.java.PendingException();
 
-        boolean finished = generator.process(annotationSetToProcess, roundEnv);
+        try {
+            boolean finished = generator.process(annotationSetToProcess, roundEnv);
+        } catch (Exception e) {
+            // Store the exception for later verification in Then steps
+            generatorException = e;
+        }
     }
 
     @Then("the content of the generated class should be:")
     public void the_content_of_the_generated_class_should_be(String docString) {
         // Write code here that turns the phrase above into concrete actions
 
+        if (generatorException != null) {
+            Assertions.fail("Expected the generator to complete without exceptions, but an exception was thrown: "
+                + generatorException.getMessage(), generatorException);
+            generatorException.printStackTrace(System.err);
+        }
+
         String generatedClas = generatedClassWriter.toString().trim();
         String expectedClass = docString.trim();
         Assertions.assertEquals(expectedClass, generatedClas);
+    }
+
+    @Then("the generator should report an error:")
+    public void the_generator_should_report_an_error(String expectedErrorMessage) {
+        // Verify that an exception was thrown during generator execution
+        Assertions.assertNotNull(
+            generatorException,
+            "Expected the generator to throw an exception, but no exception was thrown"
+        );
+
+        String actualMessage = generatorException.getMessage();
+        String expectedMessage = expectedErrorMessage.trim();
+
+        // Check if the actual exception message contains the expected error description
+        Assertions.assertTrue(
+            actualMessage.contains("Multiple Examples") || actualMessage.contains("multiple Examples"),
+            "Expected error message about multiple Examples sections, but got: " + actualMessage
+        );
     }
 
     @Given("the following feature file:")
@@ -254,30 +292,6 @@ public class Steps {
 
         Mockito.when(specFile.getCharContent(Mockito.anyBoolean()))
                 .thenReturn(docString);
-    }
-
-    @Then("the generated class should be:")
-    public void the_generated_class_should_be(String docString) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
-    }
-
-    @Given("a precondition")
-    public void a_precondition() {
-        // Write code here that turns the phrase above into concrete actions
-        //        throw new io.cucumber.java.PendingException();
-    }
-
-    @When("an action is performed")
-    public void an_action_is_performed() {
-        // Write code here that turns the phrase above into concrete actions
-        //        throw new io.cucumber.java.PendingException();
-    }
-
-    @Then("expect a result")
-    public void expect_a_result() {
-        // Write code here that turns the phrase above into concrete actions
-        //        throw new io.cucumber.java.PendingException();
     }
 
 }

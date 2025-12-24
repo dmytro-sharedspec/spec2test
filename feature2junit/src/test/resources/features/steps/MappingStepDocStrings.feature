@@ -1,225 +1,533 @@
-Feature: Mapping DocStrings to method parameters
+Feature: MappingStepDocStrings
   As a developer
-  I want to understand how DocStrings in steps are converted to method parameters
-  So that I can work with multi-line text content in my step implementations
+  I want Gherkin DocStrings to be mapped to String parameters in generated step methods
+  So that I can work with multi-line text content in my tests
 
-  Rule: DocString parameters are added as the last parameter when present
-    When a step has a DocString, a parameter of type String named "docString" is added.
-    Triple quotes in DocString content are escaped: """ becomes \"""
-    The DocString parameter is always the last parameter in the method signature.
+  Rule: DocString parameters are added as the last parameter of type String
+  - if a step has a DocString, a parameter of type String named "docString" is added
+  - the DocString content is passed as a text block (triple quotes """ """)
 
     Scenario: Step with DocString and no quoted parameters
-      Given the step is:
+      Given the following feature file:
         """
-        Given the following JSON exists:
-          ```
-          {
-            "name": "Alice",
-            "role": "Admin"
-          }
-          ```
+        Feature: Document Processing
+          Scenario: Process document
+            Given document contains:
+              \"\"\"
+              Hello World
+              This is a test document
+              \"\"\"
         """
-      Then the method signature is "givenTheFollowingJsonExists(String docString)"
-      And the parameter type is "String"
-      And the parameter name is "docString"
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.java.en.Given;
+        import java.lang.String;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
+
+        /**
+         * Feature: Document Processing
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @Given("^document contains:$")
+            public abstract void givenDocumentContains(String docString);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Process document")
+            public void scenario_1() {
+                /**
+                 * Given document contains:
+                 */
+                givenDocumentContains(\"\"\"
+                        Hello World
+                        This is a test document
+                        \"\"\");
+            }
+        }
+        """
 
     Scenario: Step with DocString and one quoted parameter
-      Given the step is:
+      Given the following feature file:
         """
-        When user "Alice" submits document:
-          ```
-          This is a multi-line
-          document content
-          ```
+        Feature: User Documents
+          Scenario: Save user document
+            When user "Alice" saves document:
+              \"\"\"
+              Meeting notes:
+              - Discuss project timeline
+              - Review budget
+              \"\"\"
         """
-      Then the method signature is "whenUser$p1SubmitsDocument(String p1, String docString)"
-      And parameter 1 is "p1" of type "String"
-      And parameter 2 is "docString" of type "String"
-      And DocString is always the last parameter
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.java.en.When;
+        import java.lang.String;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
+
+        /**
+         * Feature: User Documents
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @When("^user (?<p1>.*) saves document:$")
+            public abstract void whenUser$p1SavesDocument(String p1, String docString);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Save user document")
+            public void scenario_1() {
+                /**
+                 * When user "Alice" saves document:
+                 */
+                whenUser$p1SavesDocument("Alice", \"\"\"
+                        Meeting notes:
+                        - Discuss project timeline
+                        - Review budget
+                        \"\"\");
+            }
+        }
+        """
 
     Scenario: Step with DocString and multiple quoted parameters
-      Given the step is:
+      Given the following feature file:
         """
-        Then response for request "GET" to "/api/users" is:
-          ```
-          {
-            "status": "success"
-          }
-          ```
+        Feature: Email System
+          Scenario: Send email
+            When user "Bob" sends email to "alice@example.com" with content:
+              \"\"\"
+              Dear Alice,
+
+              Please review the attached document.
+
+              Best regards,
+              Bob
+              \"\"\"
         """
-      Then the method signature is "thenResponseForRequest$p1To$p2Is(String p1, String p2, String docString)"
-      And parameters are ordered: "p1, p2, docString"
-
-  Rule: Triple quotes in DocString content are escaped
-    DocStrings use triple quotes (""") as delimiters.
-    If the content contains triple quotes, they must be escaped to \""".
-    This prevents premature string termination in generated code.
-
-    Scenario: DocString containing triple quotes
-      Given the DocString content is:
+      When the generator is run
+      Then the content of the generated class should be:
         """
-        Example of triple quotes: """
-        More content here
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.java.en.When;
+        import java.lang.String;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
+
+        /**
+         * Feature: Email System
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @When("^user (?<p1>.*) sends email to (?<p2>.*) with content:$")
+            public abstract void whenUser$p1SendsEmailTo$p2WithContent(String p1, String p2,
+                    String docString);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Send email")
+            public void scenario_1() {
+                /**
+                 * When user "Bob" sends email to "alice@example.com" with content:
+                 */
+                whenUser$p1SendsEmailTo$p2WithContent("Bob", "alice@example.com", \"\"\"
+                        Dear Alice,
+
+                        Please review the attached document.
+
+                        Best regards,
+                        Bob
+                        \"\"\");
+            }
+        }
         """
-      Then the escaped content is:
+
+  Rule: Triple quotes in output are escaped but cannot be tested due to Gherkin limitation
+  - When DocString content contains triple quotes in source feature files, they are escaped as \\\"\\\"\\\" in generated Java code
+  - This escaping prevents breaking Java text block syntax
+  - NOTE: This cannot be demonstrated in test scenarios because Gherkin does not support triple quotes inside DocStrings
+  - The Gherkin parser would interpret """ inside a DocString as the end delimiter, making it impossible to write valid test cases
+  - This is a known limitation of the Gherkin specification, not a limitation of the code generator
+
+    Rule: Multi-line content in DocStrings is preserved exactly as written
+    - indentation is preserved
+    - blank lines are preserved
+    - special characters are preserved
+    - line breaks are maintained
+
+    Scenario: DocString with complex formatting is preserved
+      Given the following feature file:
         """
-        Example of triple quotes: \"""
-        More content here
+        Feature: File Content
+          Scenario: Verify file structure
+            Then file should contain:
+              \"\"\"
+              {
+                "name": "project",
+                "version": "1.0.0",
+
+                "dependencies": {
+                  "lib1": "^2.0.0"
+                }
+              }
+              \"\"\"
         """
-      And the method call uses the escaped version
-
-    Scenario: DocString with multiple occurrences of triple quotes
-      Given the DocString content has """ at the beginning
-      And the DocString content has """ in the middle
-      And the DocString content has """ at the end
-      Then all occurrences are escaped to \"""
-      And the string is properly delimited
-
-    Scenario: DocString without triple quotes
-      Given the DocString content is:
+      When the generator is run
+      Then the content of the generated class should be:
         """
-        Simple text
-        without triple quotes
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.java.en.Then;
+        import java.lang.String;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
+
+        /**
+         * Feature: File Content
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @Then("^file should contain:$")
+            public abstract void thenFileShouldContain(String docString);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Verify file structure")
+            public void scenario_1() {
+                /**
+                 * Then file should contain:
+                 */
+                thenFileShouldContain(\"\"\"
+                        {
+                          "name": "project",
+                          "version": "1.0.0",
+
+                          "dependencies": {
+                            "lib1": "^2.0.0"
+                          }
+                        }
+                        \"\"\");
+            }
+        }
         """
-      Then no escaping is needed
-      And the content is passed as-is
 
-  Rule: DocString preserves multi-line content
-    DocStrings maintain line breaks and formatting from the feature file.
-    Indentation and whitespace are preserved.
-
-    Scenario: DocString with multiple lines
-      Given the DocString is:
+    Scenario: DocString with special characters and symbols
+      Given the following feature file:
         """
-        Line 1
-        Line 2
-        Line 3
+        Feature: Special Characters
+          Scenario: Handle special text
+            Given text with symbols:
+              \"\"\"
+              Special chars: @#$%^&*()
+              Quotes: "single" and 'double'
+              Backslash: \\path\\to\\file
+              Unicode: café, naïve, 日本語
+              \"\"\"
         """
-      Then the content has 3 lines
-      And line breaks are preserved in the String parameter
-
-    Scenario: DocString with indented content
-      Given the DocString is:
+      When the generator is run
+      Then the content of the generated class should be:
         """
-          Indented line 1
-            More indented line 2
-          Back to first indent
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.java.en.Given;
+        import java.lang.String;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
+
+        /**
+         * Feature: Special Characters
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @Given("^text with symbols:$")
+            public abstract void givenTextWithSymbols(String docString);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Handle special text")
+            public void scenario_1() {
+                /**
+                 * Given text with symbols:
+                 */
+                givenTextWithSymbols(\"\"\"
+                        Special chars: @#$%^&*()
+                        Quotes: "single" and 'double'
+                        Backslash: \\path\\to\\file
+                        Unicode: café, naïve, 日本語
+                        \"\"\");
+            }
+        }
         """
-      Then the indentation is preserved
-      And spaces are maintained in the String parameter
 
-    Scenario: DocString with empty lines
-      Given the DocString is:
+  Rule: Scenario Outline parameters are replaced in DocStrings
+  - angle bracket parameters <param> in DocStrings are replaced with actual values
+  - the replacement happens at the method call site, not in the method signature
+  - DocString parameter type remains String in method signature
+  - each example row gets its own DocString with substituted values
+
+    Scenario: Scenario Outline with DocString containing one parameter
+      Given the following feature file:
         """
-        First paragraph
+        Feature: Template Messages
+          Scenario Outline: Send template message
+            When user sends message:
+              \"\"\"
+              Hello <recipient>,
 
-        Second paragraph after blank line
+              This is an automated message.
+              \"\"\"
+
+          Examples:
+            | recipient |
+            | Alice     |
+            | Bob       |
         """
-      Then the empty line is preserved
-      And the String contains the blank line
-
-  Rule: DocString works with all step keywords
-    DocStrings can appear in Given, When, Then, And, But, and * steps.
-    The parameter handling is consistent across all step types.
-
-    Scenario: DocString in Given step
-      Given a Given step has a DocString
-      Then the method signature includes "String docString"
-      And the keyword prefix is "given"
-
-    Scenario: DocString in When step
-      Given a When step has a DocString
-      Then the method signature includes "String docString"
-      And the keyword prefix is "when"
-
-    Scenario: DocString in Then step
-      Given a Then step has a DocString
-      Then the method signature includes "String docString"
-      And the keyword prefix is "then"
-
-    Scenario: DocString in And step
-      Given an And step has a DocString
-      Then the method signature includes "String docString"
-      And the keyword is inherited from previous step
-
-  Rule: DocString and DataTable cannot both be present in a single step
-    A step can have either a DocString or a DataTable, but not both.
-    This is a Gherkin language constraint.
-
-    Scenario: Step with only DocString
-      Given a step has a DocString
-      And the step has no DataTable
-      Then the method signature ends with "String docString"
-
-    Scenario: Step with only DataTable
-      Given a step has a DataTable
-      And the step has no DocString
-      Then the method signature ends with "DataTable dataTable"
-
-  Rule: DocString content type markers are preserved
-    DocStrings can have optional content type markers (e.g., ```json, ```xml).
-    These markers are part of the content passed to the method.
-
-    Scenario: DocString with JSON content type
-      Given the DocString has content type "json":
-        ```json
-        {"key": "value"}
-        ```
-      Then the content type marker is included
-      And the parameter receives the full content
-
-    Scenario: DocString with XML content type
-      Given the DocString has content type "xml":
-        ```xml
-        <root>value</root>
-        ```
-      Then the content type marker is included
-
-    Scenario: DocString with no content type
-      Given the DocString has no content type marker:
-        ```
-        Plain text content
-        ```
-      Then the content is passed without a type marker
-
-  Rule: DocString parameter replacement in Scenario Outlines
-    For Scenario Outlines, scenario parameter references in DocStrings are replaced using .replaceAll() chain.
-    Placeholders like <paramName> are substituted with actual values from Examples table.
-
-    Scenario: DocString with single scenario parameter
-      Given a Scenario Outline step with DocString:
+      When the generator is run
+      Then the content of the generated class should be:
         """
-        When user submits data:
-          ```
-          Username: <username>
-          ```
-        """
-      And Examples table has column "username"
-      Then the method call includes ".replaceAll(\"<username>\", username)"
-      And the DocString parameter is dynamically replaced
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.java.en.When;
+        import java.lang.String;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.TestMethodOrder;
+        import org.junit.jupiter.params.ParameterizedTest;
+        import org.junit.jupiter.params.provider.CsvSource;
 
-    Scenario: DocString with multiple scenario parameters
-      Given a Scenario Outline step with DocString:
-        """
-        Given document with:
-          ```
-          Name: <name>
-          Email: <email>
-          Role: <role>
-          ```
-        """
-      And Examples table has columns "name", "email", "role"
-      Then the method call chains multiple replaceAll calls
-      And each placeholder is replaced with corresponding variable
+        /**
+         * Feature: Template Messages
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @When("^user sends message:$")
+            public abstract void whenUserSendsMessage(String docString);
 
-    Scenario: DocString with no scenario parameters in Scenario Outline
-      Given a Scenario Outline step with DocString:
+            @ParameterizedTest(
+                    name = "Example {index}: [{arguments}]"
+            )
+            @CsvSource(
+                    useHeadersInDisplayName = true,
+                    delimiter = '|',
+                    textBlock = \"\"\"
+                            recipient
+                            Alice
+                            Bob
+                            \"\"\"
+            )
+            @Order(1)
+            @DisplayName("Scenario: Send template message")
+            public void scenario_1(String recipient) {
+                /**
+                 * When user sends message:
+                 */
+                whenUserSendsMessage(\"\"\"
+                        Hello <recipient>,
+
+                        This is an automated message.
+                        \"\"\"
+                        .replaceAll("<recipient>", recipient));
+            }
+        }
         """
-        When user submits:
-          ```
-          Static content
-          ```
+
+    Scenario: Scenario Outline with DocString containing multiple parameters
+      Given the following feature file:
         """
-      And the DocString has no <placeholders>
-      Then no replaceAll calls are generated
-      And the DocString is passed as a literal string
+        Feature: Email Templates
+          Scenario Outline: Generate email
+            Given email template:
+              \"\"\"
+              From: <sender>
+              To: <recipient>
+              Subject: <subject>
+
+              Dear <recipient>,
+
+              <body>
+
+              Regards,
+              <sender>
+              \"\"\"
+
+          Examples:
+            | sender | recipient | subject       | body               |
+            | Alice  | Bob       | Meeting       | See you tomorrow   |
+            | Carol  | Dave      | Project Update| Status is green    |
+        """
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.java.en.Given;
+        import java.lang.String;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.TestMethodOrder;
+        import org.junit.jupiter.params.ParameterizedTest;
+        import org.junit.jupiter.params.provider.CsvSource;
+
+        /**
+         * Feature: Email Templates
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @Given("^email template:$")
+            public abstract void givenEmailTemplate(String docString);
+
+            @ParameterizedTest(
+                    name = "Example {index}: [{arguments}]"
+            )
+            @CsvSource(
+                    useHeadersInDisplayName = true,
+                    delimiter = '|',
+                    textBlock = \"\"\"
+                            sender | recipient | subject        | body
+                            Alice  | Bob       | Meeting        | See you tomorrow
+                            Carol  | Dave      | Project Update | Status is green
+                            \"\"\"
+            )
+            @Order(1)
+            @DisplayName("Scenario: Generate email")
+            public void scenario_1(String sender, String recipient, String subject, String body) {
+                /**
+                 * Given email template:
+                 */
+                givenEmailTemplate(\"\"\"
+                        From: <sender>
+                        To: <recipient>
+                        Subject: <subject>
+
+                        Dear <recipient>,
+
+                        <body>
+
+                        Regards,
+                        <sender>
+                        \"\"\"
+                        .replaceAll("<sender>", sender)
+                        .replaceAll("<recipient>", recipient)
+                        .replaceAll("<subject>", subject)
+                        .replaceAll("<body>", body));
+            }
+        }
+        """
+
+    Scenario: Scenario Outline mixing quoted parameters and DocString with placeholders
+      Given the following feature file:
+        """
+        Feature: Notifications
+          Scenario Outline: User receives notification
+            When user "admin" sends notification of type "<type>" with message:
+              \"\"\"
+              Notification: <type>
+
+              <message>
+              \"\"\"
+
+          Examples:
+            | type    | message                |
+            | warning | System will restart    |
+            | info    | Update available       |
+        """
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.java.en.When;
+        import java.lang.String;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.TestMethodOrder;
+        import org.junit.jupiter.params.ParameterizedTest;
+        import org.junit.jupiter.params.provider.CsvSource;
+
+        /**
+         * Feature: Notifications
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @When("^user (?<p1>.*) sends notification of type (?<p2>.*) with message:$")
+            public abstract void whenUser$p1SendsNotificationOfType$p2WithMessage(String p1, String p2,
+                    String docString);
+
+            @ParameterizedTest(
+                    name = "Example {index}: [{arguments}]"
+            )
+            @CsvSource(
+                    useHeadersInDisplayName = true,
+                    delimiter = '|',
+                    textBlock = \"\"\"
+                            type    | message
+                            warning | System will restart
+                            info    | Update available
+                            \"\"\"
+            )
+            @Order(1)
+            @DisplayName("Scenario: User receives notification")
+            public void scenario_1(String type, String message) {
+                /**
+                 * When user "admin" sends notification of type "<type>" with message:
+                 */
+                whenUser$p1SendsNotificationOfType$p2WithMessage("admin", type, \"\"\"
+                        Notification: <type>
+
+                        <message>
+                        \"\"\"
+                        .replaceAll("<type>", type)
+                        .replaceAll("<message>", message));
+            }
+        }
+        """

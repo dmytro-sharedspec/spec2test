@@ -79,6 +79,7 @@ public class TableUtils {
 
                 TableCell cellValue = cells.get(columnIndex);
                 String value = cellValue.getValue();
+                sb.append(" "); // Space after opening pipe
                 sb.append(value);
                 boolean needToPad = columnIndex < maxColumnLength.size()
                         && maxColumnLength.get(columnIndex) > value.length();
@@ -87,6 +88,7 @@ public class TableUtils {
                     String padding = StringUtils.repeat(" ", paddingLength);
                     sb.append(padding);
                 }
+                sb.append(" "); // Space before closing pipe
                 sb.append("|");
             }
 

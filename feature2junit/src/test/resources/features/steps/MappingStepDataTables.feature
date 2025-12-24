@@ -1,136 +1,840 @@
-Feature: Mapping DataTables to method parameters
+Feature: MappingStepDataTables
   As a developer
-  I want to understand how DataTables in steps are converted to method parameters
-  So that I can work with tabular data in my step implementations
+  I want Gherkin data tables to be mapped to DataTable parameters in generated step methods
+  So that I benefit from compile-time validation and can use tabular structured data in my tests
 
   Rule: DataTable parameters are added as the last parameter when present
-    When a step has a DataTable, a parameter of type io.cucumber.datatable.DataTable named "dataTable" is added.
-    The DataTable is formatted with pipe delimiters and passed via createDataTable() helper method.
-    Column widths are calculated for proper alignment.
+  - if a step has a DataTable, a parameter of type io.cucumber.datatable.DataTable named "dataTable" is added
+  - the DataTable is formatted with pipe delimiters and passed via createDataTable() helper method
+  - columns properly aligned with spaces for readability
 
     Scenario: Step with DataTable and no quoted parameters
-      Given the step is:
+      Given the following feature file:
         """
-        Given the following users exist:
-          | name  | role  |
-          | Alice | Admin |
-          | Bob   | User  |
+        Feature: Users Management
+          Scenario: Create users
+            Given the following users exist:
+              | name  | role  |
+              | Alice | Admin |
+              | Bob   | User  |
         """
-      Then the method signature is "givenTheFollowingUsersExist(DataTable dataTable)"
-      And the parameter type is "io.cucumber.datatable.DataTable"
-      And the parameter name is "dataTable"
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.datatable.DataTable;
+        import io.cucumber.java.en.Given;
+        import java.lang.String;
+        import java.util.ArrayList;
+        import java.util.List;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
+
+        /**
+         * Feature: Users Management
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @Given("^the following users exist:$")
+            public abstract void givenTheFollowingUsersExist(DataTable dataTable);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Create users")
+            public void scenario_1() {
+                /**
+                 * Given the following users exist:
+                 */
+                givenTheFollowingUsersExist(createDataTable(\"\"\"
+                        | name  | role  |
+                        | Alice | Admin |
+                        | Bob   | User  |
+                        \"\"\"));
+            }
+
+            protected abstract DataTable.TableConverter getTableConverter();
+
+            protected DataTable createDataTable(String tableLines) {
+
+                String[] tableRows = tableLines.split("\\n");
+                List<List<String>> rawDataTable = new ArrayList<>(tableRows.length);
+
+                for (String tableRow : tableRows) {
+                    String trimmedLine = tableRow.trim();
+                    if (!trimmedLine.isEmpty()) {
+                        String[] columns = trimmedLine.split("\\|");
+                        List<String> rowColumns = new ArrayList<>(columns.length);
+                        for (int i = 1; i < columns.length; i++) {
+                            String column = columns[i].trim();
+                            rowColumns.add(column);
+                        }
+                        rawDataTable.add(rowColumns);
+                    }
+                }
+
+                DataTable dataTable = DataTable.create(rawDataTable, getTableConverter());
+                return dataTable;
+            }
+        }
+        """
 
     Scenario: Step with DataTable and one quoted parameter
-      Given the step is:
+      Given the following feature file:
         """
-        When user "Alice" has permissions:
-          | permission | enabled |
-          | read       | true    |
-          | write      | false   |
+        Feature: Permissions Management
+          Scenario: Set permissions
+            When user "Alice" has permissions:
+              | permission | enabled |
+              | read       | true    |
+              | write      | false   |
         """
-      Then the method signature is "whenUser$p1HasPermissions(String p1, DataTable dataTable)"
-      And parameter 1 is "p1" of type "String"
-      And parameter 2 is "dataTable" of type "DataTable"
-      And DataTable is always the last parameter
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.datatable.DataTable;
+        import io.cucumber.java.en.When;
+        import java.lang.String;
+        import java.util.ArrayList;
+        import java.util.List;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
+
+        /**
+         * Feature: Permissions Management
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @When("^user (?<p1>.*) has permissions:$")
+            public abstract void whenUser$p1HasPermissions(String p1, DataTable dataTable);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Set permissions")
+            public void scenario_1() {
+                /**
+                 * When user "Alice" has permissions:
+                 */
+                whenUser$p1HasPermissions("Alice", createDataTable(\"\"\"
+                        | permission | enabled |
+                        | read       | true    |
+                        | write      | false   |
+                        \"\"\"));
+            }
+
+            protected abstract DataTable.TableConverter getTableConverter();
+
+            protected DataTable createDataTable(String tableLines) {
+
+                String[] tableRows = tableLines.split("\\n");
+                List<List<String>> rawDataTable = new ArrayList<>(tableRows.length);
+
+                for (String tableRow : tableRows) {
+                    String trimmedLine = tableRow.trim();
+                    if (!trimmedLine.isEmpty()) {
+                        String[] columns = trimmedLine.split("\\|");
+                        List<String> rowColumns = new ArrayList<>(columns.length);
+                        for (int i = 1; i < columns.length; i++) {
+                            String column = columns[i].trim();
+                            rowColumns.add(column);
+                        }
+                        rawDataTable.add(rowColumns);
+                    }
+                }
+
+                DataTable dataTable = DataTable.create(rawDataTable, getTableConverter());
+                return dataTable;
+            }
+        }
+        """
 
     Scenario: Step with DataTable and multiple quoted parameters
-      Given the step is:
+      Given the following feature file:
         """
-        Then order "12345" for customer "Bob" contains:
-          | product | quantity |
-          | Laptop  | 1        |
-          | Mouse   | 2        |
+        Feature: Order Management
+          Scenario: View order details
+            Then order "12345" for customer "Bob" contains:
+              | product | quantity |
+              | Laptop  | 1        |
+              | Mouse   | 2        |
         """
-      Then the method signature is "thenOrder$p1ForCustomer$p2Contains(String p1, String p2, DataTable dataTable)"
-      And parameters are ordered: "p1, p2, dataTable"
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.datatable.DataTable;
+        import io.cucumber.java.en.Then;
+        import java.lang.String;
+        import java.util.ArrayList;
+        import java.util.List;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
 
-  Rule: DataTable is formatted with pipe delimiters
-    The DataTable content is passed using the createDataTable() helper method.
-    Rows are separated by newlines and columns by pipe characters (|).
-    Proper spacing is maintained for readability.
+        /**
+         * Feature: Order Management
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @Then("^order (?<p1>.*) for customer (?<p2>.*) contains:$")
+            public abstract void thenOrder$p1ForCustomer$p2Contains(String p1, String p2,
+                    DataTable dataTable);
 
-    Scenario: DataTable with two columns
-      Given a DataTable:
-        | name  | age |
-        | Alice | 30  |
-        | Bob   | 25  |
-      Then the formatted output includes createDataTable call
-      And columns are aligned with spaces
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: View order details")
+            public void scenario_1() {
+                /**
+                 * Then order "12345" for customer "Bob" contains:
+                 */
+                thenOrder$p1ForCustomer$p2Contains("12345", "Bob", createDataTable(\"\"\"
+                        | product | quantity |
+                        | Laptop  | 1        |
+                        | Mouse   | 2        |
+                        \"\"\"));
+            }
 
-    Scenario: DataTable with three columns
-      Given a DataTable:
-        | id | name    | status  |
-        | 1  | Product | active  |
-        | 2  | Service | pending |
-      Then the formatted output includes pipe delimiters
-      And each column width matches the longest value in that column
+            protected abstract DataTable.TableConverter getTableConverter();
+
+            protected DataTable createDataTable(String tableLines) {
+
+                String[] tableRows = tableLines.split("\\n");
+                List<List<String>> rawDataTable = new ArrayList<>(tableRows.length);
+
+                for (String tableRow : tableRows) {
+                    String trimmedLine = tableRow.trim();
+                    if (!trimmedLine.isEmpty()) {
+                        String[] columns = trimmedLine.split("\\|");
+                        List<String> rowColumns = new ArrayList<>(columns.length);
+                        for (int i = 1; i < columns.length; i++) {
+                            String column = columns[i].trim();
+                            rowColumns.add(column);
+                        }
+                        rawDataTable.add(rowColumns);
+                    }
+                }
+
+                DataTable dataTable = DataTable.create(rawDataTable, getTableConverter());
+                return dataTable;
+            }
+        }
+        """
+
+  Rule: DataTable is formatted with pipe delimiters and aligned columns
 
     Scenario: DataTable with single column
-      Given a DataTable:
-        | permission |
-        | read       |
-        | write      |
-        | delete     |
-      Then the formatted output has one column
-      And pipes are placed before and after the column
+      Given the following feature file:
+        """
+        Feature: Permissions
+          Scenario: List permissions
+            Given available permissions:
+              | permission |
+              | read       |
+              | write      |
+              | delete     |
+        """
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.datatable.DataTable;
+        import io.cucumber.java.en.Given;
+        import java.lang.String;
+        import java.util.ArrayList;
+        import java.util.List;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
 
-    Scenario: DataTable with varying column widths
-      Given a DataTable:
-        | short | very long column name | mid    |
-        | x     | value                 | abc    |
-        | y     | another value         | defghi |
-      Then column widths are calculated for alignment
-      And padding spaces are added to shorter values
+        /**
+         * Feature: Permissions
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @Given("^available permissions:$")
+            public abstract void givenAvailablePermissions(DataTable dataTable);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: List permissions")
+            public void scenario_1() {
+                /**
+                 * Given available permissions:
+                 */
+                givenAvailablePermissions(createDataTable(\"\"\"
+                        | permission |
+                        | read       |
+                        | write      |
+                        | delete     |
+                        \"\"\"));
+            }
+
+            protected abstract DataTable.TableConverter getTableConverter();
+
+            protected DataTable createDataTable(String tableLines) {
+
+                String[] tableRows = tableLines.split("\\n");
+                List<List<String>> rawDataTable = new ArrayList<>(tableRows.length);
+
+                for (String tableRow : tableRows) {
+                    String trimmedLine = tableRow.trim();
+                    if (!trimmedLine.isEmpty()) {
+                        String[] columns = trimmedLine.split("\\|");
+                        List<String> rowColumns = new ArrayList<>(columns.length);
+                        for (int i = 1; i < columns.length; i++) {
+                            String column = columns[i].trim();
+                            rowColumns.add(column);
+                        }
+                        rawDataTable.add(rowColumns);
+                    }
+                }
+
+                DataTable dataTable = DataTable.create(rawDataTable, getTableConverter());
+                return dataTable;
+            }
+        }
+        """
+
+    Scenario: DataTable with misaligned columns
+      Given the following feature file:
+        """
+        Feature: Column Alignment
+          Scenario: Test alignment
+            Given data with varying widths:
+              | short | very long column name | mid    |
+              | x    | value                    | abc    |
+              | y        | another value     | defghi |
+        """
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.datatable.DataTable;
+        import io.cucumber.java.en.Given;
+        import java.lang.String;
+        import java.util.ArrayList;
+        import java.util.List;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
+
+        /**
+         * Feature: Column Alignment
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @Given("^data with varying widths:$")
+            public abstract void givenDataWithVaryingWidths(DataTable dataTable);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Test alignment")
+            public void scenario_1() {
+                /**
+                 * Given data with varying widths:
+                 */
+                givenDataWithVaryingWidths(createDataTable(\"\"\"
+                        | short | very long column name | mid    |
+                        | x     | value                 | abc    |
+                        | y     | another value         | defghi |
+                        \"\"\"));
+            }
+
+            protected abstract DataTable.TableConverter getTableConverter();
+
+            protected DataTable createDataTable(String tableLines) {
+
+                String[] tableRows = tableLines.split("\\n");
+                List<List<String>> rawDataTable = new ArrayList<>(tableRows.length);
+
+                for (String tableRow : tableRows) {
+                    String trimmedLine = tableRow.trim();
+                    if (!trimmedLine.isEmpty()) {
+                        String[] columns = trimmedLine.split("\\|");
+                        List<String> rowColumns = new ArrayList<>(columns.length);
+                        for (int i = 1; i < columns.length; i++) {
+                            String column = columns[i].trim();
+                            rowColumns.add(column);
+                        }
+                        rawDataTable.add(rowColumns);
+                    }
+                }
+
+                DataTable dataTable = DataTable.create(rawDataTable, getTableConverter());
+                return dataTable;
+            }
+        }
+        """
 
   Rule: DataTable helper method is used for table creation
-    The generator uses a createDataTable() helper method to convert string representation to DataTable object.
-    This helper method handles the parsing and DataTable instantiation.
+  - the generator uses a createDataTable() helper method to convert string representation to DataTable object
+  - this helper method handles the parsing and DataTable instantiation
 
-    Scenario: Single DataTable generates one createDataTable call
-      Given a step with one DataTable
-      Then the method call uses "createDataTable(...)"
-      And the call appears once in the scenario method
+    Scenario: Multiple steps with DataTables share the same helper method
+      Given the following feature file:
+        """
+        Feature: Shared Helper
+          Scenario: Multiple tables
+            Given scenario has step 1 with a DataTable:
+              | col1 | col2 |
+              | a    | b    |
+            And scenario has step 2 with a DataTable:
+              | col3 | col4 |
+              | c    | d    |
+        """
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.datatable.DataTable;
+        import io.cucumber.java.en.Given;
+        import java.lang.String;
+        import java.util.ArrayList;
+        import java.util.List;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
 
-    Scenario: Multiple steps with DataTables in same scenario
-      Given scenario has step 1 with a DataTable
-      And scenario has step 2 with a DataTable
-      Then each step generates a separate createDataTable call
-      And both calls use the same helper method
+        /**
+         * Feature: Shared Helper
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @Given("^scenario has step 1 with a DataTable:$")
+            public abstract void givenScenarioHasStep1WithADatatable(DataTable dataTable);
 
-  Rule: DataTable works with all step keywords
-    DataTables can appear in Given, When, Then, And, But, and * steps.
-    The parameter handling is consistent across all step types.
+            @Given("^scenario has step 2 with a DataTable:$")
+            public abstract void givenScenarioHasStep2WithADatatable(DataTable dataTable);
 
-    Scenario: DataTable in Given step
-      Given a Given step has a DataTable
-      Then the method signature includes "DataTable dataTable"
-      And the keyword prefix is "given"
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Multiple tables")
+            public void scenario_1() {
+                /**
+                 * Given scenario has step 1 with a DataTable:
+                 */
+                givenScenarioHasStep1WithADatatable(createDataTable(\"\"\"
+                        | col1 | col2 |
+                        | a    | b    |
+                        \"\"\"));
+                /**
+                 * And scenario has step 2 with a DataTable:
+                 */
+                givenScenarioHasStep2WithADatatable(createDataTable(\"\"\"
+                        | col3 | col4 |
+                        | c    | d    |
+                        \"\"\"));
+            }
 
-    Scenario: DataTable in When step
-      Given a When step has a DataTable
-      Then the method signature includes "DataTable dataTable"
-      And the keyword prefix is "when"
+            protected abstract DataTable.TableConverter getTableConverter();
 
-    Scenario: DataTable in Then step
-      Given a Then step has a DataTable
-      Then the method signature includes "DataTable dataTable"
-      And the keyword prefix is "then"
+            protected DataTable createDataTable(String tableLines) {
+
+                String[] tableRows = tableLines.split("\\n");
+                List<List<String>> rawDataTable = new ArrayList<>(tableRows.length);
+
+                for (String tableRow : tableRows) {
+                    String trimmedLine = tableRow.trim();
+                    if (!trimmedLine.isEmpty()) {
+                        String[] columns = trimmedLine.split("\\|");
+                        List<String> rowColumns = new ArrayList<>(columns.length);
+                        for (int i = 1; i < columns.length; i++) {
+                            String column = columns[i].trim();
+                            rowColumns.add(column);
+                        }
+                        rawDataTable.add(rowColumns);
+                    }
+                }
+
+                DataTable dataTable = DataTable.create(rawDataTable, getTableConverter());
+                return dataTable;
+            }
+        }
+        """
+
+  Rule: DataTable works with all step keywords - Given, When, Then, And, But, and *
 
     Scenario: DataTable in And step
-      Given an And step has a DataTable
-      Then the method signature includes "DataTable dataTable"
-      And the keyword is inherited from previous step
+      Given the following feature file:
+        """
+        Feature: And Step
+          Scenario: Test
+            Given initial state
+            And an And step has a DataTable:
+              | col |
+              | val |
+        """
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.datatable.DataTable;
+        import io.cucumber.java.en.Given;
+        import java.lang.String;
+        import java.util.ArrayList;
+        import java.util.List;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
 
-  Rule: Empty DataTable is handled correctly
-    DataTables with only headers or completely empty are still passed as parameters.
+        /**
+         * Feature: And Step
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @Given("^initial state$")
+            public abstract void givenInitialState();
+
+            @Given("^an And step has a DataTable:$")
+            public abstract void givenAnAndStepHasADatatable(DataTable dataTable);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Test")
+            public void scenario_1() {
+                /**
+                 * Given initial state
+                 */
+                givenInitialState();
+                /**
+                 * And an And step has a DataTable:
+                 */
+                givenAnAndStepHasADatatable(createDataTable(\"\"\"
+                        | col |
+                        | val |
+                        \"\"\"));
+            }
+
+            protected abstract DataTable.TableConverter getTableConverter();
+
+            protected DataTable createDataTable(String tableLines) {
+
+                String[] tableRows = tableLines.split("\\n");
+                List<List<String>> rawDataTable = new ArrayList<>(tableRows.length);
+
+                for (String tableRow : tableRows) {
+                    String trimmedLine = tableRow.trim();
+                    if (!trimmedLine.isEmpty()) {
+                        String[] columns = trimmedLine.split("\\|");
+                        List<String> rowColumns = new ArrayList<>(columns.length);
+                        for (int i = 1; i < columns.length; i++) {
+                            String column = columns[i].trim();
+                            rowColumns.add(column);
+                        }
+                        rawDataTable.add(rowColumns);
+                    }
+                }
+
+                DataTable dataTable = DataTable.create(rawDataTable, getTableConverter());
+                return dataTable;
+            }
+        }
+        """
+
+    Scenario: DataTable in But step
+      Given the following feature file:
+        """
+        Feature: But Step
+          Scenario: Test
+            Given initial state
+            When action is performed
+            Then result is verified
+            But exceptions exist:
+              | exception | reason     |
+              | error1    | invalid    |
+              | error2    | not found  |
+        """
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.datatable.DataTable;
+        import io.cucumber.java.en.Given;
+        import io.cucumber.java.en.Then;
+        import io.cucumber.java.en.When;
+        import java.lang.String;
+        import java.util.ArrayList;
+        import java.util.List;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
+
+        /**
+         * Feature: But Step
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @Given("^initial state$")
+            public abstract void givenInitialState();
+
+            @When("^action is performed$")
+            public abstract void whenActionIsPerformed();
+
+            @Then("^result is verified$")
+            public abstract void thenResultIsVerified();
+
+            @Then("^exceptions exist:$")
+            public abstract void thenExceptionsExist(DataTable dataTable);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Test")
+            public void scenario_1() {
+                /**
+                 * Given initial state
+                 */
+                givenInitialState();
+                /**
+                 * When action is performed
+                 */
+                whenActionIsPerformed();
+                /**
+                 * Then result is verified
+                 */
+                thenResultIsVerified();
+                /**
+                 * But exceptions exist:
+                 */
+                thenExceptionsExist(createDataTable(\"\"\"
+                        | exception | reason    |
+                        | error1    | invalid   |
+                        | error2    | not found |
+                        \"\"\"));
+            }
+
+            protected abstract DataTable.TableConverter getTableConverter();
+
+            protected DataTable createDataTable(String tableLines) {
+
+                String[] tableRows = tableLines.split("\\n");
+                List<List<String>> rawDataTable = new ArrayList<>(tableRows.length);
+
+                for (String tableRow : tableRows) {
+                    String trimmedLine = tableRow.trim();
+                    if (!trimmedLine.isEmpty()) {
+                        String[] columns = trimmedLine.split("\\|");
+                        List<String> rowColumns = new ArrayList<>(columns.length);
+                        for (int i = 1; i < columns.length; i++) {
+                            String column = columns[i].trim();
+                            rowColumns.add(column);
+                        }
+                        rawDataTable.add(rowColumns);
+                    }
+                }
+
+                DataTable dataTable = DataTable.create(rawDataTable, getTableConverter());
+                return dataTable;
+            }
+        }
+        """
+
+    Scenario: DataTable in * step
+      Given the following feature file:
+        """
+        Feature: Asterisk Step
+          Scenario: Test
+            Given initial context
+            * a wildcard step has a DataTable:
+              | item  | value |
+              | key1  | val1  |
+              | key2  | val2  |
+        """
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.datatable.DataTable;
+        import io.cucumber.java.en.Given;
+        import java.lang.String;
+        import java.util.ArrayList;
+        import java.util.List;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
+
+        /**
+         * Feature: Asterisk Step
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @Given("^initial context$")
+            public abstract void givenInitialContext();
+
+            @Given("^a wildcard step has a DataTable:$")
+            public abstract void givenAWildcardStepHasADatatable(DataTable dataTable);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Test")
+            public void scenario_1() {
+                /**
+                 * Given initial context
+                 */
+                givenInitialContext();
+                /**
+                 * * a wildcard step has a DataTable:
+                 */
+                givenAWildcardStepHasADatatable(createDataTable(\"\"\"
+                        | item | value |
+                        | key1 | val1  |
+                        | key2 | val2  |
+                        \"\"\"));
+            }
+
+            protected abstract DataTable.TableConverter getTableConverter();
+
+            protected DataTable createDataTable(String tableLines) {
+
+                String[] tableRows = tableLines.split("\\n");
+                List<List<String>> rawDataTable = new ArrayList<>(tableRows.length);
+
+                for (String tableRow : tableRows) {
+                    String trimmedLine = tableRow.trim();
+                    if (!trimmedLine.isEmpty()) {
+                        String[] columns = trimmedLine.split("\\|");
+                        List<String> rowColumns = new ArrayList<>(columns.length);
+                        for (int i = 1; i < columns.length; i++) {
+                            String column = columns[i].trim();
+                            rowColumns.add(column);
+                        }
+                        rawDataTable.add(rowColumns);
+                    }
+                }
+
+                DataTable dataTable = DataTable.create(rawDataTable, getTableConverter());
+                return dataTable;
+            }
+        }
+        """
+
+  Rule: DataTables with only headers (i.e. empty) are still passed as parameters.
+  - these may be converted to a simple list of values by the step implementation
 
     Scenario: DataTable with headers only
-      Given a DataTable:
-        | name | email |
-      Then the method receives a DataTable parameter
-      And the DataTable has one row (header)
+      Given the following feature file:
+        """
+        Feature: Header Only
+          Scenario: Test
+            Given a DataTable:
+              | name | email |
+        """
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.datatable.DataTable;
+        import io.cucumber.java.en.Given;
+        import java.lang.String;
+        import java.util.ArrayList;
+        import java.util.List;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
 
-    Scenario: DataTable with headers and no data rows
-      Given a DataTable with columns but zero data rows
-      Then the createDataTable call includes only the header
-      And the parameter is still of type DataTable
+        /**
+         * Feature: Header Only
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @Given("^a DataTable:$")
+            public abstract void givenADatatable(DataTable dataTable);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Test")
+            public void scenario_1() {
+                /**
+                 * Given a DataTable:
+                 */
+                givenADatatable(createDataTable(\"\"\"
+                        | name | email |
+                        \"\"\"));
+            }
+
+            protected abstract DataTable.TableConverter getTableConverter();
+
+            protected DataTable createDataTable(String tableLines) {
+
+                String[] tableRows = tableLines.split("\\n");
+                List<List<String>> rawDataTable = new ArrayList<>(tableRows.length);
+
+                for (String tableRow : tableRows) {
+                    String trimmedLine = tableRow.trim();
+                    if (!trimmedLine.isEmpty()) {
+                        String[] columns = trimmedLine.split("\\|");
+                        List<String> rowColumns = new ArrayList<>(columns.length);
+                        for (int i = 1; i < columns.length; i++) {
+                            String column = columns[i].trim();
+                            rowColumns.add(column);
+                        }
+                        rawDataTable.add(rowColumns);
+                    }
+                }
+
+                DataTable dataTable = DataTable.create(rawDataTable, getTableConverter());
+                return dataTable;
+            }
+        }
+        """

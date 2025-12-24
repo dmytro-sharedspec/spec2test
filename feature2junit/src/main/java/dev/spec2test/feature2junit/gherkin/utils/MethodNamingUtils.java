@@ -72,19 +72,25 @@ public class MethodNamingUtils {
                 /**
                  * all other words should be capitalized
                  */
+                boolean shouldCapitalizeNext = true;
                 for (char c : word.toCharArray()) {
 
                     if (Character.isJavaIdentifierPart(c)) {
-                        // always convert to lower case
                         char charToAppend;
-                        if (sanitizedWordBuilder.isEmpty()) {
+                        if (sanitizedWordBuilder.isEmpty() || shouldCapitalizeNext) {
                             charToAppend = Character.toUpperCase(c);
+                            shouldCapitalizeNext = false;
                         } else {
                             charToAppend = Character.toLowerCase(c);
                         }
                         sanitizedWordBuilder.append(charToAppend);
                     } else {
-                        // skip
+                        // Skip non-identifier character
+                        // Apostrophes don't trigger capitalization (possessives like "user's")
+                        // Other punctuation does (like @ and . in "email@domain.com")
+                        if (c != '\'') {
+                            shouldCapitalizeNext = true;
+                        }
                     }
                 }
             }

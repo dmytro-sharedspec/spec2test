@@ -1,110 +1,524 @@
-Feature: Mapping quoted strings to method parameters
+Feature: MappingStepParameters
   As a developer
-  I want to understand how quoted strings in steps are extracted and converted to method parameters
-  So that I can write parameterized step implementations
+  I want quoted strings in Gherkin steps to become typed method parameters
+  So that parameter mismatches are caught at compile-time, not runtime
 
-  Rule: Parameters in double quotes are extracted from step text
-    String parameters enclosed in double quotes are detected using regex pattern: (?<parameter>(\")(?<parameterValue>[^\"]+?)(\"))
-    Extracted parameters are replaced with placeholders: $p1, $p2, etc.
-    Method signatures receive parameters named: p1, p2, p3, etc., all of type String
+  Rule: Parameters in double quotes are extracted from step text and then are replaced with placeholders: $p1, $p2, etc.
+  - method signatures receive parameters named: p1, p2, p3, etc., all of type String
 
     Scenario: Step with one quoted parameter
-      Given the step is 'Given user "John" exists'
-      Then the parameter "John" is extracted
-      And the method signature is "givenUser$p1Exists(String p1)"
-      And the method call is 'givenUserP1Exists("John")'
+      Given the following feature file:
+        """
+        Feature: One Parameter
+          Scenario: Test
+            Given user "John" exists
+        """
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.java.en.Given;
+        import java.lang.String;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
+
+        /**
+         * Feature: One Parameter
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @Given("^user (?<p1>.*) exists$")
+            public abstract void givenUser$p1Exists(String p1);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Test")
+            public void scenario_1() {
+                /**
+                 * Given user "John" exists
+                 */
+                givenUser$p1Exists("John");
+            }
+        }
+        """
 
     Scenario: Step with two quoted parameters
-      Given the step is 'When user "Alice" sends message "Hello"'
-      Then parameter 1 is "Alice"
-      And parameter 2 is "Hello"
-      And the method signature is "whenUser$p1SendsMessage$p2(String p1, String p2)"
-      And the method call is 'whenUserP1SendsMessageP2("Alice", "Hello")'
+      Given the following feature file:
+        """
+        Feature: Two Parameters
+          Scenario: Test
+            When user "Alice" sends message "Hello"
+        """
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.java.en.When;
+        import java.lang.String;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
+
+        /**
+         * Feature: Two Parameters
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @When("^user (?<p1>.*) sends message (?<p2>.*)$")
+            public abstract void whenUser$p1SendsMessage$p2(String p1, String p2);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Test")
+            public void scenario_1() {
+                /**
+                 * When user "Alice" sends message "Hello"
+                 */
+                whenUser$p1SendsMessage$p2("Alice", "Hello");
+            }
+        }
+        """
 
     Scenario: Step with three quoted parameters
-      Given the step is 'Then order "12345" for customer "Bob" has status "shipped"'
-      Then parameter 1 is "12345"
-      And parameter 2 is "Bob"
-      And parameter 3 is "shipped"
-      And the method signature is "thenOrder$p1ForCustomer$p2HasStatus$p3(String p1, String p2, String p3)"
-      And the method call is 'thenOrderP1ForCustomerP2HasStatusP3("12345", "Bob", "shipped")'
+      Given the following feature file:
+        """
+        Feature: Three Parameters
+          Scenario: Test
+            Then order "12345" for customer "Bob" has status "shipped"
+        """
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.java.en.Then;
+        import java.lang.String;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
+
+        /**
+         * Feature: Three Parameters
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @Then("^order (?<p1>.*) for customer (?<p2>.*) has status (?<p3>.*)$")
+            public abstract void thenOrder$p1ForCustomer$p2HasStatus$p3(String p1, String p2, String p3);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Test")
+            public void scenario_1() {
+                /**
+                 * Then order "12345" for customer "Bob" has status "shipped"
+                 */
+                thenOrder$p1ForCustomer$p2HasStatus$p3("12345", "Bob", "shipped");
+            }
+        }
+        """
 
     Scenario: Step with no parameters
-      Given the step is "Given system is ready"
-      Then no parameters are extracted
-      And the method signature is "givenSystemIsReady()"
-      And the method call is "givenSystemIsReady()"
+      Given the following feature file:
+        """
+        Feature: No Parameters
+          Scenario: Test
+            Given system is ready
+        """
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.java.en.Given;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
+
+        /**
+         * Feature: No Parameters
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @Given("^system is ready$")
+            public abstract void givenSystemIsReady();
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Test")
+            public void scenario_1() {
+                /**
+                 * Given system is ready
+                 */
+                givenSystemIsReady();
+            }
+        }
+        """
 
     Scenario: Step with parameter containing spaces
-      Given the step is 'When I search for "hello world"'
-      Then the parameter is "hello world"
-      And the method signature is "whenISearchFor$p1(String p1)"
-      And the method call is 'whenISearchForP1("hello world")'
+      Given the following feature file:
+        """
+        Feature: Parameter With Spaces
+          Scenario: Test
+            When I search for "hello world"
+        """
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.java.en.When;
+        import java.lang.String;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
+
+        /**
+         * Feature: Parameter With Spaces
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @When("^I search for (?<p1>.*)$")
+            public abstract void whenISearchFor$p1(String p1);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Test")
+            public void scenario_1() {
+                /**
+                 * When I search for "hello world"
+                 */
+                whenISearchFor$p1("hello world");
+            }
+        }
+        """
 
     Scenario: Step with parameter containing special characters
-      Given the step is 'Given password is "P@ssw0rd!"'
-      Then the parameter is "P@ssw0rd!"
-      And the method signature is "givenPasswordIs$p1(String p1)"
-      And the method call is 'givenPasswordIsP1("P@ssw0rd!")'
+      Given the following feature file:
+        """
+        Feature: Special Characters Parameter
+          Scenario: Test
+            Given password is "P@ssw0rd!"
+        """
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.java.en.Given;
+        import java.lang.String;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
+
+        /**
+         * Feature: Special Characters Parameter
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @Given("^password is (?<p1>.*)$")
+            public abstract void givenPasswordIs$p1(String p1);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Test")
+            public void scenario_1() {
+                /**
+                 * Given password is "P@ssw0rd!"
+                 */
+                givenPasswordIs$p1("P@ssw0rd!");
+            }
+        }
+        """
 
     Scenario: Step with empty quoted parameter
-      Given the step is 'When field is set to ""'
-      Then the parameter is ""
-      And the method signature is "whenFieldIsSetTo$p1(String p1)"
-      And the method call is 'whenFieldIsSetToP1("")'
+      Given the following feature file:
+        """
+        Feature: Empty Parameter
+          Scenario: Test
+            When field is set to ""
+        """
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.java.en.When;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
+
+        /**
+         * Feature: Empty Parameter
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @When("^field is set to \"\"$")
+            public abstract void whenFieldIsSetTo();
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Test")
+            public void scenario_1() {
+                /**
+                 * When field is set to ""
+                 */
+                whenFieldIsSetTo();
+            }
+        }
+        """
 
     Scenario: Step with parameter at the beginning
-      Given the step is 'Given "Admin" role is assigned'
-      Then the parameter is "Admin"
-      And the method signature is "given$p1RoleIsAssigned(String p1)"
-      And the method call is 'givenP1RoleIsAssigned("Admin")'
+      Given the following feature file:
+        """
+        Feature: Parameter At Beginning
+          Scenario: Test
+            Given "Admin" role is assigned
+        """
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.java.en.Given;
+        import java.lang.String;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
 
-    Scenario: Step with parameter at the end
-      Given the step is 'When user logs in as "Guest"'
-      Then the parameter is "Guest"
-      And the method signature is "whenUserLogsInAs$p1(String p1)"
-      And the method call is 'whenUserLogsInAsP1("Guest")'
+        /**
+         * Feature: Parameter At Beginning
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @Given("^(?<p1>.*) role is assigned$")
+            public abstract void given$p1RoleIsAssigned(String p1);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Test")
+            public void scenario_1() {
+                /**
+                 * Given "Admin" role is assigned
+                 */
+                given$p1RoleIsAssigned("Admin");
+            }
+        }
+        """
 
     Scenario: Step with consecutive quoted parameters
-      Given the step is 'Given user "John" "Doe" is registered'
-      Then parameter 1 is "John"
-      And parameter 2 is "Doe"
-      And the method signature is "givenUser$p1$p2IsRegistered(String p1, String p2)"
-      And the method call is 'givenUserP1P2IsRegistered("John", "Doe")'
+      Given the following feature file:
+        """
+        Feature: Consecutive Parameters
+          Scenario: Test
+            Given transfer from "ACC001" to "ACC002" completes
+        """
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.java.en.Given;
+        import java.lang.String;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
 
-  Rule: Parameter placeholders are consistently numbered
-    Parameters are numbered sequentially starting from 1.
-    The placeholder format in method names is $p1, $p2, $p3, etc.
-    Method parameter names are p1, p2, p3, etc.
+        /**
+         * Feature: Consecutive Parameters
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @Given("^transfer from (?<p1>.*) to (?<p2>.*) completes$")
+            public abstract void givenTransferFrom$p1To$p2Completes(String p1, String p2);
 
-    Scenario: Parameter numbering is sequential
-      Given the step is 'When I transfer "100" from "Account A" to "Account B"'
-      Then placeholder 1 is "$p1" for value "100"
-      And placeholder 2 is "$p2" for value "Account A"
-      And placeholder 3 is "$p3" for value "Account B"
-      And parameter names are "p1, p2, p3"
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Test")
+            public void scenario_1() {
+                /**
+                 * Given transfer from "ACC001" to "ACC002" completes
+                 */
+                givenTransferFrom$p1To$p2Completes("ACC001", "ACC002");
+            }
+        }
+        """
 
-    Scenario: Parameter names in method signature match placeholders
-      Given the step is 'Given product "Laptop" costs "999"'
-      Then the method name contains "$p1" and "$p2"
-      And the method signature contains "String p1, String p2"
-      And the call passes arguments in order: "Laptop", "999"
-
-  Rule: All extracted parameters are of type String
-    Regardless of the content of quoted parameters (numbers, dates, etc.), they are always typed as String.
-    Type conversion is the responsibility of the step implementation.
+  Rule: All extracted parameters are of type String regardless of the content of quoted parameters (numbers, dates, etc.)
+  - type conversion is the responsibility of the step implementation
 
     Scenario: Numeric parameter is typed as String
-      Given the step is 'When quantity is set to "42"'
-      Then the parameter type is "String"
-      And the method signature is "whenQuantityIsSetTo$p1(String p1)"
+      Given the following feature file:
+        """
+        Feature: Numeric Parameter
+          Scenario: Test
+            When quantity is set to "42"
+        """
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.java.en.When;
+        import java.lang.String;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
+
+        /**
+         * Feature: Numeric Parameter
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @When("^quantity is set to (?<p1>.*)$")
+            public abstract void whenQuantityIsSetTo$p1(String p1);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Test")
+            public void scenario_1() {
+                /**
+                 * When quantity is set to "42"
+                 */
+                whenQuantityIsSetTo$p1("42");
+            }
+        }
+        """
 
     Scenario: Boolean-like parameter is typed as String
-      Given the step is 'Given feature flag is "true"'
-      Then the parameter type is "String"
-      And the method signature is "givenFeatureFlagIs$p1(String p1)"
+      Given the following feature file:
+        """
+        Feature: Boolean Parameter
+          Scenario: Test
+            Given feature flag is "true"
+        """
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.java.en.Given;
+        import java.lang.String;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
+
+        /**
+         * Feature: Boolean Parameter
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @Given("^feature flag is (?<p1>.*)$")
+            public abstract void givenFeatureFlagIs$p1(String p1);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Test")
+            public void scenario_1() {
+                /**
+                 * Given feature flag is "true"
+                 */
+                givenFeatureFlagIs$p1("true");
+            }
+        }
+        """
 
     Scenario: Date-like parameter is typed as String
-      Given the step is 'When date is set to "2024-12-20"'
-      Then the parameter type is "String"
-      And the method signature is "whenDateIsSetTo$p1(String p1)"
+      Given the following feature file:
+        """
+        Feature: Date Parameter
+          Scenario: Test
+            When date is set to "2024-12-20"
+        """
+      When the generator is run
+      Then the content of the generated class should be:
+        """
+        import dev.spec2test.feature2junit.FeatureFilePath;
+        import io.cucumber.java.en.When;
+        import java.lang.String;
+        import javax.annotation.processing.Generated;
+        import org.junit.jupiter.api.DisplayName;
+        import org.junit.jupiter.api.MethodOrderer;
+        import org.junit.jupiter.api.Order;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.api.TestMethodOrder;
+
+        /**
+         * Feature: Date Parameter
+         */
+        @DisplayName("MockedAnnotatedTestClass")
+        @Generated("dev.spec2test.feature2junit.Feature2JUnitGenerator")
+        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+        @FeatureFilePath("MockedAnnotatedTestClass.feature")
+        public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
+            @When("^date is set to (?<p1>.*)$")
+            public abstract void whenDateIsSetTo$p1(String p1);
+
+            @Test
+            @Order(1)
+            @DisplayName("Scenario: Test")
+            public void scenario_1() {
+                /**
+                 * When date is set to "2024-12-20"
+                 */
+                whenDateIsSetTo$p1("2024-12-20");
+            }
+        }
+        """

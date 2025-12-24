@@ -254,6 +254,10 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
             // need to escape any occurrences of triple quotes in the doc string content
             docString = docString.replaceAll("\"\"\"", "\\\\\"\"\"");
 
+            // Escape $ for JavaPoet ($ is a special character in JavaPoet's format strings)
+            // Must be done AFTER triple quote escaping to avoid double-escaping
+            docString = docString.replace("$", "$$");
+
             /**
              * in case we are processing a scenario with examples table i.e. Scenario Template type
              * then we need to replace any references to scenario parameters with reference value from the examples table
@@ -388,6 +392,13 @@ class StepProcessor implements LoggingSupport, OptionsSupport {
         String[] words = stepPatternWithMarkers.split("\\s+");
         String[] stepTitleWords = Arrays.copyOfRange(words, 1, words.length); // trim the keyword
         String stepAnnotationValueTrimmed = StringUtils.join(stepTitleWords, " ");
+
+        // Escape literal dollar signs that are not part of JavaPoet placeholders ($L)
+        // In JavaPoet, $$ represents a literal $
+        stepAnnotationValueTrimmed = stepAnnotationValueTrimmed.replaceAll("\\$(?!L)", "\\$\\$");
+
+        // Escape literal double quotes for regex pattern
+        stepAnnotationValueTrimmed = stepAnnotationValueTrimmed.replace("\"", "\\\"");
 
         // prepend '^' and append '$' to the annotation pattern value so that IDE plugins discover this step
         stepAnnotationValueTrimmed = "^" + stepAnnotationValueTrimmed + "$L";

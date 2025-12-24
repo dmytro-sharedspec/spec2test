@@ -14,6 +14,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Build Commands
 
+**IMPORTANT: Running Tests**
+- **ALWAYS use IntelliJ IDEA's MCP server to run tests**, NOT Maven
+- Use the `mcp__jetbrains__get_run_configurations` tool to list available run configurations
+- Use the `mcp__jetbrains__execute_run_configuration` tool to execute specific tests
+- To run ALL tests in the feature2junit module, run the test class: `Feature2JunitGeneratorAllTests`
+- This provides better integration, faster feedback, and proper IDE support
+- **Never use `mvn test` commands** unless explicitly requested by the user
+
+**IMPORTANT: Compilation**
+- **DO NOT run `mvn clean compile` or `mvn compile`** after making code changes
+- IntelliJ IDEA is configured to build automatically when files are saved
+- The annotation processor runs automatically during IntelliJ's build process
+- Only use Maven build commands when explicitly requested by the user
+
 ### Standard Build
 ```bash
 mvn clean install
@@ -202,8 +216,61 @@ Most step-related logic is in StepProcessor.java:478. Key responsibilities:
 - Deduplicate methods (check base class hierarchy)
 - Optional Cucumber annotation generation (@Given, @When, @Then)
 
-## Adding new files to Git
-- whenever you create a new file, make sure to run `git add <file>` to stage it for commit.
+## Working with Files
+
+**IMPORTANT: When the user asks you to update, modify, or change a file, do it immediately without asking for permission.**
+
+The user expects you to make changes directly when requested. Only ask clarifying questions if the requirements are ambiguous, not for permission to proceed.
+
+## Working with Cucumber .feature Files
+
+**IMPORTANT: Feature File Naming Convention**
+
+When creating a new `.feature` file, always follow this naming rule for IntelliJ IDEA integration:
+
+The first line of the feature file should be:
+```gherkin
+Feature: FeatureFileName
+```
+
+Where `FeatureFileName` is the name of the feature file WITHOUT the `.feature` extension.
+
+**Example:**
+If creating a file named `MappingStepDataTables.feature`, the first line must be:
+```gherkin
+Feature: MappingStepDataTables
+```
+
+**Why this matters:**
+- IntelliJ IDEA uses the Feature name as a node in the Run tool window
+- This convention ensures the feature file name is clearly visible when running tests
+- It provides consistency between the file name and the feature name displayed in test results
+
+**Additional .feature File Guidelines:**
+- Place test feature files in `feature2junit/src/test/resources/features/`
+- Feature files serve as living documentation of the Gherkin-to-JUnit mapping
+- Always run tests using IntelliJ IDEA's MCP server tools, not Maven commands
+
+## Git Workflow
+
+**IMPORTANT: Always stage changes immediately after making them.**
+
+Whenever you create OR modify a file, you MUST run `git add <file>` to stage it to the git index. This applies to:
+- New files created
+- Modified files (source code, tests, documentation, feature files, etc.)
+- Deleted files
+
+Example:
+```bash
+# After creating or modifying files
+git add path/to/modified/file.java
+git add path/to/modified/test.feature
+
+# Or stage multiple files at once
+git add file1.java file2.feature file3.md
+```
+
+This ensures all changes are tracked and ready for commit.
 
 ## Important Notes
 

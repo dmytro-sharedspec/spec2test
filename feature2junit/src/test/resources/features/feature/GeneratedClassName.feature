@@ -1,4 +1,4 @@
-Feature: setting generated class name
+Feature: GeneratedClassName
   As a developer configuring the code generator for my project
   I want to control the suffix appended to generated test class names
   So that I can maintain consistent naming conventions that match my team's code organization patterns
@@ -44,8 +44,8 @@ Feature: setting generated class name
       public abstract class CartFeatureScenarios extends CartFeature {
           @Test
           @Order(1)
-          @DisplayName("Scenario: Add item")
           @Tag("new")
+          @DisplayName("Scenario: Add item")
           public void scenario_1() {
               Assertions.fail("Scenario has no steps");
           }
@@ -94,8 +94,8 @@ Feature: setting generated class name
       public abstract class PaymentFeatureTestCases extends PaymentFeature {
           @Test
           @Order(1)
-          @DisplayName("Scenario: Process payment")
           @Tag("new")
+          @DisplayName("Scenario: Process payment")
           public void scenario_1() {
               Assertions.fail("Scenario has no steps");
           }

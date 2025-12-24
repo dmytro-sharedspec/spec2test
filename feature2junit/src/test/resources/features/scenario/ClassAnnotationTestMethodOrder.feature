@@ -1,4 +1,4 @@
-Feature: adding @TestMethodOrder annotation
+Feature: ClassAnnotationTestMethodOrder
   As a developer maintaining executable specifications
   I want scenarios at the Feature level to execute in their defined sequence
   So that test behavior is predictable when scenarios are not organized under Rules
@@ -58,8 +58,8 @@ Feature: adding @TestMethodOrder annotation
       public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
           @Test
           @Order(1)
-          @DisplayName("Scenario: First scenario")
           @Tag("new")
+          @DisplayName("Scenario: First scenario")
           public void scenario_1() {
               Assertions.fail("Scenario has no steps");
           }
@@ -99,24 +99,24 @@ Feature: adding @TestMethodOrder annotation
       public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
           @Test
           @Order(1)
-          @DisplayName("Scenario: First test")
           @Tag("new")
+          @DisplayName("Scenario: First test")
           public void scenario_1() {
               Assertions.fail("Scenario has no steps");
           }
 
           @Test
           @Order(2)
-          @DisplayName("Scenario: Second test")
           @Tag("new")
+          @DisplayName("Scenario: Second test")
           public void scenario_2() {
               Assertions.fail("Scenario has no steps");
           }
 
           @Test
           @Order(3)
-          @DisplayName("Scenario: Third test")
           @Tag("new")
+          @DisplayName("Scenario: Third test")
           public void scenario_3() {
               Assertions.fail("Scenario has no steps");
           }

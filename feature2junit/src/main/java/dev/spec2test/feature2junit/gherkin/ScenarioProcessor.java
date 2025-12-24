@@ -97,6 +97,15 @@ class ScenarioProcessor implements LoggingSupport, OptionsSupport, BaseTypeSuppo
             scenarioMethodBuilder.addAnnotation(jUnitTagsAnnotation);
         }
 
+        // Add tag for empty scenarios before @DisplayName
+        if (scenarioSteps.isEmpty()) {
+            String tagForEmptyScenarios = options.getTagForScenariosWithNoSteps();
+            if (StringUtils.isNotBlank(tagForEmptyScenarios)) {
+                AnnotationSpec jUnitTagsAnnotation = TagUtils.toJUnitTagsAnnotation(tagForEmptyScenarios);
+                scenarioMethodBuilder.addAnnotation(jUnitTagsAnnotation);
+            }
+        }
+
         if (options.isAddSourceLineAnnotations()) {
             AnnotationSpec locationAnnotation = LocationUtils.toJUnitTagsAnnotation(scenario.getLocation());
             scenarioMethodBuilder.addAnnotation(locationAnnotation);
@@ -111,12 +120,6 @@ class ScenarioProcessor implements LoggingSupport, OptionsSupport, BaseTypeSuppo
                  * add an empty method that throws an exception
                  */
                 scenarioMethodBuilder.addStatement("$T.fail(\"Scenario has no steps\")", Assertions.class);
-            }
-
-            String tagForEmptyScenarios = options.getTagForScenariosWithNoSteps();
-            if (StringUtils.isNotBlank(tagForEmptyScenarios)) {
-                AnnotationSpec jUnitTagsAnnotation = TagUtils.toJUnitTagsAnnotation(tagForEmptyScenarios);
-                scenarioMethodBuilder.addAnnotation(jUnitTagsAnnotation);
             }
 
         } else {
@@ -193,8 +196,8 @@ class ScenarioProcessor implements LoggingSupport, OptionsSupport, BaseTypeSuppo
         List<Examples> examples = scenario.getExamples();
         if (examples.size() > 1) {
             throw new ProcessingException(
-                    "Having more than 1 Examples section for a Scenario Outline is not currently supported, total examples "
-                            + examples.size());
+                    "ERROR: Multiple Examples sections are not supported. " +
+                            "Only one Examples section is allowed per Scenario Outline but found = " + examples.size());
         }
 
         Examples examplesTable = examples.get(0);
@@ -219,18 +222,26 @@ class ScenarioProcessor implements LoggingSupport, OptionsSupport, BaseTypeSuppo
         for (TableRow row : allRows) {
 
             List<TableCell> rowCells = row.getCells();
-            List<String> paddedCellValues = new ArrayList<>(rowCells.size());
+            List<String> cellValues = new ArrayList<>(rowCells.size());
 
             for (int i = 0; i < rowCells.size(); i++) {
                 TableCell cell = rowCells.get(i);
                 String value = cell.getValue();
-                int maxColumnLength = maxColumnLengths.get(i);
-                String paddedValue = StringUtils.rightPad(value, maxColumnLength);
-                paddedCellValues.add(paddedValue);
+
+                // Pad all columns except the last one to avoid trailing spaces
+                if (i < rowCells.size() - 1) {
+                    int maxColumnLength = maxColumnLengths.get(i);
+                    String paddedValue = StringUtils.rightPad(value, maxColumnLength);
+                    cellValues.add(paddedValue);
+                } else {
+                    // Last column - don't pad to avoid trailing spaces
+                    cellValues.add(value);
+                }
             }
 
-            String rowLine = String.join(" | ", paddedCellValues);
-            textBlockSB.append(rowLine + "\n");
+            String rowLine = String.join(" | ", cellValues);
+            textBlockSB.append(rowLine);
+            textBlockSB.append("\n");
         }
 
         textBlockSB.append("\"\"\"");

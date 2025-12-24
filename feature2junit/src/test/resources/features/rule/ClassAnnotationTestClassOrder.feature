@@ -44,8 +44,8 @@ Feature: ClassAnnotationTestClassOrder
       public abstract class SimpleFeatureScenarios extends SimpleFeature {
           @Test
           @Order(1)
-          @DisplayName("Scenario: Only scenario")
           @Tag("new")
+          @DisplayName("Scenario: Only scenario")
           public void scenario_1() {
               Assertions.fail("Scenario has no steps");
           }
@@ -100,8 +100,8 @@ Feature: ClassAnnotationTestClassOrder
           public class Rule_1 {
               @Test
               @Order(1)
-              @DisplayName("Scenario: First scenario")
               @Tag("new")
+              @DisplayName("Scenario: First scenario")
               public void scenario_1() {
                   Assertions.fail("Scenario has no steps");
               }
@@ -165,8 +165,8 @@ Feature: ClassAnnotationTestClassOrder
           public class Rule_1 {
               @Test
               @Order(1)
-              @DisplayName("Scenario: Validate input")
               @Tag("new")
+              @DisplayName("Scenario: Validate input")
               public void scenario_1() {
                   Assertions.fail("Scenario has no steps");
               }
@@ -179,8 +179,8 @@ Feature: ClassAnnotationTestClassOrder
           public class Rule_2 {
               @Test
               @Order(1)
-              @DisplayName("Scenario: Process data")
               @Tag("new")
+              @DisplayName("Scenario: Process data")
               public void scenario_1() {
                   Assertions.fail("Scenario has no steps");
               }
@@ -193,8 +193,8 @@ Feature: ClassAnnotationTestClassOrder
           public class Rule_3 {
               @Test
               @Order(1)
-              @DisplayName("Scenario: Generate output")
               @Tag("new")
+              @DisplayName("Scenario: Generate output")
               public void scenario_1() {
                   Assertions.fail("Scenario has no steps");
               }

@@ -35,8 +35,8 @@ Feature: MappingScenarioBlock
       public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
           @Test
           @Order(1)
-          @DisplayName("Scenario:")
           @Tag("new")
+          @DisplayName("Scenario:")
           public void scenario_1() {
               Assertions.fail("Scenario has no steps");
           }
@@ -73,8 +73,8 @@ Feature: MappingScenarioBlock
       public abstract class MockedAnnotatedTestClassScenarios extends MockedAnnotatedTestClass {
           @Test
           @Order(1)
-          @DisplayName("Scenario: scenario name")
           @Tag("new")
+          @DisplayName("Scenario: scenario name")
           public void scenario_1() {
               Assertions.fail("Scenario has no steps");
           }
@@ -120,8 +120,8 @@ Feature: MappingScenarioBlock
            */
           @Test
           @Order(1)
-          @DisplayName("Scenario: scenario name")
           @Tag("new")
+          @DisplayName("Scenario: scenario name")
           public void scenario_1() {
               Assertions.fail("Scenario has no steps");
           }

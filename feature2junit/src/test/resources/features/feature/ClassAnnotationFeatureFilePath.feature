@@ -1,4 +1,4 @@
-Feature: Mapping Feature to @FeatureFilePath annotation
+Feature: ClassAnnotationFeatureFilePath
   As a developer navigating between generated tests and their source specifications
   I want the generated test class to be annotated with the path to its originating feature file
   So that I can quickly locate and edit the corresponding feature file when reviewing or debugging tests
