@@ -11,7 +11,8 @@
       "mcp__jetbrains__*",
       "WebSearch",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:www.jetbrains.com)"
+      "WebFetch(domain:www.jetbrains.com)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []

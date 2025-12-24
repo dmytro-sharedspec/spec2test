@@ -32,9 +32,10 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <modules>
-    <module>story2junit</module>
-    <module>feature2junit</module>
     <module>common</module>
+    <module>feature2junit-annotations</module>
+    <module>feature2junit-processor</module>
+    <module>story2junit</module>
     <!--<module>examples</module>-->
   </modules>
   <dependencies>
