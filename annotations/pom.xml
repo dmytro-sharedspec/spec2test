@@ -7,9 +7,9 @@
     <artifactId>spec2test</artifactId>
     <version>0.1.6</version>
   </parent>
-  <artifactId>feature2junit-annotations</artifactId>
+  <artifactId>annotations</artifactId>
   <name>${project.groupId}:${project.artifactId}</name>
-  <description>Annotations for feature2junit annotation processor</description>
+  <description>Public annotations for spec2test annotation processors</description>
   <dependencies>
     <dependency>
       <groupId>dev.spec2test</groupId>

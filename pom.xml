@@ -33,9 +33,9 @@
   </properties>
   <modules>
     <module>common</module>
-    <module>feature2junit-annotations</module>
-    <module>feature2junit-processor</module>
-    <module>story2junit</module>
+    <module>annotations</module>
+    <module>feature-processor</module>
+    <module>user-story-processor</module>
     <!--<module>examples</module>-->
   </modules>
   <dependencies>

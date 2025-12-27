@@ -1,14 +1,15 @@
 package dev.spec2test.story2junit.generator;
 
 import dev.spec2test.common.LoggingSupport;
-import java.io.IOException;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.tools.FileObject;
-import javax.tools.StandardLocation;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jbehave.core.model.Story;
 import org.jbehave.core.parsers.RegexStoryParser;
+
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.FileObject;
+import javax.tools.StandardLocation;
+import java.io.IOException;
 
 @RequiredArgsConstructor
 class CustomRegexStoryParser extends RegexStoryParser implements LoggingSupport {

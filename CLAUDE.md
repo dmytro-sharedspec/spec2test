@@ -18,7 +18,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **ALWAYS use IntelliJ IDEA's MCP server to run tests**, NOT Maven
 - Use the `mcp__jetbrains__get_run_configurations` tool to list available run configurations
 - Use the `mcp__jetbrains__execute_run_configuration` tool to execute specific tests
-- To run ALL tests in the feature2junit-processor module, run the test class: `dev.spec2test.feature2junit.tests.AllTests`
+- To run ALL tests in the feature-processor module, run the test class: `dev.spec2test.feature2junit.tests.AllTests`
 - This provides better integration, faster feedback, and proper IDE support
 - **Never use `mvn test` commands** unless explicitly requested by the user
 
@@ -46,8 +46,8 @@ mvn clean test
 
 ### Run Tests for a Specific Module
 ```bash
-# Test feature2junit-processor module only
-mvn clean test -pl feature2junit-processor
+# Test feature-processor module only
+mvn clean test -pl feature-processor
 
 # Test common module only
 mvn clean test -pl common
@@ -55,7 +55,7 @@ mvn clean test -pl common
 
 ### Run a Single Test Class
 ```bash
-mvn test -Dtest=MappingFeatureTest -pl feature2junit-processor
+mvn test -Dtest=MappingFeatureTest -pl feature-processor
 ```
 
 ### Build Without Tests
@@ -89,7 +89,7 @@ Foundation module containing shared infrastructure:
 - **SourceLine**: Annotation for tracking feature file line numbers
 - **ProcessingException**: Custom exception for annotation processing errors
 
-### 2. `feature2junit-annotations/`
+### 2. `annotations/`
 Lightweight module containing public annotations for Cucumber `.feature` file processing:
 - `@Feature2JUnit("path/to/file.feature")` - Marks a class for test generation
 - `@Feature2JUnitOptions` - Configures generation behavior (inheritable)
@@ -98,7 +98,7 @@ Lightweight module containing public annotations for Cucumber `.feature` file pr
 
 **Client usage:** Client projects add this as a compile dependency to access the annotations without pulling in the heavy annotation processor dependencies.
 
-### 3. `feature2junit-processor/` (PRIMARY MODULE)
+### 3. `feature-processor/` (PRIMARY MODULE)
 Annotation processor for Cucumber `.feature` files. This is the most mature and actively developed module.
 
 **Processing pipeline:**
@@ -114,24 +114,24 @@ Feature2JUnitGenerator (APT entry point)
 ```
 
 **Key processors location:**
-- Entry: `feature2junit-processor/src/main/java/dev/spec2test/feature2junit/Feature2JUnitGenerator.java`
-- Orchestration: `feature2junit-processor/src/main/java/dev/spec2test/feature2junit/TestSubclassCreator.java`
-- Most complex: `feature2junit-processor/src/main/java/dev/spec2test/feature2junit/gherkin/StepProcessor.java` (~478 lines)
+- Entry: `feature-processor/src/main/java/dev/spec2test/feature2junit/Feature2JUnitGenerator.java`
+- Orchestration: `feature-processor/src/main/java/dev/spec2test/feature2junit/TestSubclassCreator.java`
+- Most complex: `feature-processor/src/main/java/dev/spec2test/feature2junit/gherkin/StepProcessor.java` (~478 lines)
 
-**Utilities:** Located in `feature2junit-processor/src/main/java/dev/spec2test/feature2junit/gherkin/utils/`
+**Utilities:** Located in `feature-processor/src/main/java/dev/spec2test/feature2junit/gherkin/utils/`
 - MethodNamingUtils, ParameterNamingUtils, JavaDocUtils, TableUtils, TagUtils, etc.
 
-**Dependencies:** Depends on `feature2junit-annotations`, `common`, and heavy processing libraries (JavaPoet, Cucumber parser, etc.)
+**Dependencies:** Depends on `annotations`, `common`, and heavy processing libraries (JavaPoet, Cucumber parser, etc.)
 
 **Client usage:** Client projects add this as an annotation processor dependency (used only during compilation).
 
-### 4. `story2junit/`
-Annotation processor for JBehave `.story` files. Less mature than feature2junit-processor.
+### 4. `user-story-processor/`
+Annotation processor for JBehave `.story` files. Less mature than feature-processor.
 
 ### 5. `examples/` (currently disabled)
 Commented out in parent POM. Contains usage examples for feature2junit.
 
-**Module build order:** common → feature2junit-annotations → feature2junit-processor/story2junit (parallel) → examples
+**Module build order:** common → annotations → feature-processor/user-story-processor (parallel) → examples
 
 ## Code Architecture
 
@@ -171,10 +171,10 @@ UserFeatureTest.java (concrete test class, calls base methods)
 ### Gherkin Mapping
 
 The codebase includes comprehensive test features documenting the Gherkin-to-JUnit mapping:
-- `feature2junit-processor/src/test/resources/features/MappingFeature.feature` - Feature-level mappings
-- `feature2junit-processor/src/test/resources/features/MappingRule.feature` - Rule mappings
-- `feature2junit-processor/src/test/resources/features/MappingScenario.feature` - Scenario mappings
-- `feature2junit-processor/src/test/resources/features/steps/MappingSteps.feature` - Step mappings
+- `feature-processor/src/test/resources/features/MappingFeature.feature` - Feature-level mappings
+- `feature-processor/src/test/resources/features/MappingRule.feature` - Rule mappings
+- `feature-processor/src/test/resources/features/MappingScenario.feature` - Scenario mappings
+- `feature-processor/src/test/resources/features/steps/MappingSteps.feature` - Step mappings
 
 Key mappings:
 - Feature → JUnit test class
@@ -199,7 +199,7 @@ Key mappings:
 ## Common Development Tasks
 
 ### Adding a New Gherkin Element Processor
-1. Create processor class in `feature2junit-processor/src/main/java/dev/spec2test/feature2junit/gherkin/`
+1. Create processor class in `feature-processor/src/main/java/dev/spec2test/feature2junit/gherkin/`
 2. Implement LoggingSupport, OptionsSupport, BaseTypeSupport
 3. Add processing logic in parent processor
 4. Add utilities to `utils/` if needed
@@ -207,8 +207,8 @@ Key mappings:
 
 ### Modifying Generation Behavior
 1. Add option to `common/src/main/java/dev/spec2test/common/GeneratorOptions.java`
-2. Add annotation parameter to `feature2junit-annotations/src/main/java/dev/spec2test/feature2junit/Feature2JUnitOptions.java`
-3. Update GeneratorOptions construction in `feature2junit-processor/src/main/java/dev/spec2test/feature2junit/Feature2JUnitGenerator.process()`
+2. Add annotation parameter to `annotations/src/main/java/dev/spec2test/feature2junit/Feature2JUnitOptions.java`
+3. Update GeneratorOptions construction in `feature-processor/src/main/java/dev/spec2test/feature2junit/Feature2JUnitGenerator.process()`
 4. Use option in relevant processor
 5. Update tests
 
@@ -270,7 +270,7 @@ Feature: MappingStepDataTables
 - It provides consistency between the file name and the feature name displayed in test results
 
 **Additional .feature File Guidelines:**
-- Place test feature files in `feature2junit-processor/src/test/resources/features/`
+- Place test feature files in `feature-processor/src/test/resources/features/`
 - Feature files serve as living documentation of the Gherkin-to-JUnit mapping
 - Always run tests using IntelliJ IDEA's MCP server tools, not Maven commands
 
@@ -297,10 +297,10 @@ This ensures all changes are tracked and ready for commit.
 
 ## Important Notes
 
-- **Module dependency chain**: common → feature2junit-annotations → feature2junit-processor/story2junit
-- **feature2junit-processor is primary**: Most mature and actively developed module
-- **Annotations separated**: feature2junit-annotations contains only public API; feature2junit-processor contains the implementation
-- **story2junit is experimental**: Less mature, fewer features
+- **Module dependency chain**: common → annotations → feature-processor/user-story-processor
+- **feature-processor is primary**: Most mature and actively developed module
+- **Annotations separated**: annotations module contains only public API; feature-processor contains the implementation
+- **user-story-processor is experimental**: Less mature, fewer features
 - **Examples are disabled**: Comment is in parent pom.xml line 38
 - **No .cursorrules**: This project doesn't have AI assistant rules configured
 - **Comprehensive README**: 1800+ lines of detailed documentation in README.md
@@ -309,7 +309,7 @@ This ensures all changes are tracked and ready for commit.
 ## Testing Strategy
 
 The project uses a self-hosting approach - Cucumber tests validate the Cucumber-to-JUnit generator:
-- Test features in `feature2junit-processor/src/test/resources/features/`
+- Test features in `feature-processor/src/test/resources/features/`
 - Test implementations verify generated code correctness
 - MappingSteps.feature documents the complete mapping specification
 

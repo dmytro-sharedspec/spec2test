@@ -7,9 +7,9 @@
         <artifactId>spec2test</artifactId>
         <version>0.1.6</version>
     </parent>
-    <artifactId>story2junit</artifactId>
+    <artifactId>user-story-processor</artifactId>
     <name>${project.groupId}:${project.artifactId}</name>
-    <description>Used to generate JUnit test classes given JBehave '.story' file</description>
+    <description>Annotation processor for generating JUnit test classes from JBehave '.story' files</description>
     <dependencies>
         <dependency>
             <groupId>dev.spec2test</groupId>
